@@ -5,7 +5,12 @@
 
     <!--margin-->
     <dimen name="small_margin">8dp</dimen>
+    <dimen name="middle_margin">16dp</dimen>
 
     <!--text size-->
+    <dimen name="middle_text_size">24sp</dimen>
     <dimen name="big_text_size">32sp</dimen>
+
+    <!--corner radius-->
+    <dimen name="middle_corner_radius">20dp</dimen>
 </resources>

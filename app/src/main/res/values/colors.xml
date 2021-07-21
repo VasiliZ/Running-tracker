@@ -10,6 +10,8 @@
     <color name="on_primary_color_dark">#000000</color>
     <color name="splash_screen_background">#4CBAFF</color>
     <color name="text_color_black">#000000</color>
+    <color name="link_color">#0060AC</color>
+    <color name="error_color">#FF0000</color>
 
     <array name="text_gradient_color">
         <item>@color/start_text_gradient</item>
