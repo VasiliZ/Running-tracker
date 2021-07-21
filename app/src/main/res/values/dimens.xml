@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--size-->
+    <dimen name="logo_size">100dp</dimen>
+
+    <!--margin-->
+    <dimen name="small_margin">8dp</dimen>
+
+    <!--text size-->
+    <dimen name="middle_text_size">24sp</dimen>
+</resources>
