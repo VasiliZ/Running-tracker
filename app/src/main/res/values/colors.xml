@@ -3,12 +3,13 @@
     <color name="main_app_color">#ffb74d</color>
     <color name="light_main_app_color">#ffe97d</color>
     <color name="dark_main_app_color">#c88719</color>
-    <color name="start_text_gradient">#ffb74d</color>
+    <color name="start_text_gradient">#ffe97d</color>
     <color name="middle_text_gradient">#d22e3b</color>
     <color name="end_text_gradient">#32318f</color>
     <color name="on_primary_color">#FFFFFF</color>
     <color name="on_primary_color_dark">#000000</color>
-    <color name="splash_screen_background">#D3D3D3</color>
+    <color name="splash_screen_background">#4CBAFF</color>
+    <color name="text_color_black">#000000</color>
 
     <array name="text_gradient_color">
         <item>@color/start_text_gradient</item>

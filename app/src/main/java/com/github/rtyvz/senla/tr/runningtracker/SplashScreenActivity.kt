@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import com.github.rtyvz.senla.tr.runningtracker.extension.setTextGradient
@@ -25,7 +26,6 @@ class SplashScreenActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViews()
-        setTextGradient()
         rotateLogo()
         openNextActivityWithDelay()
     }
@@ -35,13 +35,9 @@ class SplashScreenActivity : AppCompatActivity() {
         appNameTextView = findViewById(R.id.appNameTextView)
     }
 
-    private fun setTextGradient() {
-        val colorList = resources.getIntArray(R.array.text_gradient_color)
-        appNameTextView.setTextGradient(colorList)
-    }
-
     private fun rotateLogo() {
         val rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate)
+        rotateAnimation.repeatCount = Animation.INFINITE
         appLogoImageView.startAnimation(rotateAnimation)
     }
 

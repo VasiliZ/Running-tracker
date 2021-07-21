@@ -7,5 +7,5 @@
     <dimen name="small_margin">8dp</dimen>
 
     <!--text size-->
-    <dimen name="middle_text_size">24sp</dimen>
+    <dimen name="big_text_size">32sp</dimen>
 </resources>
