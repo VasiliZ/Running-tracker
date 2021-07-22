@@ -2,12 +2,15 @@
 <resources>
     <!--size-->
     <dimen name="logo_size">100dp</dimen>
+    <dimen name="nav_header_logo_size">60dp</dimen>
 
     <!--margin-->
     <dimen name="small_margin">8dp</dimen>
     <dimen name="middle_margin">16dp</dimen>
     <dimen name="large_margin">32dp</dimen>
 
+    <!--padding-->
+    <dimen name="small_padding">8dp</dimen>
     <!--text size-->
     <dimen name="middle_text_size">24sp</dimen>
     <dimen name="big_text_size">32sp</dimen>
