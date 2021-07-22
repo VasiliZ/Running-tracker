@@ -1,12 +1,12 @@
-package com.github.rtyvz.senla.tr.runningtracker
+package com.github.rtyvz.senla.tr.runningtracker.ui.splash
 
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
+import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
@@ -26,7 +26,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_splash)
 
         findViews()
         rotateLogo()
@@ -40,7 +40,6 @@ class SplashScreenActivity : AppCompatActivity() {
 
     private fun rotateLogo() {
         val rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate)
-        rotateAnimation.repeatCount = Animation.INFINITE
         appLogoImageView.startAnimation(rotateAnimation)
     }
 
