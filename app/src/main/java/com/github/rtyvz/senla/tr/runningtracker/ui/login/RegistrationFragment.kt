@@ -1,11 +1,18 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.login
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
+import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
+import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
@@ -15,6 +22,7 @@ class RegistrationFragment : Fragment() {
     companion object {
         val TAG = RegistrationFragment::class.java.simpleName.toString()
         private const val EMPTY_STRING = ""
+        private const val EMAIL_ALREADY_EXISTS = "EMAIL_ALREADY_EXISTS"
 
         fun newInstance(): RegistrationFragment {
             return RegistrationFragment()
@@ -29,6 +37,7 @@ class RegistrationFragment : Fragment() {
     private lateinit var registrationButton: MaterialButton
     private lateinit var loginActionTextView: MaterialTextView
     private lateinit var errorTextView: MaterialTextView
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,12 +55,13 @@ class RegistrationFragment : Fragment() {
 
         loginActionTextView.paint.isUnderlineText = true
         registrationButton.setOnClickListener {
-            checkViewsData()
+            checkEnteredValues()
         }
     }
 
     private fun moveToLogin() {
         loginActionTextView.setOnClickListener {
+            errorTextView.text = EMPTY_STRING
             (activity as LoginFlowContract).openLoginFragment()
         }
     }
@@ -65,6 +75,7 @@ class RegistrationFragment : Fragment() {
         registrationButton = view.findViewById(R.id.registrationButton)
         loginActionTextView = view.findViewById(R.id.loginActionTextView)
         errorTextView = view.findViewById(R.id.errorTextView)
+        progressBar = view.findViewById(R.id.progressBar)
     }
 
     private fun isEmailInvalid(email: String): Boolean {
@@ -75,7 +86,7 @@ class RegistrationFragment : Fragment() {
         return password != repeatPassword
     }
 
-    private fun checkViewsData() {
+    private fun checkEnteredValues() {
         when {
             emailEditText.text.isNullOrBlank()
                     or nameEditText.text.isNullOrBlank()
@@ -94,12 +105,42 @@ class RegistrationFragment : Fragment() {
             else -> {
                 errorTextView.text = EMPTY_STRING
                 loginActionTextView.isEnabled = false
-                sendRegistrationRequest()
+                sendRegistrationRequest(
+                    UserDataRequest(
+                        emailEditText.text.toString(),
+                        nameEditText.text.toString(),
+                        lastNameEditText.text.toString(),
+                        passwordEditText.text.toString()
+                    )
+                )
             }
         }
     }
 
-    private fun sendRegistrationRequest() {
+    private fun sendRegistrationRequest(userDataRequest: UserDataRequest) {
+        progressBar.isVisible = true
+        App.loginFlowRepository.authUser(userDataRequest) {
+            progressBar.isVisible = false
 
+            when (it) {
+                is Result.Success -> {
+                    startActivity(Intent(requireContext(), MainActivity::class.java))
+                    (activity as HandleClosingActivityContract).finishActivity()
+                }
+                is Result.Error -> {
+                    loginActionTextView.isEnabled = true
+                    when (it.error) {
+                        EMAIL_ALREADY_EXISTS -> {
+                            errorTextView.text =
+                                getString(R.string.registration_fragment_email_already_exists_response)
+                        }
+                        else -> {
+                            errorTextView.text =
+                                getString(R.string.registration_fragment_unknown_network_error)
+                        }
+                    }
+                }
+            }
+        }
     }
 }

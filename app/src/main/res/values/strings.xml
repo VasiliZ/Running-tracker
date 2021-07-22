@@ -13,11 +13,18 @@
     <string name="registration_fragment_empty_fields_error">Поля не должны быть пустыми</string>
     <string name="registration_fragment_match_email_error">Введите правильный E-mail</string>
     <string name="registration_fragment_password_matches_error">Пароли должны быть одинаковыми</string>
+    <string name="registration_fragment_email_already_exists_response">Пользователь с таким E-mail уже зарегистрирован</string>
+    <string name="registration_fragment_unknown_network_error">Не удалось обработать запрос, проверьте подключение к интернету, либо повторите свой запрос позже</string>
 
     <!--login fragment-->
     <string name="login_fragment_login_label">Вход</string>
     <string name="login_fragment_email_hint">E-mail</string>
-    <string name="login_fragment_name_hint">Имя</string>
+    <string name="login_fragment_password_hint">Пароль</string>
     <string name="login_fragment_login_button_label">Войти</string>
     <string name="login_fragment_registration_label">Регистрация</string>
+    <string name="login_fragment_empty_fields_error">Поля не должны быть пустыми</string>
+    <string name="login_fragment_match_email_error">Введите правильный E-mail</string>
+    <string name="login_fragment_invalid_credentials">Неверный логин и/или пароль</string>
+    <string name="login_fragment_unknown_network_error">Не удалось обработать запрос, проверьте подключение к интернету, либо повторите свой запрос позже</string>
+
 </resources>

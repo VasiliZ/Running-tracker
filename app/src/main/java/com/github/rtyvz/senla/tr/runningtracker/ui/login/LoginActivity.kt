@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.github.rtyvz.senla.tr.runningtracker.R
 
-class LoginActivity : AppCompatActivity(), LoginFlowContract {
+class LoginActivity : AppCompatActivity(), LoginFlowContract, HandleClosingActivityContract {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -67,5 +67,9 @@ class LoginActivity : AppCompatActivity(), LoginFlowContract {
                 super.onBackPressed()
             }
         }
+    }
+
+    override fun finishActivity() {
+        finish()
     }
 }

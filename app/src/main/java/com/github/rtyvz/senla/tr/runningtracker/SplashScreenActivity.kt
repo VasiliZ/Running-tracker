@@ -7,14 +7,17 @@ import android.os.Looper
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
-import com.github.rtyvz.senla.tr.runningtracker.extension.setTextGradient
+import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
+import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 
 class SplashScreenActivity : AppCompatActivity() {
 
     companion object {
+        private const val USER_TOKEN = "USER_TOKEN"
+        private const val EMPTY_STRING = ""
         private const val DELAY_DURATION = 3000L
     }
 
@@ -43,8 +46,15 @@ class SplashScreenActivity : AppCompatActivity() {
 
     private fun openNextActivityWithDelay() {
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, LoginActivity::class.java))
+            routeToAppropriateActivity()
             finish()
         }, DELAY_DURATION)
+    }
+
+    private fun routeToAppropriateActivity() {
+        when (this.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)) {
+            EMPTY_STRING -> startActivity(Intent(this, LoginActivity::class.java))
+            else -> startActivity(Intent(this, MainActivity::class.java))
+        }
     }
 }

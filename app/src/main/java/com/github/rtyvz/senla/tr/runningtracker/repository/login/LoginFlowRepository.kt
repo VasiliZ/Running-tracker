@@ -1,0 +1,64 @@
+package com.github.rtyvz.senla.tr.runningtracker.repository.login
+
+import bolts.CancellationTokenSource
+import bolts.Task
+import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus
+import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
+import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserToken
+import com.github.rtyvz.senla.tr.runningtracker.extension.toUserData
+import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
+
+class LoginFlowRepository {
+    private val cancellationToken = CancellationTokenSource()
+
+    fun authUser(
+        userDataRequest: UserDataRequest,
+        callBack: (Result<UserToken>) -> (Unit)
+    ) {
+        TasksProvider.getRegisterUserTask(userDataRequest, cancellationToken.token)
+            .continueWith({
+                if (it.isFaulted) {
+                    callBack(Result.Error(it.error.toString()))
+                } else {
+                    when (it.result.status) {
+                        ResponseStatus.OK -> callBack(Result.Success(UserToken(it.result.token)))
+                        ResponseStatus.ERROR -> callBack(Result.Error(it.result.errorCode))
+                    }
+                }
+                return@continueWith it.result.toUserData(
+                    userDataRequest.email,
+                    userDataRequest.name.toString(),
+                    userDataRequest.lastName.toString()
+                )
+            }, Task.UI_THREAD_EXECUTOR)
+            .continueWith ({
+                if (!it.isFaulted && it.result != null) {
+                    TasksProvider.getSaveUserDataTask(it.result, cancellationToken.token)
+                }
+            }, Task.BACKGROUND_EXECUTOR)
+    }
+
+    fun loginUser(
+        userDataRequest: UserDataRequest,
+        userEmail: String,
+        callBack: (Result<UserToken>) -> Unit
+    ) {
+        TasksProvider.getLoginUserTask(userDataRequest, cancellationToken.token).continueWith({
+            if (it.isFaulted) {
+                callBack(Result.Error(it.error.toString()))
+            } else {
+                when (it.result.status) {
+                    ResponseStatus.OK -> callBack(Result.Success(UserToken(it.result.token)))
+                    ResponseStatus.ERROR -> callBack(Result.Error(it.result.errorCode))
+                }
+            }
+            return@continueWith it.result.toUserData(userEmail)
+        }, Task.UI_THREAD_EXECUTOR)
+            .continueWith({
+                if (!it.isFaulted && it.result != null) {
+                    TasksProvider.getSaveUserDataTask(it.result, cancellationToken.token)
+                }
+            }, Task.BACKGROUND_EXECUTOR)
+    }
+}

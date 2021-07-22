@@ -21,6 +21,11 @@ allprojects {
     }
 }
 
+ext{
+    retrofit_version ='2.9.0'
+    bolts_version ='1.4.0'
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
