@@ -5,7 +5,7 @@ import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
-import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserToken
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserSuccessfulResponse
 import com.github.rtyvz.senla.tr.runningtracker.extension.toUserData
 import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
 
@@ -14,7 +14,7 @@ class LoginFlowRepository {
 
     fun authUser(
         userDataRequest: UserDataRequest,
-        callBack: (Result<UserToken>) -> (Unit)
+        callBack: (Result<UserSuccessfulResponse>) -> (Unit)
     ) {
         TasksProvider.getRegisterUserTask(userDataRequest, cancellationToken.token)
             .continueWith({
@@ -22,7 +22,7 @@ class LoginFlowRepository {
                     callBack(Result.Error(it.error.toString()))
                 } else {
                     when (it.result.status) {
-                        ResponseStatus.OK -> callBack(Result.Success(UserToken(it.result.token)))
+                        ResponseStatus.OK -> callBack(Result.Success(UserSuccessfulResponse(it.result.errorCode)))
                         ResponseStatus.ERROR -> callBack(Result.Error(it.result.errorCode))
                     }
                 }
@@ -32,7 +32,7 @@ class LoginFlowRepository {
                     userDataRequest.lastName.toString()
                 )
             }, Task.UI_THREAD_EXECUTOR)
-            .continueWith ({
+            .continueWith({
                 if (!it.isFaulted && it.result != null) {
                     TasksProvider.getSaveUserDataTask(it.result, cancellationToken.token)
                 }
@@ -42,14 +42,14 @@ class LoginFlowRepository {
     fun loginUser(
         userDataRequest: UserDataRequest,
         userEmail: String,
-        callBack: (Result<UserToken>) -> Unit
+        callBack: (Result<UserSuccessfulResponse>) -> Unit
     ) {
         TasksProvider.getLoginUserTask(userDataRequest, cancellationToken.token).continueWith({
             if (it.isFaulted) {
                 callBack(Result.Error(it.error.toString()))
             } else {
                 when (it.result.status) {
-                    ResponseStatus.OK -> callBack(Result.Success(UserToken(it.result.token)))
+                    ResponseStatus.OK -> callBack(Result.Success(UserSuccessfulResponse(it.result.errorCode)))
                     ResponseStatus.ERROR -> callBack(Result.Error(it.result.errorCode))
                 }
             }
