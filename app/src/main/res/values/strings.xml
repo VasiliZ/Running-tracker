@@ -27,4 +27,13 @@
     <string name="login_fragment_invalid_credentials">Неверный логин и/или пароль</string>
     <string name="login_fragment_unknown_network_error">Не удалось обработать запрос, проверьте подключение к интернету, либо повторите свой запрос позже</string>
 
+    <!--main activity-->
+    <!--drawer-->
+    <string name="drawer_menu_main_label">Главная</string>
+    <string name="drawer_menu_notifications_label">Напоминания</string>
+    <string name="drawer_exit_label">Выход</string>
+
+    <!--fragment_main-->
+    <string name="fragment_main_fab_desc">fab</string>
+    <string name="main_fragment_havent_got_data_for_display">Нет данных для отображения</string>
 </resources>

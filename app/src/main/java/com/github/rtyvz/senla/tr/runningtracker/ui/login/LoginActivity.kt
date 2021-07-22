@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.registration.RegistrationFragment
 
 class LoginActivity : AppCompatActivity(), LoginFlowContract, HandleClosingActivityContract {
     override fun onCreate(savedInstanceState: Bundle?) {

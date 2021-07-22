@@ -12,6 +12,7 @@ import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
+import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText

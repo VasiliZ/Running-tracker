@@ -12,9 +12,9 @@
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolBar"
-            android:background="@color/main_app_color"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@color/main_app_color" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragmentContainer"
@@ -28,5 +28,37 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        app:headerLayout="@layout/navigation_header" />
+        app:headerLayout="@layout/navigation_header"
+        app:menu="@menu/drawer_menu">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_margin="@dimen/middle_margin">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/exitIconImageView"
+                android:layout_width="@dimen/nav_menu_item_size"
+                android:layout_height="@dimen/nav_menu_item_size"
+                android:layout_marginEnd="@dimen/middle_margin"
+                android:src="@drawable/ic_exit_to_app"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/exitAppTextView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/exitAppTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/drawer_exit_label"
+                android:textColor="@color/text_color_black"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/exitIconImageView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/exitIconImageView"
+                app:layout_constraintTop_toTopOf="@id/exitIconImageView" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.navigation.NavigationView>
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -22,7 +22,8 @@ class LoginFlowRepository {
                     callBack(Result.Error(it.error.toString()))
                 } else {
                     when (it.result.status) {
-                        ResponseStatus.OK -> callBack(Result.Success(UserSuccessfulResponse(it.result.errorCode)))
+                        ResponseStatus.OK ->
+                            callBack(Result.Success(UserSuccessfulResponse(it.result.errorCode)))
                         ResponseStatus.ERROR -> callBack(Result.Error(it.result.errorCode))
                     }
                 }
@@ -49,7 +50,8 @@ class LoginFlowRepository {
                 callBack(Result.Error(it.error.toString()))
             } else {
                 when (it.result.status) {
-                    ResponseStatus.OK -> callBack(Result.Success(UserSuccessfulResponse(it.result.errorCode)))
+                    ResponseStatus.OK ->
+                        callBack(Result.Success(UserSuccessfulResponse(it.result.errorCode)))
                     ResponseStatus.ERROR -> callBack(Result.Error(it.result.errorCode))
                 }
             }

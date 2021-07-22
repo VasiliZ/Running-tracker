@@ -3,6 +3,7 @@
     <!--size-->
     <dimen name="logo_size">100dp</dimen>
     <dimen name="nav_header_logo_size">60dp</dimen>
+    <dimen name="nav_menu_item_size">30dp</dimen>
 
     <!--margin-->
     <dimen name="small_margin">8dp</dimen>
@@ -17,4 +18,7 @@
 
     <!--corner radius-->
     <dimen name="middle_corner_radius">20dp</dimen>
+
+    <!--elevation-->
+    <dimen name="middle_elevation">8dp</dimen>
 </resources>

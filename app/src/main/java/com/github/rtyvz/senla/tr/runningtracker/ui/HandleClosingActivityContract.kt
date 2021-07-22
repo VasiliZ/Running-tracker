@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.login
+package com.github.rtyvz.senla.tr.runningtracker.ui
 
 interface HandleClosingActivityContract {
     fun finishActivity()

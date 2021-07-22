@@ -1,16 +1,19 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.main
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
+import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+    HandleClosingActivityContract {
 
     companion object {
         private const val USER_TOKEN = "USER_TOKEN"
@@ -35,6 +38,17 @@ class MainActivity : AppCompatActivity() {
         getUserDataFromPrefs()
         setSupportActionBar(toolBar)
         setDataToNavHeader()
+        openMainFragment()
+        navigationView.setNavigationItemSelectedListener(this)
+    }
+
+    private fun openMainFragment() {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragmentContainer, MainFragment.newInstance())
+            .addToBackStack(MainFragment.TAG)
+            .commit()
+        navigationView.setCheckedItem(R.id.mainItem)
     }
 
     private fun findViews() {
@@ -44,6 +58,21 @@ class MainActivity : AppCompatActivity() {
         navHeaderUserEmailTextView = headerNavView.findViewById(R.id.userEmailTextView)
         navHeaderUserNameTextView = headerNavView.findViewById(R.id.userNameTextView)
 
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.mainItem -> {
+                navigationView.setCheckedItem(item.itemId)
+                return true
+            }
+            R.id.notificationsItem -> {
+                navigationView.setCheckedItem(item.itemId)
+                return true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun getUserDataFromPrefs() {
@@ -59,5 +88,9 @@ class MainActivity : AppCompatActivity() {
     private fun setDataToNavHeader() {
         navHeaderUserEmailTextView.text = userData.email
         navHeaderUserNameTextView.text = userData.name
+    }
+
+    override fun finishActivity() {
+        finish()
     }
 }
