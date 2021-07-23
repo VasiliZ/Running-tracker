@@ -38,9 +38,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         findViews()
         getUserDataFromPrefs(getSharedPreference())
-        setSupportActionBar(toolBar)
         setDataToNavHeader()
         openMainFragment(isFirstTimeLaunchApp(getSharedPreference()))
+        setSupportActionBar(toolBar)
         navigationView.setNavigationItemSelectedListener(this)
     }
 
@@ -63,9 +63,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun findViews() {
-        toolBar = findViewById(R.id.toolBar)
         navigationView = findViewById(R.id.navigationView)
         headerNavView = navigationView.getHeaderView(0)
+        toolBar = findViewById(R.id.toolBar)
         navHeaderUserEmailTextView = headerNavView.findViewById(R.id.userEmailTextView)
         navHeaderUserNameTextView = headerNavView.findViewById(R.id.userNameTextView)
 

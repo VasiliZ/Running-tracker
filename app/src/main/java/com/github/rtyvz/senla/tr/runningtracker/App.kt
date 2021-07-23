@@ -20,6 +20,7 @@ class App : Application() {
         lateinit var loginFlowRepository: LoginFlowRepository
         lateinit var mainRunningRepository: MainRunningRepository
         private const val BASE_URL = "https://pub.zame-dev.org/senla-training-addition/"
+        private const val GOOGLE_MAPS_API_KEY = "AIzaSyB83mIydx7vFaJw43FW92quNDqHTBJzm0c"
     }
 
     override fun onCreate() {
@@ -38,6 +39,7 @@ class App : Application() {
         .client(OkHttpClient())
         .build()
         .create(RunningAppApi::class.java)
+
     //todo move providers to another file
     private fun provideLoginFlowRepository() = LoginFlowRepository()
     private fun provideMainRunningRepository() = MainRunningRepository()

@@ -3,7 +3,6 @@ package com.github.rtyvz.senla.tr.runningtracker.db
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Track
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
-import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 
 object DBHelper {
     fun insertTracksIntoTable(tracks: List<Track>) {
@@ -28,7 +27,7 @@ object DBHelper {
         }
     }
 
-    fun selectTracksFromDb(): List<TrackEntity> {
+    fun selectTracksFromDb() {
         //todo select tracks here
     }
 }

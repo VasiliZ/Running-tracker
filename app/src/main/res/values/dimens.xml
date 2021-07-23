@@ -4,6 +4,8 @@
     <dimen name="logo_size">100dp</dimen>
     <dimen name="nav_header_logo_size">60dp</dimen>
     <dimen name="nav_menu_item_size">30dp</dimen>
+    <dimen name="large_button_width">300dp</dimen>
+    <dimen name="large_button_height">80dp</dimen>
 
     <!--margin-->
     <dimen name="small_margin">8dp</dimen>
@@ -12,6 +14,7 @@
 
     <!--padding-->
     <dimen name="small_padding">8dp</dimen>
+
     <!--text size-->
     <dimen name="middle_text_size">24sp</dimen>
     <dimen name="big_text_size">32sp</dimen>

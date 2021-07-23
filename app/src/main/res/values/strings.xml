@@ -36,4 +36,9 @@
     <!--fragment_main-->
     <string name="fragment_main_fab_desc">fab</string>
     <string name="main_fragment_havent_got_data_for_display">Нет данных для отображения</string>
+
+    <!--running activity-->
+    <string name="running_activity_start_button_label">Старт</string>
+    <string name="running_activity_finish_label">Финиш</string>
+    <string name="running_activity_start_timer_label">00:00:00</string>
 </resources>

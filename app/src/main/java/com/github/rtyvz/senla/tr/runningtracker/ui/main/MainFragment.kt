@@ -16,6 +16,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
 import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textview.MaterialTextView
 
@@ -54,14 +55,19 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         findViews(view)
+
         val sharedPrefs = requireActivity().getSharedPreference()
         val token = sharedPrefs.getString(USER_TOKEN, EMPTY_STRING)
+
         if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
             getTrackFirstTime(token, sharedPrefs)
         } else {
             getTracksInOtherCases()
         }
 
+        fab.setOnClickListener {
+            startActivity(Intent(requireContext(), RunningActivity::class.java))
+        }
     }
 
     private fun findViews(view: View) {
