@@ -1,6 +1,9 @@
 package com.github.rtyvz.senla.tr.runningtracker
 
 import android.app.Application
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import com.github.rtyvz.senla.tr.runningtracker.db.AppDb
 import com.github.rtyvz.senla.tr.runningtracker.network.RunningAppApi
 import com.github.rtyvz.senla.tr.runningtracker.repository.login.LoginFlowRepository
 import com.github.rtyvz.senla.tr.runningtracker.repository.main.MainRunningRepository
@@ -13,6 +16,7 @@ class App : Application() {
     companion object {
         lateinit var instance: App
         lateinit var api: RunningAppApi
+        lateinit var db: SQLiteDatabase
         lateinit var loginFlowRepository: LoginFlowRepository
         lateinit var mainRunningRepository: MainRunningRepository
         private const val BASE_URL = "https://pub.zame-dev.org/senla-training-addition/"
@@ -23,6 +27,7 @@ class App : Application() {
 
         instance = this
         api = provideApi()
+        db = provideDatabase(this).writableDatabase
         loginFlowRepository = provideLoginFlowRepository()
         mainRunningRepository = provideMainRunningRepository()
     }
@@ -33,7 +38,8 @@ class App : Application() {
         .client(OkHttpClient())
         .build()
         .create(RunningAppApi::class.java)
-
+    //todo move providers to another file
     private fun provideLoginFlowRepository() = LoginFlowRepository()
     private fun provideMainRunningRepository() = MainRunningRepository()
+    private fun provideDatabase(context: Context) = AppDb(context)
 }

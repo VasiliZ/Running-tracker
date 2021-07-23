@@ -1,5 +1,6 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.main
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private const val USER_LAST_NAME = "USER_LAST_NAME"
         private const val USER_EMAIL = "USER_EMAIL"
         private const val EMPTY_STRING = ""
+        private const val FIRST_TIME_RUN_APP = "FIRST_TIME_RUN_APP"
     }
 
     private lateinit var userData: UserData
@@ -35,17 +37,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
 
         findViews()
-        getUserDataFromPrefs()
+        getUserDataFromPrefs(getSharedPreference())
         setSupportActionBar(toolBar)
         setDataToNavHeader()
-        openMainFragment()
+        openMainFragment(isFirstTimeLaunchApp(getSharedPreference()))
         navigationView.setNavigationItemSelectedListener(this)
     }
 
-    private fun openMainFragment() {
+    private fun isFirstTimeLaunchApp(sharedPreference: SharedPreferences): Boolean {
+        return if (sharedPreference.getBoolean(FIRST_TIME_RUN_APP, true)) {
+            sharedPreference.edit().putBoolean(FIRST_TIME_RUN_APP, false).apply()
+            true
+        } else {
+            false
+        }
+    }
+
+    private fun openMainFragment(isFirstTimeRunFlag: Boolean) {
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragmentContainer, MainFragment.newInstance())
+            .replace(R.id.fragmentContainer, MainFragment.newInstance(isFirstTimeRunFlag))
             .addToBackStack(MainFragment.TAG)
             .commit()
         navigationView.setCheckedItem(R.id.mainItem)
@@ -75,13 +86,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun getUserDataFromPrefs() {
-        val prefs = this.getSharedPreference()
+    private fun getUserDataFromPrefs(preferences: SharedPreferences) {
         userData = UserData(
-            prefs.getString(USER_TOKEN, EMPTY_STRING) ?: EMPTY_STRING,
-            prefs.getString(USER_NAME, EMPTY_STRING) ?: EMPTY_STRING,
-            prefs.getString(USER_LAST_NAME, EMPTY_STRING) ?: EMPTY_STRING,
-            prefs.getString(USER_EMAIL, EMPTY_STRING) ?: EMPTY_STRING
+            preferences.getString(USER_TOKEN, EMPTY_STRING) ?: EMPTY_STRING,
+            preferences.getString(USER_NAME, EMPTY_STRING) ?: EMPTY_STRING,
+            preferences.getString(USER_LAST_NAME, EMPTY_STRING) ?: EMPTY_STRING,
+            preferences.getString(USER_EMAIL, EMPTY_STRING) ?: EMPTY_STRING
         )
     }
 

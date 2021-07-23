@@ -5,6 +5,7 @@ import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.ERROR
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.OK
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
+import com.github.rtyvz.senla.tr.runningtracker.entity.network.Track
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserTracks
 import com.github.rtyvz.senla.tr.runningtracker.extension.toUserTracks
@@ -13,8 +14,11 @@ import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
 class MainRunningRepository {
     private val cancellationToken = CancellationTokenSource()
 
-    fun getTracks(tracksRequest: TracksRequest, callback: (Result<UserTracks>) -> (Unit)) {
-        TasksProvider.getFetchingTrackTask(tracksRequest, cancellationToken.token)
+    fun getTracksFromNetwork(
+        tracksRequest: TracksRequest,
+        callback: (Result<UserTracks>) -> (Unit)
+    ) {
+        TasksProvider.getFetchingTrackFromNetworkTask(tracksRequest, cancellationToken.token)
             .continueWith({
                 if (it.isFaulted) {
                     callback(Result.Error(it.error.toString()))
@@ -25,5 +29,9 @@ class MainRunningRepository {
                     }
                 }
             }, Task.UI_THREAD_EXECUTOR)
+    }
+
+    fun insertTracksIntoDB(tracksList: List<Track>) {
+        TasksProvider.getInsertTrackIntoDbkTask(cancellationToken.token, tracksList)
     }
 }

@@ -4,6 +4,9 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class UserTracks(
-    val tracksList: List<TrackEntity>
+data class TrackEntity(
+    val id: Long,
+    val beginsAt: Long,
+    val time: Long,
+    val distance: Int
 ) : Parcelable

@@ -6,7 +6,7 @@ import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TrackResponse
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
 
-class FetchTracksTask {
+class FetchTracksFromNetworkTask {
     fun fetchTracks(
         tracksRequest: TracksRequest,
         cancellationToken: CancellationToken
