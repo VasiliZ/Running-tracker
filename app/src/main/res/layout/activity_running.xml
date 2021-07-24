@@ -49,6 +49,7 @@
         android:layout_height="@dimen/large_button_height"
         android:layout_marginBottom="@dimen/large_margin"
         android:alpha="0"
+        android:visibility="gone"
         android:backgroundTint="@color/main_app_color"
         app:cardCornerRadius="@dimen/middle_corner_radius"
         app:cardElevation="0dp"

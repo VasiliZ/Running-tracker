@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
@@ -89,13 +90,10 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        stopRunningButton.isEnabled = false
-
         startRunningButton.setOnClickListener {
             startAnimation(startLayout, R.animator.flip_out)
             startAnimation(exitLayout, R.animator.flip_in)
-            stopRunningButton.isClickable = true
-            stopRunningButton.isEnabled = true
+            exitLayout.isVisible = true
             startRunningButton.isClickable = false
 
             startTimer()
