@@ -19,7 +19,6 @@ object DBHelper {
     fun insertPointsIntoTable(points: List<PointEntity>) {
         points.forEach {
             InsertDataBuilder(AppDb.POINTS_TABLE_NAME)
-                .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, it.remoteId)
                 .setFieldsWithData(AppDb.LAT_FIELD_NAME, it.lat)
                 .setFieldsWithData(AppDb.LNG_FIELD_NAME, it.lng)
                 .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, it.beginAt)

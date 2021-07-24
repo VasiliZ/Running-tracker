@@ -1,5 +1,6 @@
 package com.github.rtyvz.senla.tr.runningtracker.repository.main
 
+import android.location.Location
 import bolts.CancellationTokenSource
 import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.ERROR
@@ -33,5 +34,9 @@ class MainRunningRepository {
 
     fun insertTracksIntoDB(tracksList: List<Track>) {
         TasksProvider.getInsertTrackIntoDbkTask(cancellationToken.token, tracksList)
+    }
+
+    fun insertLocationIntoDb(location: Location, beginAt: Long) {
+        TasksProvider.getInsertLocationTask(cancellationToken.token, location, beginAt)
     }
 }

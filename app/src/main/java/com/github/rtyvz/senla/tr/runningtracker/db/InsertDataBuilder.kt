@@ -21,13 +21,13 @@ class InsertDataBuilder(private val tableName: String) {
     }
 
     fun build(db: SQLiteDatabase) {
-        val stringBuilder = StringBuilder()
-        val questionMarks = fieldsWithDataMap.forEach { _ ->
-            stringBuilder.append(QUESTION_MARK)
-            stringBuilder.append(SEPARATOR)
+        val questionMarks = StringBuilder()
+        fieldsWithDataMap.forEach { _ ->
+            questionMarks.append(QUESTION_MARK)
+            questionMarks.append(SEPARATOR)
         }
         //delete last separator
-        stringBuilder.deleteAt(stringBuilder.lastIndex)
+        questionMarks.deleteAt(questionMarks.lastIndex)
         val statement = db.compileStatement(
             "$INSERT_STATEMENT $tableName ${
                 fieldsWithDataMap.entries.joinToString(

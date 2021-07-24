@@ -31,9 +31,13 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.main.MainActivity" />
-        <activity android:name=".ui.running.RunningActivity" />
+        <activity
+            android:name=".ui.running.RunningActivity"
+            android:screenOrientation="portrait" />
 
-        <service android:name=".ui.running.RunningService" />
+        <service
+            android:name=".ui.running.RunningService"
+            android:foregroundServiceType="location" />
     </application>
 
 </manifest>

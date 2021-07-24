@@ -1,5 +1,6 @@
 package com.github.rtyvz.senla.tr.runningtracker.providers
 
+import android.location.Location
 import bolts.CancellationToken
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Track
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
@@ -28,4 +29,11 @@ object TasksProvider {
 
     fun getInsertTrackIntoDbkTask(cancellationToken: CancellationToken, listTrack: List<Track>) =
         InsertTracksIntoDbTask().insertTracksIntiDb(listTrack, cancellationToken)
+
+    fun getInsertLocationTask(
+        cancellationToken: CancellationToken,
+        location: Location,
+        beginAt: Long
+    ) =
+        InsertLocationIntoDbTask().insertLocation(location, beginAt, cancellationToken)
 }
