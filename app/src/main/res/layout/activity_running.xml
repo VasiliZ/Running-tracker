@@ -22,6 +22,7 @@
         android:alpha="1"
         android:backgroundTint="@color/main_app_color"
         app:cardCornerRadius="@dimen/middle_corner_radius"
+        app:cardElevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -31,6 +32,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
             android:text="@string/running_activity_start_button_label"
             android:textAllCaps="false"
             android:textSize="@dimen/middle_text_size"
@@ -46,6 +51,7 @@
         android:alpha="0"
         android:backgroundTint="@color/main_app_color"
         app:cardCornerRadius="@dimen/middle_corner_radius"
+        app:cardElevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -55,10 +61,48 @@
             android:layout_width="150dp"
             android:layout_height="@dimen/large_button_height"
             android:layout_gravity="start"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
             android:text="@string/running_activity_finish_label" />
 
         <TextView
             android:id="@+id/timerTextView"
+            android:layout_width="150dp"
+            android:layout_height="@dimen/large_button_height"
+            android:layout_gravity="end"
+            android:gravity="center"
+            android:text="@string/running_activity_start_timer_label"
+            android:textSize="@dimen/middle_text_size"
+            android:textStyle="bold" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/resultLayout"
+        android:layout_width="@dimen/large_button_width"
+        android:layout_height="@dimen/large_button_height"
+        android:layout_marginBottom="@dimen/large_margin"
+        android:alpha="0"
+        android:backgroundTint="@color/main_app_color"
+        app:cardCornerRadius="@dimen/middle_corner_radius"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/runDistanceTextView"
+            android:layout_width="150dp"
+            android:layout_height="@dimen/large_button_height"
+            android:layout_gravity="start"
+            android:gravity="center"
+            android:text="@string/running_activity_run_distance_pattern"
+            android:textSize="@dimen/middle_text_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/stoppedTimerTextView"
             android:layout_width="150dp"
             android:layout_height="@dimen/large_button_height"
             android:layout_gravity="end"
