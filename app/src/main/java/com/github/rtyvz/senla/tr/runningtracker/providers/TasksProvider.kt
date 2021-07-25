@@ -2,9 +2,9 @@ package com.github.rtyvz.senla.tr.runningtracker.providers
 
 import android.location.Location
 import bolts.CancellationToken
-import com.github.rtyvz.senla.tr.runningtracker.entity.network.Track
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.tasks.*
 
@@ -27,7 +27,10 @@ object TasksProvider {
     ) =
         FetchTracksFromNetworkTask().fetchTracks(tracksRequest, cancellationToken)
 
-    fun getInsertTrackIntoDbkTask(cancellationToken: CancellationToken, listTrack: List<Track>) =
+    fun getInsertTrackIntoDbkTask(
+        cancellationToken: CancellationToken,
+        listTrack: List<TrackEntity>
+    ) =
         InsertTracksIntoDbTask().insertTracksIntiDb(listTrack, cancellationToken)
 
     fun getInsertLocationTask(
@@ -36,4 +39,22 @@ object TasksProvider {
         beginAt: Long
     ) =
         InsertLocationIntoDbTask().insertLocation(location, beginAt, cancellationToken)
+
+    fun getSaveTrackTask(
+        cancellationToken: CancellationToken,
+        track: TrackEntity,
+        listLocation: List<Location>
+    ) =
+        SaveRunningTrackTask().saveTrack(cancellationToken, track, listLocation)
+
+    fun getSaveTrackOnRemoteServerTask(
+        track: TrackEntity,
+        listLocation: List<Location>,
+        cancellationToken: CancellationToken
+    ) =
+        SaveTrackOnRemoteServerTask().saveTrackOnRemoteServer(
+            track,
+            listLocation,
+            cancellationToken
+        )
 }

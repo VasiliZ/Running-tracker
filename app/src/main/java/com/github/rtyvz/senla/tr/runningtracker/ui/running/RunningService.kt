@@ -20,15 +20,22 @@ import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 
 class RunningService : Service(), LocationListener {
 
     companion object {
         const val ACTION_RUNNING_SERVICE_STOP = "RUNNING_SERVICE_STOP"
+        const val EXTRA_CURRENT_TIME = "CURRENT_TIME"
+        const val EXTRA_FINISH_RUNNING_TIME = "FINISH_RUNNING_TIME"
+        private const val DEFAULT_LONG_VALUE = 0L
+        private const val MIN_TIME_FOR_LOCATION_UPDATES_MILLIS = 2000L
+        private const val MIN_DISTANCE_FOR_LOCATION_UPDATES_METERS = 5F
     }
 
     private val pointsList = mutableListOf<Location>()
     private var beginRunningAt: Long = 0L
+    private var startRunningTime = 0L
 
     override fun onCreate() {
         super.onCreate()
@@ -43,14 +50,25 @@ class RunningService : Service(), LocationListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_RUNNING_SERVICE_STOP) {
+            val distance = calculateDistance()
+            App.mainRunningRepository.saveTrack(
+                TrackEntity(
+                    beginsAt = startRunningTime,
+                    time = intent.getLongExtra(EXTRA_FINISH_RUNNING_TIME, DEFAULT_LONG_VALUE),
+                    distance = distance,
+                    isSent = 0
+                ), pointsList
+            )
             LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(Intent(RunningActivity.BROADCAST_RUN_DISTANCE).apply {
-                    putExtra(RunningActivity.EXTRA_RUN_DISTANCE, calculateDistance())
+                    putExtra(RunningActivity.EXTRA_RUN_DISTANCE, distance)
                 })
             stopForeground(true)
             stopSelf()
+        } else {
+            startRunningTime =
+                intent?.getLongExtra(EXTRA_CURRENT_TIME, DEFAULT_LONG_VALUE) ?: DEFAULT_LONG_VALUE
         }
-
         return START_STICKY
     }
 
@@ -98,8 +116,8 @@ class RunningService : Service(), LocationListener {
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                2000,
-                5F,
+                MIN_TIME_FOR_LOCATION_UPDATES_MILLIS,
+                MIN_DISTANCE_FOR_LOCATION_UPDATES_METERS,
                 this
             )
         }
@@ -110,14 +128,18 @@ class RunningService : Service(), LocationListener {
         App.mainRunningRepository.insertLocationIntoDb(location, beginRunningAt)
     }
 
-    private fun calculateDistance(): Double {
+    private fun calculateDistance(): Int {
         var distanceBetweenPoints = 0.0
         pointsList.forEachIndexed { innerIndex, innerLocation ->
             if (innerIndex <= pointsList.size - 2) {
                 distanceBetweenPoints += innerLocation.distanceTo(pointsList[innerIndex + 1])
             }
         }
-        return distanceBetweenPoints
+        return distanceBetweenPoints.toInt()
+    }
+
+    private fun calculateRunningTime(startRunning: Long, stopRunning: Long): Long {
+        return stopRunning - startRunning
     }
 
     override fun onDestroy() {

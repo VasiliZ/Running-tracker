@@ -97,7 +97,10 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
             startRunningButton.isClickable = false
 
             startTimer()
-            val intentRunningService = Intent(this, RunningService::class.java)
+            val intentRunningService = Intent(this, RunningService::class.java).apply {
+                putExtra(RunningService.EXTRA_CURRENT_TIME, System.currentTimeMillis())
+            }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(intentRunningService)
             } else {
@@ -110,12 +113,15 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
             startAnimation(resultLayout, R.animator.flip_in)
             stopRunningButton.isClickable = false
             startRunningButton.isClickable = false
-            stopTimer()
+            val stopActionRunningServiceIntent = Intent(this, RunningService::class.java)
+                .apply {
+                    action = ACTION_RUNNING_SERVICE_STOP
+                    putExtra(RunningService.EXTRA_FINISH_RUNNING_TIME, timeInHundredthOfASecond)
+                }
 
-            val intentRunningService = Intent(this, RunningService::class.java).apply {
-                action = ACTION_RUNNING_SERVICE_STOP
-            }
-            startService(intentRunningService)
+            stopTimer()
+            startService(stopActionRunningServiceIntent)
+
             resultRunningTimeTextView.text = formattedStopWatch(timeInHundredthOfASecond)
         }
         initRunningDistanceReceiver()
@@ -184,7 +190,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onReceive(context: Context?, intent: Intent?) {
                 runDistanceTextView.text = String.format(
                     resources.getString(R.string.running_activity_run_distance_pattern),
-                    intent?.getDoubleExtra(EXTRA_RUN_DISTANCE, 0.0)
+                    intent?.getIntExtra(EXTRA_RUN_DISTANCE, 0)
                 )
             }
         }

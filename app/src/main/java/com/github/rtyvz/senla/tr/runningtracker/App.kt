@@ -8,6 +8,7 @@ import com.github.rtyvz.senla.tr.runningtracker.network.RunningAppApi
 import com.github.rtyvz.senla.tr.runningtracker.repository.login.LoginFlowRepository
 import com.github.rtyvz.senla.tr.runningtracker.repository.main.MainRunningRepository
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -19,24 +20,30 @@ class App : Application() {
         lateinit var db: SQLiteDatabase
         lateinit var loginFlowRepository: LoginFlowRepository
         lateinit var mainRunningRepository: MainRunningRepository
+        lateinit var loggingInterceptor: HttpLoggingInterceptor
+        private lateinit var okHttpClient: OkHttpClient
         private const val BASE_URL = "https://pub.zame-dev.org/senla-training-addition/"
-        private const val GOOGLE_MAPS_API_KEY = "AIzaSyB83mIydx7vFaJw43FW92quNDqHTBJzm0c"
     }
 
     override fun onCreate() {
         super.onCreate()
 
         instance = this
-        api = provideApi()
         db = provideDatabase(this).writableDatabase
         loginFlowRepository = provideLoginFlowRepository()
         mainRunningRepository = provideMainRunningRepository()
+        loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+        api = provideApi()
     }
+
+    private fun provideOkHttpClient() =
+        OkHttpClient.Builder().addInterceptor(loggingInterceptor).build()
 
     private fun provideApi() = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
-        .client(OkHttpClient())
+        .client(provideOkHttpClient())
         .build()
         .create(RunningAppApi::class.java)
 

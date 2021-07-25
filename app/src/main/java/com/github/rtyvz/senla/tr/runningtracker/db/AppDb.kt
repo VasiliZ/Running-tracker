@@ -22,6 +22,7 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         const val LNG_FIELD_NAME = "lng"
         const val ID_FIELD_NAME = "id"
         const val LAT_FIELD_NAME = "lat"
+        const val IS_SENT_FIELD_NAME = "isSent"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -30,6 +31,7 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             .setTableField(TIME_FIELD_NAME, INT_NOT_NULL_TYPE)
             .setTableField(REMOTE_ID_FIELD_NAME, INT_DEFAULT_ZERO_TYPE)
             .setTableField(DISTANCE_FIELD_NAME, INT_NOT_NULL_TYPE)
+            .setTableField(IS_SENT_FIELD_NAME, INT_NOT_NULL_TYPE)
             .build(db)
 
         CreateTableBuilder(POINTS_TABLE_NAME)

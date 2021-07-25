@@ -41,5 +41,5 @@
     <string name="running_activity_start_button_label">Старт</string>
     <string name="running_activity_finish_label">Финиш</string>
     <string name="running_activity_start_timer_label">00:00:00</string>
-    <string name="running_activity_run_distance_pattern">%.2f метров</string>
+    <string name="running_activity_run_distance_pattern">%s метров</string>
 </resources>
