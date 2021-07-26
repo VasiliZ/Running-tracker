@@ -38,6 +38,12 @@ object DBHelper {
             .build(App.db)
     }
 
+    fun deleteTrackFromDb(conditionForDelete: String) {
+        DeleteDataBuilder(AppDb.TRACK_TABLE_NAME)
+            .where("${AppDb.BEGIN_AT_FIELD_NAME} = $conditionForDelete")
+            .build(App.db)
+    }
+
     fun selectTracksFromDb() {
         //todo select tracks here
     }

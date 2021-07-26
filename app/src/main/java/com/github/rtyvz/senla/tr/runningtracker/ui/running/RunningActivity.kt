@@ -12,7 +12,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.Gravity
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
@@ -20,6 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -42,6 +45,12 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         private val TAG = RunningActivity::class.java.simpleName.toString()
         const val EXTRA_RUN_DISTANCE = "RUN_DISTANCE"
         const val BROADCAST_RUN_DISTANCE = "local:BROADCAST_RUN_DISTANCE"
+        const val BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE =
+            "local:BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE"
+        const val BROADCAST_WRONG_USER_TOKEN =
+            "local:BROADCAST_WRONG_USER_TOKEN"
+        const val BROADCAST_NETWORK_ERROR =
+            "local:BROADCAST_NETWORK_ERROR"
         private const val STOP_WATCH_PATTERN = "mm:ss,SS"
         private const val DEFAULT_INT_VALUE = 0
         private const val FIRST_ARRAY_INDEX = 0
@@ -59,7 +68,10 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var resultRunningTimeTextView: MaterialTextView
     private lateinit var localBroadcastManager: LocalBroadcastManager
     private lateinit var runningDistanceReceiver: BroadcastReceiver
+    private lateinit var wrongUserTokenReceiver: BroadcastReceiver
     private lateinit var runDistanceTextView: MaterialTextView
+    private lateinit var errorSavingTrackIntoDbReceiver: BroadcastReceiver
+    private lateinit var networkErrorReceiver: BroadcastReceiver
     private val timeFormatter = SimpleDateFormat(STOP_WATCH_PATTERN, Locale.getDefault())
 
     private var handler: Handler? = null
@@ -126,17 +138,42 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
             resultRunningTimeTextView.text = timeFormatter.format(timeInHundredthOfASecond)
         }
         initRunningDistanceReceiver()
+        initErrorSavingTrackIntoDbReceiver()
+        initWrongUserTokenReceiver()
+        initNetworkErrorReceiver()
     }
 
     override fun onResume() {
         super.onResume()
 
         registerRunDistanceReceiver()
+        registerErrorSavingTrackIntoDbReceiver()
+        registerWrongUserTokenReceiver()
+        registerNetworkErrorReceiver()
+    }
+
+    private fun registerWrongUserTokenReceiver() {
+        localBroadcastManager.registerReceiver(
+            wrongUserTokenReceiver, IntentFilter(BROADCAST_WRONG_USER_TOKEN)
+        )
     }
 
     private fun registerRunDistanceReceiver() {
         localBroadcastManager.registerReceiver(
             runningDistanceReceiver, IntentFilter(BROADCAST_RUN_DISTANCE)
+        )
+    }
+
+    private fun registerErrorSavingTrackIntoDbReceiver() {
+        localBroadcastManager.registerReceiver(
+            errorSavingTrackIntoDbReceiver,
+            IntentFilter(BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE)
+        )
+    }
+
+    private fun registerNetworkErrorReceiver() {
+        localBroadcastManager.registerReceiver(
+            networkErrorReceiver, IntentFilter(BROADCAST_NETWORK_ERROR)
         )
     }
 
@@ -193,6 +230,41 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
                     resources.getString(R.string.running_activity_run_distance_pattern),
                     intent?.getIntExtra(EXTRA_RUN_DISTANCE, DEFAULT_INT_VALUE)
                 )
+            }
+        }
+    }
+
+    private fun initErrorSavingTrackIntoDbReceiver() {
+        errorSavingTrackIntoDbReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                Toast.makeText(
+                    this@RunningActivity,
+                    R.string.running_activity_error_saving_data_into_db,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun initWrongUserTokenReceiver() {
+        wrongUserTokenReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                startActivity(Intent(this@RunningActivity, LoginActivity::class.java))
+                finish()
+            }
+        }
+    }
+
+    private fun initNetworkErrorReceiver() {
+        networkErrorReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val toast = Toast.makeText(
+                    this@RunningActivity,
+                    R.string.running_activity_network_error, Toast.LENGTH_LONG
+                )
+                toast.setGravity(Gravity.TOP, 0, 0)
+                toast.setText(R.string.running_activity_network_error)
+                toast.show()
             }
         }
     }
@@ -258,6 +330,9 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onPause() {
         localBroadcastManager.unregisterReceiver(runningDistanceReceiver)
+        localBroadcastManager.unregisterReceiver(errorSavingTrackIntoDbReceiver)
+        localBroadcastManager.unregisterReceiver(wrongUserTokenReceiver)
+        localBroadcastManager.unregisterReceiver(networkErrorReceiver)
 
         super.onPause()
     }

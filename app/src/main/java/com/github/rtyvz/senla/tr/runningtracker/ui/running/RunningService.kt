@@ -19,6 +19,7 @@ import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.toPointEntity
 
@@ -73,6 +74,7 @@ class RunningService : Service(), LocationListener {
                 .sendBroadcast(Intent(RunningActivity.BROADCAST_RUN_DISTANCE).apply {
                     putExtra(RunningActivity.EXTRA_RUN_DISTANCE, distance)
                 })
+
             stopForeground(true)
             stopSelf()
         } else {

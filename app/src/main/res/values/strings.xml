@@ -42,4 +42,6 @@
     <string name="running_activity_finish_label">Финиш</string>
     <string name="running_activity_start_timer_label">00:00:00</string>
     <string name="running_activity_run_distance_pattern">%s метров</string>
+    <string name="running_activity_error_saving_data_into_db">Ошибка при сохранении данных</string>
+    <string name="running_activity_network_error">Не удалось обработать запрос, проверьте подключение к интернету</string>
 </resources>
