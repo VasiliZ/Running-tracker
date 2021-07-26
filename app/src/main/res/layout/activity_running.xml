@@ -4,6 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/main_app_color"
+        app:layout_constraintBottom_toTopOf="@id/map"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <fragment
         android:id="@+id/map"
         class="com.google.android.gms.maps.SupportMapFragment"
@@ -12,7 +22,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/toolBar" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/startLayout"
@@ -49,8 +59,8 @@
         android:layout_height="@dimen/large_button_height"
         android:layout_marginBottom="@dimen/large_margin"
         android:alpha="0"
-        android:visibility="gone"
         android:backgroundTint="@color/main_app_color"
+        android:visibility="gone"
         app:cardCornerRadius="@dimen/middle_corner_radius"
         app:cardElevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

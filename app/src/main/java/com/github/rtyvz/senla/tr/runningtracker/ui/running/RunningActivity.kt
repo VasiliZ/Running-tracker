@@ -31,6 +31,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import java.text.SimpleDateFormat
@@ -54,6 +55,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         private const val STOP_WATCH_PATTERN = "mm:ss,SS"
         private const val DEFAULT_INT_VALUE = 0
         private const val FIRST_ARRAY_INDEX = 0
+        private const val UTC_TIME_ZONE = "UTC"
     }
 
     private var locationPermissionGranted: Boolean = false
@@ -72,6 +74,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var runDistanceTextView: MaterialTextView
     private lateinit var errorSavingTrackIntoDbReceiver: BroadcastReceiver
     private lateinit var networkErrorReceiver: BroadcastReceiver
+    private lateinit var toolbar: MaterialToolbar
     private val timeFormatter = SimpleDateFormat(STOP_WATCH_PATTERN, Locale.getDefault())
 
     private var handler: Handler? = null
@@ -89,6 +92,8 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_running)
 
         findViews()
+        setSupportActionBar(toolbar)
+
         localBroadcastManager = LocalBroadcastManager.getInstance(this)
         locationProvider = LocationServices.getFusedLocationProviderClient(this)
         val permission =
@@ -137,6 +142,10 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
 
             resultRunningTimeTextView.text = timeFormatter.format(timeInHundredthOfASecond)
         }
+
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         initRunningDistanceReceiver()
         initErrorSavingTrackIntoDbReceiver()
         initWrongUserTokenReceiver()
@@ -186,6 +195,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         timerTextView = findViewById(R.id.timerTextView)
         resultRunningTimeTextView = findViewById(R.id.stoppedTimerTextView)
         runDistanceTextView = findViewById(R.id.runDistanceTextView)
+        toolbar = findViewById(R.id.toolBar)
     }
 
     private fun startAnimation(view: View, idAnimatorRes: Int) {
@@ -219,6 +229,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults)
             }
         }
+
         getDeviceLocation()
         updateLocationUi()
     }

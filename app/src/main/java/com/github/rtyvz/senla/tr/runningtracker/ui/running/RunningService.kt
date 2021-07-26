@@ -19,7 +19,6 @@ import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.toPointEntity
 
@@ -42,14 +41,13 @@ class RunningService : Service(), LocationListener {
     }
 
     private val pointsList = mutableListOf<Location>()
-    private var beginRunningAt: Long = 0L
     private var startRunningTime = 0L
 
     override fun onCreate() {
         super.onCreate()
 
         startForeground()
-        startRunningTracking()
+        startTrackingRunning()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -128,10 +126,9 @@ class RunningService : Service(), LocationListener {
         return channelId
     }
 
-    private fun startRunningTracking() {
+    private fun startTrackingRunning() {
         val permission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
         if (permission == PackageManager.PERMISSION_GRANTED) {
-            beginRunningAt = System.currentTimeMillis()
 
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             locationManager.requestLocationUpdates(
@@ -145,7 +142,7 @@ class RunningService : Service(), LocationListener {
 
     override fun onLocationChanged(location: Location) {
         pointsList.add(location)
-        App.mainRunningRepository.insertLocationIntoDb(location, beginRunningAt)
+        App.mainRunningRepository.insertLocationIntoDb(location, startRunningTime)
     }
 
     private fun calculateDistance(): Int {
