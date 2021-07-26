@@ -3,10 +3,12 @@ package com.github.rtyvz.senla.tr.runningtracker.repository.main
 import android.location.Location
 import bolts.CancellationTokenSource
 import bolts.Task
+import com.github.rtyvz.senla.tr.runningtracker.entity.network.Point
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.ERROR
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.OK
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserTracks
 import com.github.rtyvz.senla.tr.runningtracker.extension.toUserTracks
@@ -40,7 +42,11 @@ class MainRunningRepository {
         TasksProvider.getInsertLocationTask(cancellationToken.token, location, beginAt)
     }
 
-    fun saveTrack(track: TrackEntity, listLocation: List<Location>) {
-        TasksProvider.getSaveTrackTask(cancellationToken.token, track, listLocation)
+    fun saveTrack(track: TrackEntity, listPoints: List<PointEntity>) {
+        TasksProvider.getSaveTrackTask(cancellationToken.token, track, listPoints)
+    }
+
+    fun updateTrack(track: TrackEntity) {
+        TasksProvider.getUpdateTrackIntoDb(track, cancellationToken.token)
     }
 }

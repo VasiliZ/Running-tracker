@@ -1,42 +1,50 @@
 package com.github.rtyvz.senla.tr.runningtracker.tasks
 
-import android.location.Location
 import android.util.Log
 import bolts.CancellationToken
 import bolts.Task
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
+import com.github.rtyvz.senla.tr.runningtracker.extension.toPoint
 import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
 
 class SaveRunningTrackTask {
     fun saveTrack(
         cancellationToken: CancellationToken,
         track: TrackEntity,
-        listLocation: List<Location>
+        listPoints: List<PointEntity>
     ) {
-        val saveTrackIntoDbTask =
-            TasksProvider.getInsertTrackIntoDbkTask(cancellationToken, listOf(track))
+        val updateTrackIntoDbTask =
+            TasksProvider.getUpdateTrackIntoDb(track, cancellationToken)
         val saveTrackOnRemoteServerTask = TasksProvider.getSaveTrackOnRemoteServerTask(
             cancellationToken = cancellationToken,
-            track = track, listLocation = listLocation
+            track = track, listPoints = listPoints.map {
+                it.toPoint()
+            }
         )
         Task.whenAll(
             listOf(
-                saveTrackIntoDbTask, saveTrackOnRemoteServerTask
+                updateTrackIntoDbTask, saveTrackOnRemoteServerTask
             )
         ).continueWithTask({
-            if (saveTrackIntoDbTask.isFaulted) {
+            if (updateTrackIntoDbTask.isFaulted) {
                 Log.d("tag", "kek")
             } else {
                 Log.d("tag", "kek")
             }
 
-            if (saveTrackIntoDbTask.isFaulted) {
+            if (saveTrackOnRemoteServerTask.isFaulted) {
                 Log.d("tag", "error send track request")
             } else {
-                when (saveTrackOnRemoteServerTask.result.errorCode) {
-
-                }
-                //update db
+                TasksProvider.getUpdateTrackIntoDb(
+                    TrackEntity(
+                        beginsAt = track.beginsAt,
+                        time = track.time,
+                        distance = track.distance,
+                        id = saveTrackOnRemoteServerTask.result.remoteTrackId,
+                        isSent = 1
+                    ), cancellationToken
+                )
                 Log.d("tag", "${saveTrackOnRemoteServerTask.result.remoteTrackId}")
             }
             return@continueWithTask it

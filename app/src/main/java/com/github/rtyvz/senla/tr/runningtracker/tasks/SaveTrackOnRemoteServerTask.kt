@@ -1,6 +1,5 @@
 package com.github.rtyvz.senla.tr.runningtracker.tasks
 
-import android.location.Location
 import bolts.CancellationToken
 import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.App
@@ -18,7 +17,7 @@ class SaveTrackOnRemoteServerTask {
 
     fun saveTrackOnRemoteServer(
         trackEntity: TrackEntity,
-        pointsList: List<Location>,
+        listPoints: List<Point>,
         cancellationToken: CancellationToken
     ): Task<SaveTrackResponse> {
         return Task.callInBackground({
@@ -29,7 +28,7 @@ class SaveTrackOnRemoteServerTask {
                     beginAt = trackEntity.beginsAt,
                     time = trackEntity.time,
                     distance = trackEntity.distance,
-                    pointsList = pointsList.map { Point(lat = it.latitude, lng = it.longitude) }
+                    pointsList = listPoints
                 )
             ).execute().body()
         }, cancellationToken)

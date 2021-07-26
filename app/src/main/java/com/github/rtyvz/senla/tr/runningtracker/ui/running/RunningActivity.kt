@@ -38,10 +38,13 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
     companion object {
         private const val FINE_LOCATION_REQUEST_CODE = 1101
         private const val DEFAULT_ZOOM = 15
-        private val TAG = RunningActivity::class.java.simpleName.toString()
         private const val TIMER_INTERVAL = 10L
+        private val TAG = RunningActivity::class.java.simpleName.toString()
         const val EXTRA_RUN_DISTANCE = "RUN_DISTANCE"
         const val BROADCAST_RUN_DISTANCE = "local:BROADCAST_RUN_DISTANCE"
+        private const val STOP_WATCH_PATTERN = "mm:ss,SS"
+        private const val DEFAULT_INT_VALUE = 0
+        private const val FIRST_ARRAY_INDEX = 0
     }
 
     private var locationPermissionGranted: Boolean = false
@@ -57,17 +60,15 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var localBroadcastManager: LocalBroadcastManager
     private lateinit var runningDistanceReceiver: BroadcastReceiver
     private lateinit var runDistanceTextView: MaterialTextView
+    private val timeFormatter = SimpleDateFormat(STOP_WATCH_PATTERN, Locale.getDefault())
 
     private var handler: Handler? = null
     private var timeInHundredthOfASecond = 0L
-    private var statusChecker = object : Runnable {
+    private var timeTicker = object : Runnable {
         override fun run() {
-            try {
-                timeInHundredthOfASecond += 10
-                updateWatch(timeInHundredthOfASecond)
-            } finally {
-                handler?.postDelayed(this, TIMER_INTERVAL)
-            }
+            timeInHundredthOfASecond += TIMER_INTERVAL
+            updateWatch(timeInHundredthOfASecond)
+            handler?.postDelayed(this, TIMER_INTERVAL)
         }
     }
 
@@ -122,7 +123,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
             stopTimer()
             startService(stopActionRunningServiceIntent)
 
-            resultRunningTimeTextView.text = formattedStopWatch(timeInHundredthOfASecond)
+            resultRunningTimeTextView.text = timeFormatter.format(timeInHundredthOfASecond)
         }
         initRunningDistanceReceiver()
     }
@@ -171,7 +172,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
     ) {
         when (requestCode) {
             FINE_LOCATION_REQUEST_CODE -> {
-                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.isEmpty() || grantResults[FIRST_ARRAY_INDEX] != PackageManager.PERMISSION_GRANTED) {
                     finish()
                 } else {
                     locationPermissionGranted = true
@@ -190,7 +191,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onReceive(context: Context?, intent: Intent?) {
                 runDistanceTextView.text = String.format(
                     resources.getString(R.string.running_activity_run_distance_pattern),
-                    intent?.getIntExtra(EXTRA_RUN_DISTANCE, 0)
+                    intent?.getIntExtra(EXTRA_RUN_DISTANCE, DEFAULT_INT_VALUE)
                 )
             }
         }
@@ -243,20 +244,16 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun updateWatch(timeInHundredthOfASecond: Long) {
-        timerTextView.text = formattedStopWatch(timeInHundredthOfASecond)
-    }
-
-    private fun formattedStopWatch(milliseconds: Long): String {
-        return SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(milliseconds)
+        timerTextView.text = timeFormatter.format(timeInHundredthOfASecond)
     }
 
     private fun startTimer() {
         handler = Handler(Looper.getMainLooper())
-        statusChecker.run()
+        timeTicker.run()
     }
 
     private fun stopTimer() {
-        handler?.removeCallbacks(statusChecker)
+        handler?.removeCallbacks(timeTicker)
     }
 
     override fun onPause() {

@@ -14,13 +14,13 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
+import com.github.rtyvz.senla.tr.runningtracker.extension.toPointEntity
 
 class RunningService : Service(), LocationListener {
 
@@ -28,9 +28,16 @@ class RunningService : Service(), LocationListener {
         const val ACTION_RUNNING_SERVICE_STOP = "RUNNING_SERVICE_STOP"
         const val EXTRA_CURRENT_TIME = "CURRENT_TIME"
         const val EXTRA_FINISH_RUNNING_TIME = "FINISH_RUNNING_TIME"
+        private const val EMPTY_STRING = ""
+        private const val RUNNING_SERVICE_CHANNEL_ID = "RUNNING_SERVICE_CHANNEL_ID"
+        private const val RUNNING_SERVICE_CHANNEL_NAME = "RUNNING_SERVICE_CHANNEL_NAME"
         private const val DEFAULT_LONG_VALUE = 0L
+        private const val INITIAL_DISTANCE_BETWEEN_POINTS = 0.0
         private const val MIN_TIME_FOR_LOCATION_UPDATES_MILLIS = 2000L
         private const val MIN_DISTANCE_FOR_LOCATION_UPDATES_METERS = 5F
+        private const val OFFSET_FOR_CALCULATE_DISTANCE = 2
+        private const val NEXT_INDEX = 1
+        private const val NOTIFICATION_ID = 1
     }
 
     private val pointsList = mutableListOf<Location>()
@@ -57,8 +64,11 @@ class RunningService : Service(), LocationListener {
                     time = intent.getLongExtra(EXTRA_FINISH_RUNNING_TIME, DEFAULT_LONG_VALUE),
                     distance = distance,
                     isSent = 0
-                ), pointsList
+                ), pointsList.map {
+                    it.toPointEntity(startRunningTime)
+                }
             )
+
             LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(Intent(RunningActivity.BROADCAST_RUN_DISTANCE).apply {
                     putExtra(RunningActivity.EXTRA_RUN_DISTANCE, distance)
@@ -68,6 +78,15 @@ class RunningService : Service(), LocationListener {
         } else {
             startRunningTime =
                 intent?.getLongExtra(EXTRA_CURRENT_TIME, DEFAULT_LONG_VALUE) ?: DEFAULT_LONG_VALUE
+            App.mainRunningRepository.insertTracksIntoDB(
+                listOf(
+                    TrackEntity(
+                        beginsAt = startRunningTime,
+                        time = 0L,
+                        distance = 0
+                    )
+                )
+            )
         }
         return START_STICKY
     }
@@ -78,7 +97,7 @@ class RunningService : Service(), LocationListener {
         val chanelNotificationId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(notificationManager)
         } else {
-            ""
+            EMPTY_STRING
         }
 
         val notificationBuilder = NotificationCompat.Builder(this, chanelNotificationId)
@@ -92,13 +111,13 @@ class RunningService : Service(), LocationListener {
             )
             .setCategory(Notification.CATEGORY_SERVICE)
             .build()
-        startForeground(1, notification)
+        startForeground(NOTIFICATION_ID, notification)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannel(notificationManager: NotificationManager): String {
-        val channelId = "myRunningService"
-        val chanelName = "myRunningBackGroundService"
+        val channelId = RUNNING_SERVICE_CHANNEL_ID
+        val chanelName = RUNNING_SERVICE_CHANNEL_NAME
         val channel =
             NotificationChannel(channelId, chanelName, NotificationManager.IMPORTANCE_HIGH)
         channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
@@ -106,7 +125,6 @@ class RunningService : Service(), LocationListener {
         notificationManager.createNotificationChannel(channel)
         return channelId
     }
-
 
     private fun startRunningTracking() {
         val permission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -129,21 +147,12 @@ class RunningService : Service(), LocationListener {
     }
 
     private fun calculateDistance(): Int {
-        var distanceBetweenPoints = 0.0
+        var distanceBetweenPoints = INITIAL_DISTANCE_BETWEEN_POINTS
         pointsList.forEachIndexed { innerIndex, innerLocation ->
-            if (innerIndex <= pointsList.size - 2) {
-                distanceBetweenPoints += innerLocation.distanceTo(pointsList[innerIndex + 1])
+            if (innerIndex <= pointsList.size - OFFSET_FOR_CALCULATE_DISTANCE) {
+                distanceBetweenPoints += innerLocation.distanceTo(pointsList[innerIndex + NEXT_INDEX])
             }
         }
         return distanceBetweenPoints.toInt()
-    }
-
-    private fun calculateRunningTime(startRunning: Long, stopRunning: Long): Long {
-        return stopRunning - startRunning
-    }
-
-    override fun onDestroy() {
-        Log.d("distance", "distanceBetweenPoints".toString())
-        super.onDestroy()
     }
 }

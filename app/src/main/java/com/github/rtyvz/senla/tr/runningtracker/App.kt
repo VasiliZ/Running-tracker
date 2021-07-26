@@ -21,7 +21,6 @@ class App : Application() {
         lateinit var loginFlowRepository: LoginFlowRepository
         lateinit var mainRunningRepository: MainRunningRepository
         lateinit var loggingInterceptor: HttpLoggingInterceptor
-        private lateinit var okHttpClient: OkHttpClient
         private const val BASE_URL = "https://pub.zame-dev.org/senla-training-addition/"
     }
 

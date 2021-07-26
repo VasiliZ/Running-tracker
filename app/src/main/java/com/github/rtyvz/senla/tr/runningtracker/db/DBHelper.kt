@@ -5,6 +5,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 
 object DBHelper {
+    private const val BEGINS_AT_CONDITION = "beginAt = "
     fun insertTracksIntoTable(tracks: List<TrackEntity>) {
         tracks.forEach {
             InsertDataBuilder(AppDb.TRACK_TABLE_NAME)
@@ -25,6 +26,16 @@ object DBHelper {
                 .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, it.beginAt)
                 .build(App.db)
         }
+    }
+
+    fun updateTackIntoTable(trackEntity: TrackEntity) {
+        UpdateTableBuilder(AppDb.TRACK_TABLE_NAME)
+            .setFieldsWithData(AppDb.TIME_FIELD_NAME, trackEntity.time)
+            .setFieldsWithData(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
+            .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
+            .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, trackEntity.isSent)
+            .whereCondition("$BEGINS_AT_CONDITION ${trackEntity.beginsAt}")
+            .build(App.db)
     }
 
     fun selectTracksFromDb() {
