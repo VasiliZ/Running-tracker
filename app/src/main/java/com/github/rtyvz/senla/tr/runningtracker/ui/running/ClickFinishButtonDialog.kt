@@ -17,7 +17,7 @@ class ClickFinishButtonDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.running_activity_dialog_finish_button_is_not_click_yet))
+            .setTitle(getString(R.string.running_activity_dialog_confirm_click_finish_button))
             .setPositiveButton(getString(R.string.running_activity_dialog_ok_button)) { dialog, _ ->
                 dialog.dismiss()
             }.create()
