@@ -28,6 +28,7 @@ class RunningService : Service(), LocationListener {
         const val ACTION_RUNNING_SERVICE_STOP = "RUNNING_SERVICE_STOP"
         const val EXTRA_CURRENT_TIME = "CURRENT_TIME"
         const val EXTRA_FINISH_RUNNING_TIME = "FINISH_RUNNING_TIME"
+        const val EXTRA_CURRENT_LOCATION = "CURRENT_LOCATION"
         private const val EMPTY_STRING = ""
         private const val RUNNING_SERVICE_CHANNEL_ID = "RUNNING_SERVICE_CHANNEL_ID"
         private const val RUNNING_SERVICE_CHANNEL_NAME = "RUNNING_SERVICE_CHANNEL_NAME"
@@ -57,19 +58,23 @@ class RunningService : Service(), LocationListener {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_RUNNING_SERVICE_STOP) {
             val distance = calculateDistance()
-            App.mainRunningRepository.saveTrack(
-                TrackEntity(
-                    beginsAt = startRunningTime,
-                    time = intent.getLongExtra(EXTRA_FINISH_RUNNING_TIME, DEFAULT_LONG_VALUE),
-                    distance = distance,
-                    isSent = 0
-                ), pointsList.map {
-                    it.toPointEntity(startRunningTime)
-                }
-            )
+            if (pointsList.size > 1) {
+                App.mainRunningRepository.saveTrack(
+                    TrackEntity(
+                        beginsAt = startRunningTime,
+                        time = intent.getLongExtra(EXTRA_FINISH_RUNNING_TIME, DEFAULT_LONG_VALUE),
+                        distance = distance,
+                        isSent = 0
+                    ), pointsList.map {
+                        it.toPointEntity(startRunningTime)
+                    })
+            } else {
+                LocalBroadcastManager.getInstance(this)
+                    .sendBroadcastSync(Intent(RunningActivity.BROADCAST_ARE_YOU_RUN))
+            }
 
             LocalBroadcastManager.getInstance(this)
-                .sendBroadcast(Intent(RunningActivity.BROADCAST_RUN_DISTANCE).apply {
+                .sendBroadcastSync(Intent(RunningActivity.BROADCAST_RUN_DISTANCE).apply {
                     putExtra(RunningActivity.EXTRA_RUN_DISTANCE, distance)
                 })
 
@@ -78,6 +83,10 @@ class RunningService : Service(), LocationListener {
         } else {
             startRunningTime =
                 intent?.getLongExtra(EXTRA_CURRENT_TIME, DEFAULT_LONG_VALUE) ?: DEFAULT_LONG_VALUE
+            val firstPoint = intent?.getParcelableExtra<Location>(EXTRA_CURRENT_LOCATION)
+            if (firstPoint != null) {
+                pointsList.add(firstPoint)
+            }
             App.mainRunningRepository.insertTracksIntoDB(
                 listOf(
                     TrackEntity(

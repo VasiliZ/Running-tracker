@@ -7,12 +7,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.Gravity
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -37,7 +39,8 @@ import com.google.android.material.textview.MaterialTextView
 import java.text.SimpleDateFormat
 import java.util.*
 
-class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
+class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
+    AreYouRunDialog.AreYouWantToRunningYetContract {
 
     companion object {
         private const val FINE_LOCATION_REQUEST_CODE = 1101
@@ -46,6 +49,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         private val TAG = RunningActivity::class.java.simpleName.toString()
         const val EXTRA_RUN_DISTANCE = "RUN_DISTANCE"
         const val BROADCAST_RUN_DISTANCE = "local:BROADCAST_RUN_DISTANCE"
+        const val BROADCAST_ARE_YOU_RUN = "local:BROADCAST_ARE_YOU_RUN"
         const val BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE =
             "local:BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE"
         const val BROADCAST_WRONG_USER_TOKEN =
@@ -55,7 +59,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         private const val STOP_WATCH_PATTERN = "mm:ss,SS"
         private const val DEFAULT_INT_VALUE = 0
         private const val FIRST_ARRAY_INDEX = 0
-        private const val UTC_TIME_ZONE = "UTC"
     }
 
     private var locationPermissionGranted: Boolean = false
@@ -64,7 +67,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var startRunningButton: MaterialButton
     private lateinit var exitLayout: CardView
     private lateinit var startLayout: CardView
-    private lateinit var stopRunningButton: MaterialButton
+    private lateinit var finishRunningButton: MaterialButton
     private lateinit var resultLayout: CardView
     private lateinit var timerTextView: MaterialTextView
     private lateinit var resultRunningTimeTextView: MaterialTextView
@@ -74,10 +77,14 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var runDistanceTextView: MaterialTextView
     private lateinit var errorSavingTrackIntoDbReceiver: BroadcastReceiver
     private lateinit var networkErrorReceiver: BroadcastReceiver
+    private lateinit var areYouRunReceiver: BroadcastReceiver
     private lateinit var toolbar: MaterialToolbar
+    private var currentLocation: Location? = null
     private val timeFormatter = SimpleDateFormat(STOP_WATCH_PATTERN, Locale.getDefault())
 
     private var handler: Handler? = null
+    private var isFinishButtonClicked = false
+    private var isStartButtonClicked = false
     private var timeInHundredthOfASecond = 0L
     private var timeTicker = object : Runnable {
         override fun run() {
@@ -109,6 +116,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         startRunningButton.setOnClickListener {
+            isStartButtonClicked = true
             startAnimation(startLayout, R.animator.flip_out)
             startAnimation(exitLayout, R.animator.flip_in)
             exitLayout.isVisible = true
@@ -117,6 +125,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
             startTimer()
             val intentRunningService = Intent(this, RunningService::class.java).apply {
                 putExtra(RunningService.EXTRA_CURRENT_TIME, System.currentTimeMillis())
+                putExtra(RunningService.EXTRA_CURRENT_LOCATION, currentLocation)
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -126,10 +135,12 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        stopRunningButton.setOnClickListener {
+        finishRunningButton.setOnClickListener {
+            isFinishButtonClicked = true
+            isStartButtonClicked = false
             startAnimation(exitLayout, R.animator.flip_out)
             startAnimation(resultLayout, R.animator.flip_in)
-            stopRunningButton.isClickable = false
+            finishRunningButton.isClickable = false
             startRunningButton.isClickable = false
             val stopActionRunningServiceIntent = Intent(this, RunningService::class.java)
                 .apply {
@@ -150,6 +161,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         initErrorSavingTrackIntoDbReceiver()
         initWrongUserTokenReceiver()
         initNetworkErrorReceiver()
+        initAreYouRunReceiver()
     }
 
     override fun onResume() {
@@ -159,6 +171,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         registerErrorSavingTrackIntoDbReceiver()
         registerWrongUserTokenReceiver()
         registerNetworkErrorReceiver()
+        registerAreYouRunReceiver()
     }
 
     private fun registerWrongUserTokenReceiver() {
@@ -186,11 +199,18 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
+    private fun registerAreYouRunReceiver() {
+        localBroadcastManager.registerReceiver(
+            areYouRunReceiver,
+            IntentFilter(BROADCAST_ARE_YOU_RUN)
+        )
+    }
+
     private fun findViews() {
         startRunningButton = findViewById(R.id.startRunningButton)
         exitLayout = findViewById(R.id.exitLayout)
         startLayout = findViewById(R.id.startLayout)
-        stopRunningButton = findViewById(R.id.stopTimerButton)
+        finishRunningButton = findViewById(R.id.stopTimerButton)
         resultLayout = findViewById(R.id.resultLayout)
         timerTextView = findViewById(R.id.timerTextView)
         resultRunningTimeTextView = findViewById(R.id.stoppedTimerTextView)
@@ -280,6 +300,14 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun initAreYouRunReceiver() {
+        areYouRunReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                AreYouRunDialog.newInstance().show(supportFragmentManager, AreYouRunDialog.TAG)
+            }
+        }
+    }
+
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         getDeviceLocation()
@@ -303,10 +331,9 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun getDeviceLocation() {
         try {
             if (locationPermissionGranted) {
-                val location = locationProvider.lastLocation
-                location.addOnCompleteListener {
-
+                locationProvider.lastLocation.addOnCompleteListener {
                     if (it.isSuccessful) {
+                        currentLocation = it.result
                         googleMap?.moveCamera(
                             CameraUpdateFactory.newLatLngZoom(
                                 LatLng(
@@ -344,6 +371,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         localBroadcastManager.unregisterReceiver(errorSavingTrackIntoDbReceiver)
         localBroadcastManager.unregisterReceiver(wrongUserTokenReceiver)
         localBroadcastManager.unregisterReceiver(networkErrorReceiver)
+        localBroadcastManager.unregisterReceiver(areYouRunReceiver)
 
         super.onPause()
     }
@@ -352,5 +380,40 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         stopTimer()
 
         super.onDestroy()
+    }
+
+    override fun tryToRunningAgain() {
+        //rewrite activity state for restart run action
+        recreate()
+    }
+
+    override fun onBackPressed() {
+        if (isStartButtonClicked && !isFinishButtonClicked) {
+            showClickFinishDialog()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                if (isStartButtonClicked && !isFinishButtonClicked) {
+                    showClickFinishDialog()
+                    false
+                } else {
+                    super.onBackPressed()
+                    true
+                }
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
+    }
+
+    private fun showClickFinishDialog() {
+        ClickFinishButtonDialog.newInstance()
+            .show(supportFragmentManager, ClickFinishButtonDialog.TAG)
     }
 }

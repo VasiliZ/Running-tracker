@@ -44,4 +44,8 @@
     <string name="running_activity_run_distance_pattern">%s метров</string>
     <string name="running_activity_error_saving_data_into_db">Ошибка при сохранении данных</string>
     <string name="running_activity_network_error">Не удалось обработать запрос, проверьте подключение к интернету</string>
+    <string name="running_activity_are_you_running_notify">Кажется вы даже не устали, давайте попробуем еще раз</string>
+    <string name="running_activity_dialog_ok_button">Да</string>
+    <string name="running_activity_dialog_cancel_button">Нет</string>
+    <string name="running_activity_dialog_finish_button_is_not_click_yet">Сперва нажмите на кнопку финиш</string>
 </resources>
