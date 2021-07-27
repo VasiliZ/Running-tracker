@@ -6,6 +6,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import bolts.CancellationTokenSource
 import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.App
+import com.github.rtyvz.senla.tr.runningtracker.entity.network.PointResponse
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.ERROR
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.OK
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
@@ -24,6 +25,7 @@ class MainRunningRepository {
         private const val INVALID_TOKEN = "INVALID_TOKEN"
         private const val NO_POINTS = "NO_POINTS"
         private const val IS_DATA_SENT_FLAG = 1
+        private const val USER_TOKEN = "USER_TOKEN"
     }
 
     private val cancellationToken = CancellationTokenSource()
@@ -69,7 +71,7 @@ class MainRunningRepository {
             listOf(
                 updateTrackIntoDbTask, saveTrackOnRemoteServerTask
             )
-        ).continueWithTask( {
+        ).continueWithTask({
             if (updateTrackIntoDbTask.isFaulted) {
                 LocalBroadcastManager.getInstance(App.instance).sendBroadcastSync(
                     Intent(RunningActivity.BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE)

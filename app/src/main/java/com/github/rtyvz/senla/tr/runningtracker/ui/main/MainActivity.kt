@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navHeaderUserNameTextView.text = userData.name
     }
 
-    override fun finishActivity() {
+    override fun closeActivity() {
         finish()
     }
 }

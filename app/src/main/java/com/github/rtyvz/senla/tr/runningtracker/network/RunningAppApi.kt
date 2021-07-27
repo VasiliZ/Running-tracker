@@ -18,4 +18,7 @@ interface RunningAppApi {
 
     @POST("lesson-26.php?method=save")
     fun saveTrack(@Body track: SaveTrackRequest): Call<SaveTrackResponse>
+
+    @POST("lesson-26.php?method=points")
+    fun getPoints(@Body pointsRequest:PointsRequest):Call<PointResponse>
 }

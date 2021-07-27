@@ -71,7 +71,7 @@ class LoginActivity : AppCompatActivity(), LoginFlowContract, HandleClosingActiv
         }
     }
 
-    override fun finishActivity() {
+    override fun closeActivity() {
         finish()
     }
 }

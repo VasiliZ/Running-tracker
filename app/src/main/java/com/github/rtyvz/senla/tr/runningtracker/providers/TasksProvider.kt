@@ -3,6 +3,7 @@ package com.github.rtyvz.senla.tr.runningtracker.providers
 import android.location.Location
 import bolts.CancellationToken
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Point
+import com.github.rtyvz.senla.tr.runningtracker.entity.network.PointsRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
@@ -57,4 +58,9 @@ object TasksProvider {
 
     fun getDeleteTrackFromDbTask(cancellationToken: CancellationToken, condition: String) =
         RemoveTrackFromDbTask().removeTrackFromDb(cancellationToken, condition)
+
+    fun getPointsFromServerTask(
+        cancellationToken: CancellationToken,
+        pointsRequest: PointsRequest
+    ) = GetPointsFromServer().getPoints(cancellationToken, pointsRequest)
 }

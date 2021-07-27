@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--size-->
+    <dimen name="logo_small_size">50dp</dimen>
     <dimen name="logo_size">100dp</dimen>
     <dimen name="nav_header_logo_size">60dp</dimen>
     <dimen name="nav_menu_item_size">30dp</dimen>

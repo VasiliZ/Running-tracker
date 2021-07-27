@@ -106,7 +106,7 @@ class LoginFragment : Fragment() {
             when (it) {
                 is Result.Success -> {
                     startActivity(Intent(requireContext(), MainActivity::class.java))
-                    (activity as HandleClosingActivityContract).finishActivity()
+                    (activity as HandleClosingActivityContract).closeActivity()
                 }
                 is Result.Error -> {
                     registrationActionTextView.isEnabled = true

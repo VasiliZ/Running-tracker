@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/middle_margin"
+    app:cardCornerRadius="@dimen/middle_corner_radius">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/appLogoImageView"
+            android:layout_width="@dimen/logo_small_size"
+            android:layout_height="@dimen/logo_small_size"
+            android:layout_marginStart="@dimen/small_margin"
+            android:src="@drawable/ic_running"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Overlay.CircleImageView" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/timeOfStartTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_marginHorizontal="@dimen/small_margin"
+            android:layout_marginTop="@dimen/small_margin"
+            android:text="@string/track_item_start_time_label"
+            app:layout_constraintEnd_toStartOf="@id/timeActionTextView"
+            app:layout_constraintStart_toEndOf="@id/appLogoImageView"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/dateOdRunTextView"
+            android:layout_width="wrap_content"
+            android:textSize="@dimen/middle_text_size"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/small_margin"
+            android:layout_marginVertical="@dimen/small_margin"
+            app:layout_constraintBottom_toTopOf="@id/runDistanceLabel"
+            app:layout_constraintEnd_toEndOf="@+id/timeOfStartTextView"
+            app:layout_constraintStart_toStartOf="@id/timeOfStartTextView"
+            app:layout_constraintTop_toBottomOf="@+id/timeOfStartTextView" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/timeActionTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_marginHorizontal="@dimen/small_margin"
+            android:layout_marginTop="@dimen/small_margin"
+            android:text="@string/track_item_spent_time_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/timeOfStartTextView"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/timeRunningTextView"
+            android:textSize="@dimen/middle_text_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/small_margin"
+            app:layout_constraintBottom_toTopOf="@id/runDistanceLabel"
+            app:layout_constraintEnd_toEndOf="@+id/timeActionTextView"
+            app:layout_constraintStart_toStartOf="@id/timeActionTextView"
+            app:layout_constraintTop_toBottomOf="@+id/timeActionTextView" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/runDistanceLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/small_margin"
+            android:text="@string/track_item_distance_label"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/runDistanceTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/appLogoImageView"
+            app:layout_constraintTop_toBottomOf="@+id/timeRunningTextView" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/runDistanceTextView"
+            android:layout_width="wrap_content"
+            android:textSize="@dimen/middle_text_size"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/small_margin"
+            android:layout_marginVertical="@dimen/small_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/appLogoImageView"
+            app:layout_constraintTop_toBottomOf="@+id/runDistanceLabel" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

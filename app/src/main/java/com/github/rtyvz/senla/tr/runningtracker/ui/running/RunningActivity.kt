@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -257,9 +258,11 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private fun initRunningDistanceReceiver() {
         runningDistanceReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
+                val distance = intent?.getIntExtra(EXTRA_RUN_DISTANCE, DEFAULT_INT_VALUE)
                 runDistanceTextView.text = String.format(
                     resources.getString(R.string.running_activity_run_distance_pattern),
-                    intent?.getIntExtra(EXTRA_RUN_DISTANCE, DEFAULT_INT_VALUE)
+                    distance,
+                    distance?.humanizeDistance()
                 )
             }
         }
