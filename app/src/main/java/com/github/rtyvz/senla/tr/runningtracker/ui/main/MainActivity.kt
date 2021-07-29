@@ -7,14 +7,17 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.track.CurrentTrackFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    HandleClosingActivityContract {
+    HandleClosingActivityContract, TracksFragment.OnClickItemListListener {
 
     companion object {
         private const val USER_TOKEN = "USER_TOKEN"
@@ -56,8 +59,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun openMainFragment(isFirstTimeRunFlag: Boolean) {
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragmentContainer, MainFragment.newInstance(isFirstTimeRunFlag))
-            .addToBackStack(MainFragment.TAG)
+            .replace(R.id.fragmentContainer, TracksFragment.newInstance(isFirstTimeRunFlag))
+            .addToBackStack(TracksFragment.TAG)
             .commit()
         navigationView.setCheckedItem(R.id.mainItem)
     }
@@ -102,5 +105,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun closeActivity() {
         finish()
+    }
+
+    override fun onItemClick(trackEntity: TrackEntity) {
+        supportFragmentManager.beginTransaction().replace(
+            R.id.fragmentContainer,
+            CurrentTrackFragment.newInstance(trackEntity),
+            CurrentTrackFragment.TAG
+        ).addToBackStack(CurrentTrackFragment.TAG)
+            .commit()
     }
 }

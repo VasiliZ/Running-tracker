@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.main
+package com.github.rtyvz.senla.tr.runningtracker.ui.tracks
 
 import android.content.Intent
 import android.content.SharedPreferences
@@ -14,6 +14,7 @@ import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
@@ -21,20 +22,17 @@ import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textview.MaterialTextView
 
-class MainFragment : Fragment() {
+class TracksFragment : Fragment() {
 
     companion object {
-        val TAG: String = MainFragment::class.java.simpleName.toString()
+        val TAG: String = TracksFragment::class.java.simpleName.toString()
         private const val EMPTY_STRING = ""
         private const val USER_TOKEN = "USER_TOKEN"
         private const val INVALID_TOKEN = "INVALID_TOKEN"
         private const val EXTRA_IS_FIRST_TIME_RUN_APP = "IS_FIRST_TIME_RUN_APP"
-        private val runningAdapter by lazy {
-            RunningAdapter()
-        }
 
-        fun newInstance(isFirstTimeRunAppFlag: Boolean): MainFragment {
-            return MainFragment().apply {
+        fun newInstance(isFirstTimeRunAppFlag: Boolean): TracksFragment {
+            return TracksFragment().apply {
                 arguments = Bundle().apply {
                     putBoolean(EXTRA_IS_FIRST_TIME_RUN_APP, isFirstTimeRunAppFlag)
                 }
@@ -46,6 +44,11 @@ class MainFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var fab: FloatingActionButton
     private lateinit var listTrackRecycler: RecyclerView
+    private val runningAdapter by lazy {
+        TracksAdapter {
+            (activity as OnClickItemListListener).onItemClick(it)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -115,5 +118,9 @@ class MainFragment : Fragment() {
 
     private fun getTracksInOtherCases() {
 
+    }
+
+    interface OnClickItemListListener {
+        fun onItemClick(trackEntity: TrackEntity)
     }
 }

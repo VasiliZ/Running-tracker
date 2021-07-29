@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.main
+package com.github.rtyvz.senla.tr.runningtracker.ui.tracks
 
 import android.view.LayoutInflater
 import android.view.View
@@ -13,8 +13,8 @@ import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTime
 import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithUTC
 import com.google.android.material.textview.MaterialTextView
 
-class RunningAdapter :
-    ListAdapter<TrackEntity, RunningAdapter.RunningViewHolder>(DiffUtilCallback()) {
+class TracksAdapter(private val handleItemClick: (TrackEntity) -> (Unit)) :
+    ListAdapter<TrackEntity, TracksAdapter.RunningViewHolder>(DiffUtilCallback()) {
 
     companion object {
         private const val DATE_START_PATTERN = "dd MM yyyy"
@@ -22,9 +22,12 @@ class RunningAdapter :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RunningViewHolder {
-        return RunningViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.track_item, parent, false)
-        )
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.track_item, parent, false)
+        return RunningViewHolder(view).apply {
+            this.itemView.setOnClickListener {
+                handleItemClick(currentList[adapterPosition])
+            }
+        }
     }
 
     override fun onBindViewHolder(holder: RunningViewHolder, position: Int) {

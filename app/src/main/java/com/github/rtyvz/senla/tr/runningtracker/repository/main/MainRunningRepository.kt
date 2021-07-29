@@ -6,16 +6,19 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import bolts.CancellationTokenSource
 import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.App
-import com.github.rtyvz.senla.tr.runningtracker.entity.network.PointResponse
+import com.github.rtyvz.senla.tr.runningtracker.entity.network.PointsRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.ERROR
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.OK
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.CurrentTrackPoints
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserTracks
+import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
+import com.github.rtyvz.senla.tr.runningtracker.extension.toCurrentTrackPoints
 import com.github.rtyvz.senla.tr.runningtracker.extension.toPoint
-import com.github.rtyvz.senla.tr.runningtracker.extension.toUserTracks
+import com.github.rtyvz.senla.tr.runningtracker.extension.toUserTracksSortedDesc
 import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 
@@ -26,6 +29,7 @@ class MainRunningRepository {
         private const val NO_POINTS = "NO_POINTS"
         private const val IS_DATA_SENT_FLAG = 1
         private const val USER_TOKEN = "USER_TOKEN"
+        private const val EMPTY_STRING = ""
     }
 
     private val cancellationToken = CancellationTokenSource()
@@ -40,11 +44,32 @@ class MainRunningRepository {
                     callback(Result.Error(it.error.toString()))
                 } else {
                     when (it.result.status) {
-                        OK -> callback(Result.Success(it.result.toUserTracks()))
+                        OK -> callback(Result.Success(it.result.toUserTracksSortedDesc()))
                         ERROR -> callback(Result.Error(it.result.errorCode.toString()))
                     }
                 }
             }, Task.UI_THREAD_EXECUTOR)
+    }
+
+    fun getTrackPoints(remoteTrackId: Long, callback: (Result<CurrentTrackPoints>) -> Unit) {
+        val userToken = App.instance.getSharedPreference().getString(
+            USER_TOKEN, EMPTY_STRING
+        )
+        if (userToken != null && userToken.isNotBlank()) {
+            TasksProvider.getPointsFromServerTask(
+                cancellationToken.token,
+                PointsRequest(userToken, remoteTrackId)
+            ).continueWith({
+                if (it.isFaulted) {
+                    callback(Result.Error(it.error.toString()))
+                } else {
+                    when (it.result.status) {
+                        OK -> callback(Result.Success(it.result.toCurrentTrackPoints()))
+                        ERROR -> callback(Result.Error(it.result.errorCode.toString()))
+                    }
+                }
+            }, Task.UI_THREAD_EXECUTOR)
+        }
     }
 
     fun insertTracksIntoDB(tracksList: List<TrackEntity>) {
@@ -121,5 +146,9 @@ class MainRunningRepository {
             }
             return@continueWithTask it
         }, Task.UI_THREAD_EXECUTOR)
+    }
+
+    fun removeEmptyTrack(beginsAt: Long) {
+        TasksProvider.getDeleteTrackFromDbTask(cancellationToken.token, beginsAt.toString())
     }
 }

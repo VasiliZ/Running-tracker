@@ -4,8 +4,6 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class PointEntity(
-    val lat: Double,
-    val lng: Double,
-    val beginAt: Long
+data class CurrentTrackPoints(
+    val listPoints: List<PointEntity>
 ) : Parcelable

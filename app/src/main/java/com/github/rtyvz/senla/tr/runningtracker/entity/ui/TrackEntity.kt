@@ -10,6 +10,5 @@ data class TrackEntity(
     val time: Long,
     val distance: Int,
     //field for checking sent data to remote server or not
-    val isSent: Int = 0,
-    var listPoint: List<PointEntity> = emptyList()
+    val isSent: Int = 0
 ) : Parcelable

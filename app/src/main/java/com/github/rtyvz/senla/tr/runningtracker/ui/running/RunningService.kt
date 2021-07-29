@@ -69,6 +69,7 @@ class RunningService : Service(), LocationListener {
                         it.toPointEntity(startRunningTime)
                     })
             } else {
+                App.mainRunningRepository.removeEmptyTrack(startRunningTime)
                 LocalBroadcastManager.getInstance(this)
                     .sendBroadcastSync(Intent(RunningActivity.BROADCAST_ARE_YOU_RUN))
             }
