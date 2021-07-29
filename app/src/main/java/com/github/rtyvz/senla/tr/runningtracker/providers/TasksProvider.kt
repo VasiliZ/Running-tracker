@@ -1,11 +1,11 @@
 package com.github.rtyvz.senla.tr.runningtracker.providers
 
-import android.location.Location
 import bolts.CancellationToken
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Point
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.PointsRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.tasks.*
@@ -37,10 +37,9 @@ object TasksProvider {
 
     fun getInsertLocationTask(
         cancellationToken: CancellationToken,
-        location: Location,
-        beginAt: Long
+        pointsEntityList: List<PointEntity>
     ) =
-        InsertLocationIntoDbTask().insertLocation(location, beginAt, cancellationToken)
+        InsertLocationIntoDbTask().insertLocation(pointsEntityList, cancellationToken)
 
     fun getSaveTrackOnRemoteServerTask(
         track: TrackEntity,
@@ -63,4 +62,10 @@ object TasksProvider {
         cancellationToken: CancellationToken,
         pointsRequest: PointsRequest
     ) = GetPointsFromServer().getPoints(cancellationToken, pointsRequest)
+
+    fun getPointsFromDbTask(cancellationToken: CancellationToken, beginAt: Long) =
+        GetPointFromDbTask().getPointsFromDb(beginAt, cancellationToken)
+
+    fun getTracksFromDb(cancellationToken: CancellationToken) =
+        GetTracksFromDb().getTracksFromDb(cancellationToken)
 }

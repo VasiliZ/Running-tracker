@@ -5,15 +5,13 @@ import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.db.DBHelper
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 
-class InsertLocationIntoDbTask {
-    fun insertLocation(
-        poinstEntitiesList: List<PointEntity>,
+class GetPointFromDbTask {
+    fun getPointsFromDb(
+        beginsAt: Long,
         cancellationToken: CancellationToken
-    ) {
-        Task.callInBackground({
-            DBHelper.insertPointsIntoTable(
-                poinstEntitiesList
-            )
+    ): Task<List<PointEntity>> {
+        return Task.callInBackground({
+            DBHelper.getTrackPointsFromDB(beginsAt)
         }, cancellationToken)
     }
 }

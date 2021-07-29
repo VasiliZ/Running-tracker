@@ -82,12 +82,23 @@ class CurrentTrackFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerC
             App.mainRunningRepository.getTrackPoints(track.id) {
                 when (it) {
                     is Result.Success -> {
-                        setupMapData(googleMap, it.responseBody.listPoints)
-                        drawPath(googleMap, it.responseBody.listPoints)
+                        setupMapData(googleMap, it.data.listPoints)
+                        drawPath(googleMap, it.data.listPoints)
                         setDataOnUI()
                     }
                     is Result.Error -> {
-                        //todo handle error
+                        App.mainRunningRepository.getPointsFromDb(track.beginsAt) { dbResult ->
+                            when (dbResult) {
+                                is Result.Success -> {
+                                    setupMapData(googleMap, dbResult.data.listPoints)
+                                    drawPath(googleMap, dbResult.data.listPoints)
+                                    setDataOnUI()
+                                }
+                                is Result.Error -> {
+
+                                }
+                            }
+                        }
                     }
                 }
             }

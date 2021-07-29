@@ -88,7 +88,7 @@ class TracksFragment : Fragment() {
 
     private fun getTrackFirstTime(token: String, sharedPrefs: SharedPreferences) {
         progressBar.isVisible = true
-        App.mainRunningRepository.getTracksFromNetwork(TracksRequest(token)) {
+        App.mainRunningRepository.getTracks(TracksRequest(token)) {
             progressBar.isVisible = false
             when (it) {
                 is Result.Error -> {
@@ -104,12 +104,12 @@ class TracksFragment : Fragment() {
                     }
                 }
                 is Result.Success -> {
-                    if (it.responseBody.tracksList.isEmpty()) {
+                    if (it.data.tracksList.isEmpty()) {
                         informationTextView.isVisible = true
                         informationTextView.text =
                             getString(R.string.main_fragment_havent_got_data_for_display)
                     } else {
-                        runningAdapter.submitList(it.responseBody.tracksList)
+                        runningAdapter.submitList(it.data.tracksList)
                     }
                 }
             }

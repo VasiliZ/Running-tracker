@@ -84,10 +84,12 @@ class RunningService : Service(), LocationListener {
         } else {
             startRunningTime =
                 intent?.getLongExtra(EXTRA_CURRENT_TIME, DEFAULT_LONG_VALUE) ?: DEFAULT_LONG_VALUE
-            val firstPoint = intent?.getParcelableExtra<Location>(EXTRA_CURRENT_LOCATION)
-            if (firstPoint != null) {
-                pointsList.add(firstPoint)
+            val startPoint = intent?.getParcelableExtra<Location>(EXTRA_CURRENT_LOCATION)
+
+            if (startPoint != null) {
+                pointsList.add(startPoint)
             }
+
             App.mainRunningRepository.insertTracksIntoDB(
                 listOf(
                     TrackEntity(
@@ -152,7 +154,13 @@ class RunningService : Service(), LocationListener {
 
     override fun onLocationChanged(location: Location) {
         pointsList.add(location)
-        App.mainRunningRepository.insertLocationIntoDb(location, startRunningTime)
+        App.mainRunningRepository.insertLocationIntoDb(
+            listOf(
+                location.toPointEntity(
+                    startRunningTime
+                )
+            )
+        )
     }
 
     private fun calculateDistance(): Int {

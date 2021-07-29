@@ -1,11 +1,13 @@
 package com.github.rtyvz.senla.tr.runningtracker.repository.main
 
 import android.content.Intent
-import android.location.Location
+import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import bolts.CancellationTokenSource
+import bolts.Continuation
 import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.App
+import com.github.rtyvz.senla.tr.runningtracker.db.DBHelper
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.PointsRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.ERROR
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.OK
@@ -15,10 +17,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.CurrentTrackPoints
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserTracks
-import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
-import com.github.rtyvz.senla.tr.runningtracker.extension.toCurrentTrackPoints
-import com.github.rtyvz.senla.tr.runningtracker.extension.toPoint
-import com.github.rtyvz.senla.tr.runningtracker.extension.toUserTracksSortedDesc
+import com.github.rtyvz.senla.tr.runningtracker.extension.*
 import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 
@@ -34,19 +33,61 @@ class MainRunningRepository {
 
     private val cancellationToken = CancellationTokenSource()
 
-    fun getTracksFromNetwork(
+    fun getTracks(
         tracksRequest: TracksRequest,
         callback: (Result<UserTracks>) -> (Unit)
     ) {
         TasksProvider.getFetchingTrackFromNetworkTask(tracksRequest, cancellationToken.token)
-            .continueWith({
+            .continueWithTask({
                 if (it.isFaulted) {
                     callback(Result.Error(it.error.toString()))
                 } else {
                     when (it.result.status) {
-                        OK -> callback(Result.Success(it.result.toUserTracksSortedDesc()))
+                        //                 OK -> callback(Result.Success(it.result.toUserTracksSortedDesc()))
                         ERROR -> callback(Result.Error(it.result.errorCode.toString()))
                     }
+                }
+                return@continueWithTask it
+            }, Task.UI_THREAD_EXECUTOR)
+            .continueWithTask({
+                if (!it.isFaulted && it.result.tracks.isNotEmpty()) {
+                    DBHelper.insertTracksIntoTable(
+                        it.result.tracks.map { track ->
+                            track.toSentTrackEntity()
+                        }
+                    )
+                }
+                return@continueWithTask it
+            }, Task.BACKGROUND_EXECUTOR).continueWith({
+                if (!it.isFaulted && it.result.tracks.isNotEmpty()) {
+                    val userToken =
+                        App.instance.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
+                    if (userToken != null && userToken.isNotBlank()) {
+                        it.result.tracks.forEach { getTrack ->
+                            Log.d("get token", getTrack.beginsAt.toString())
+                            TasksProvider.getPointsFromServerTask(
+                                cancellationToken.token, PointsRequest(
+                                    userToken, getTrack.id
+                                )
+                            ).continueWith {
+                                TasksProvider.getInsertLocationTask(
+                                    cancellationToken.token,
+                                    it.result.pointsList.map { point ->
+                                        point.toPointEntity(getTrack.beginsAt)
+                                    })
+                            }
+                        }
+                    }
+                }
+            }, Task.BACKGROUND_EXECUTOR)
+            .continueWithTask(Continuation<Unit?, Task<List<TrackEntity>>> {
+                return@Continuation TasksProvider.getTracksFromDb(cancellationToken.token)
+            }, Task.BACKGROUND_EXECUTOR)
+            .continueWith({
+                if (!it.isFaulted && it.result.isNotEmpty()) {
+                    callback(Result.Success(UserTracks(it.result.sortedByDescending { trackEntity ->
+                        trackEntity.beginsAt
+                    })))
                 }
             }, Task.UI_THREAD_EXECUTOR)
     }
@@ -59,7 +100,7 @@ class MainRunningRepository {
             TasksProvider.getPointsFromServerTask(
                 cancellationToken.token,
                 PointsRequest(userToken, remoteTrackId)
-            ).continueWith({
+            ).continueWith {
                 if (it.isFaulted) {
                     callback(Result.Error(it.error.toString()))
                 } else {
@@ -68,7 +109,7 @@ class MainRunningRepository {
                         ERROR -> callback(Result.Error(it.result.errorCode.toString()))
                     }
                 }
-            }, Task.UI_THREAD_EXECUTOR)
+            }
         }
     }
 
@@ -76,8 +117,8 @@ class MainRunningRepository {
         TasksProvider.getInsertTrackIntoDbkTask(cancellationToken.token, tracksList)
     }
 
-    fun insertLocationIntoDb(location: Location, beginAt: Long) {
-        TasksProvider.getInsertLocationTask(cancellationToken.token, location, beginAt)
+    fun insertLocationIntoDb(pointEntitiesList: List<PointEntity>) {
+        TasksProvider.getInsertLocationTask(cancellationToken.token, pointEntitiesList)
     }
 
     fun saveTrack(
@@ -150,5 +191,18 @@ class MainRunningRepository {
 
     fun removeEmptyTrack(beginsAt: Long) {
         TasksProvider.getDeleteTrackFromDbTask(cancellationToken.token, beginsAt.toString())
+    }
+
+    fun getPointsFromDb(beginsAt: Long, callback: (Result<CurrentTrackPoints>) -> Unit) {
+        TasksProvider.getPointsFromDbTask(cancellationToken.token, beginsAt).continueWith {
+            if (it.isFaulted) {
+                //todo detailed message
+                callback(Result.Error(it.error.toString()))
+            } else {
+                if (it.result.isNotEmpty()) {
+                    callback(Result.Success(CurrentTrackPoints(it.result)))
+                }
+            }
+        }
     }
 }
