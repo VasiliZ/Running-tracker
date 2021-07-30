@@ -5,13 +5,10 @@ import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.db.DBHelper
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 
-class UpdateTackIntoDbTask {
-    fun replaceTrackIntoDb(
-        trackEntity: TrackEntity,
-        cancellationToken: CancellationToken
-    ): Task<Unit> {
+class GetUnsentTracksTask {
+    fun getUnsentTracks(cancellationToken: CancellationToken): Task<List<TrackEntity>> {
         return Task.callInBackground({
-            DBHelper.replaceTrackIntoTable(trackEntity)
+            DBHelper.getUnsentTracksFromDb()
         }, cancellationToken)
     }
 }

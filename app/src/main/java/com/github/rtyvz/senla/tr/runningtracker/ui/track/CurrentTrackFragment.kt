@@ -1,6 +1,7 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.track
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -95,7 +96,7 @@ class CurrentTrackFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerC
                                     setDataOnUI()
                                 }
                                 is Result.Error -> {
-
+                                    Log.d(TAG, "getPoints: Error")
                                 }
                             }
                         }

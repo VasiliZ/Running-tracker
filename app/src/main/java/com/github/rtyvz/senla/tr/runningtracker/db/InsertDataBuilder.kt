@@ -1,6 +1,8 @@
 package com.github.rtyvz.senla.tr.runningtracker.db
 
+import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 
 class InsertDataBuilder(private val tableName: String) {
 
@@ -49,6 +51,10 @@ class InsertDataBuilder(private val tableName: String) {
                 else -> statement?.bindNull(index + 1)
             }
         }
-        statement?.executeInsert()
+        try {
+            statement?.executeInsert()
+        } catch (e: SQLiteConstraintException) {
+            Log.e("exception", "we have the same track")
+        }
     }
 }

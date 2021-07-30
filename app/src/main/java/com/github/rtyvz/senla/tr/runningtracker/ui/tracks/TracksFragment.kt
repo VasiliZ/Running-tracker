@@ -66,10 +66,10 @@ class TracksFragment : Fragment() {
         val sharedPrefs = requireActivity().getSharedPreference()
         val token = sharedPrefs.getString(USER_TOKEN, EMPTY_STRING)
 
-        if (token?.isNotBlank() == true /*&& arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false*/) {
+        if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
             getTrackFirstTime(token, sharedPrefs)
         } else {
-            getTracksInOtherCases()
+            getTracksFromDb()
         }
 
         fab.setOnClickListener {
@@ -116,8 +116,17 @@ class TracksFragment : Fragment() {
         }
     }
 
-    private fun getTracksInOtherCases() {
+    private fun getTracksFromDb() {
+        App.mainRunningRepository.getTracksFromDb {
+            when (it) {
+                is Result.Success -> {
+                    runningAdapter.submitList(it.data.tracksList)
+                }
+                is Result.Error -> {
 
+                }
+            }
+        }
     }
 
     interface OnClickItemListListener {

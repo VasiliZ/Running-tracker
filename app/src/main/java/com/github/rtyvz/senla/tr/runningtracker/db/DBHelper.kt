@@ -6,8 +6,10 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 
 object DBHelper {
-    private const val BEGINS_AT_CONDITION = "beginAt = "
+    private const val BEGINS_AT_CONDITION = "beginAt "
     private const val SELECT_ALL = "*"
+    private const val UNSENT_TRACKS_FLAG = 0
+    private const val SENT_TRACK_FLAG = 1
 
     fun insertTracksIntoTable(tracks: List<TrackEntity>) {
         tracks.forEach {
@@ -37,7 +39,34 @@ object DBHelper {
             .setFieldsWithData(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
             .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
             .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, trackEntity.isSent)
-            .whereCondition("$BEGINS_AT_CONDITION ${trackEntity.beginsAt}")
+            .whereCondition("$BEGINS_AT_CONDITION = ${trackEntity.beginsAt}")
+            .build(App.db)
+    }
+
+    fun replaceTrackIntoTable(trackEntity: TrackEntity) {
+        ReplaceDataTableBuilder(AppDb.TRACK_TABLE_NAME)
+            .setFieldsWithDataForReplace(AppDb.BEGIN_AT_FIELD_NAME, trackEntity.beginsAt)
+            .setFieldsWithDataForReplace(AppDb.TIME_FIELD_NAME, trackEntity.time)
+            .setFieldsWithDataForReplace(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
+            .setFieldsWithDataForReplace(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
+            .setFieldsWithDataForReplace(AppDb.IS_SENT_FIELD_NAME, trackEntity.isSent)
+            .build(App.db)
+    }
+
+    fun updateTrackIdFromBeginsAt(id: Long, beginsAt: Long) {
+        UpdateTableBuilder(AppDb.TRACK_TABLE_NAME)
+            .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, id)
+            .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, SENT_TRACK_FLAG)
+            .whereCondition("$BEGINS_AT_CONDITION = $beginsAt")
+            .build(App.db)
+    }
+
+    fun updatePointIntoTable(pointEntity: PointEntity) {
+        UpdateTableBuilder(AppDb.POINTS_TABLE_NAME)
+            .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, pointEntity.beginAt)
+            .setFieldsWithData(AppDb.LNG_FIELD_NAME, pointEntity.lng)
+            .setFieldsWithData(AppDb.LAT_FIELD_NAME, pointEntity.lat)
+            .whereCondition("$BEGINS_AT_CONDITION = ${pointEntity.beginAt}")
             .build(App.db)
     }
 
@@ -52,7 +81,7 @@ object DBHelper {
         val cursor = SelectDataBuilder(listOf(AppDb.TRACK_TABLE_NAME))
             .fieldFromSelect(SELECT_ALL)
             .build(App.db)
-        try {
+        cursor.use {
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     listTracks.add(
@@ -65,8 +94,37 @@ object DBHelper {
                     )
                 } while (cursor.moveToNext())
             }
-        } finally {
-            cursor?.close()
+        }
+        return listTracks
+    }
+
+    fun getUnsentTracksFromDb(): List<TrackEntity> {
+        val listTracks = mutableListOf<TrackEntity>()
+        val trackCursor = SelectDataBuilder(listOf(AppDb.TRACK_TABLE_NAME))
+            .fieldFromSelect(SELECT_ALL)
+            .where("${AppDb.IS_SENT_FIELD_NAME} = $UNSENT_TRACKS_FLAG")
+            .build(App.db)
+
+        trackCursor.use {
+            if (trackCursor != null && trackCursor.moveToFirst()) {
+                do {
+                    listTracks.add(
+                        TrackEntity(
+                            id = trackCursor.getLong(trackCursor.getColumnIndex(AppDb.REMOTE_ID_FIELD_NAME)),
+                            beginsAt = trackCursor.getLong(trackCursor.getColumnIndex(AppDb.BEGIN_AT_FIELD_NAME)),
+                            time = trackCursor.getLong(trackCursor.getColumnIndex(AppDb.TIME_FIELD_NAME)),
+                            distance = trackCursor.getInt(trackCursor.getColumnIndex(AppDb.DISTANCE_FIELD_NAME)),
+                            listPoints = getTrackPointsFromDB(
+                                trackCursor.getLong(
+                                    trackCursor.getColumnIndex(
+                                        AppDb.BEGIN_AT_FIELD_NAME
+                                    )
+                                )
+                            )
+                        )
+                    )
+                } while (trackCursor.moveToNext())
+            }
         }
         return listTracks
     }
@@ -74,7 +132,7 @@ object DBHelper {
     private fun selectPointsFromDb(beginsAt: Long): Cursor? {
         return SelectDataBuilder(listOf(AppDb.POINTS_TABLE_NAME))
             .fieldFromSelect("${AppDb.POINTS_TABLE_NAME}.*")
-            .where(beginsAt.toString())
+            .where("${AppDb.BEGIN_AT_FIELD_NAME} = $beginsAt")
             .build(App.db)
     }
 
@@ -91,7 +149,7 @@ object DBHelper {
                             beginAt = it.getLong(it.getColumnIndex(AppDb.BEGIN_AT_FIELD_NAME))
                         )
                     )
-                } while (cursor.moveToFirst())
+                } while (cursor.moveToNext())
             }
         }
         return listPoints

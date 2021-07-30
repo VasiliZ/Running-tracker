@@ -35,7 +35,7 @@ object TasksProvider {
     ) =
         InsertTracksIntoDbTask().insertTracksIntiDb(listTrack, cancellationToken)
 
-    fun getInsertLocationTask(
+    fun getInsertTrackPointsTask(
         cancellationToken: CancellationToken,
         pointsEntityList: List<PointEntity>
     ) =
@@ -53,7 +53,10 @@ object TasksProvider {
         )
 
     fun getUpdateTrackIntoDb(track: TrackEntity, cancellationToken: CancellationToken) =
-        UpdateTackIntoDbTask().updateTrackIntoDb(track, cancellationToken)
+        UpdateTackIntoDbTask().replaceTrackIntoDb(track, cancellationToken)
+
+    fun getUpdateIdTrackTask(id: Long, beginAt: Long, cancellationToken: CancellationToken) =
+        UpdateTrackIdTask().updateTrackId(cancellationToken, id, beginAt)
 
     fun getDeleteTrackFromDbTask(cancellationToken: CancellationToken, condition: String) =
         RemoveTrackFromDbTask().removeTrackFromDb(cancellationToken, condition)
@@ -68,4 +71,10 @@ object TasksProvider {
 
     fun getTracksFromDb(cancellationToken: CancellationToken) =
         GetTracksFromDb().getTracksFromDb(cancellationToken)
+
+    fun getUnsentTracks(cancellationToken: CancellationToken) =
+        GetUnsentTracksTask().getUnsentTracks(cancellationToken)
+
+    fun getUpdatePointsIntoDbTask(cancellationToken: CancellationToken, pointEntity: PointEntity) =
+        UpdatePointIntoDbTask().updatePointIntoDb(cancellationToken, pointEntity)
 }
