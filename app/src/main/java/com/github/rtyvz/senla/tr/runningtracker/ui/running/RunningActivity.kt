@@ -394,7 +394,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         if (isStartButtonClicked && !isFinishButtonClicked) {
             showClickFinishDialog()
         } else {
-            super.onBackPressed()
+            finish()
         }
     }
 
@@ -405,7 +405,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                     showClickFinishDialog()
                     false
                 } else {
-                    super.onBackPressed()
+                    finish()
                     true
                 }
             }
