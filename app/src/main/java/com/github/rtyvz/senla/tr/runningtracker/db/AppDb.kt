@@ -35,7 +35,6 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             .build(db)
 
         CreateTableBuilder(POINTS_TABLE_NAME)
-            .setTableField(ID_FIELD_NAME, PRIMARY_FIELD_TYPE)
             .setTableField(BEGIN_AT_FIELD_NAME, INT_NOT_NULL_TYPE)
             .setTableField(LNG_FIELD_NAME, REAL_NOT_NULL_TYPE)
             .setTableField(LAT_FIELD_NAME, REAL_NOT_NULL_TYPE)
