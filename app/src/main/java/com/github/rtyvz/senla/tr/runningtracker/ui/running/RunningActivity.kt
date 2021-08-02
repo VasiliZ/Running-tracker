@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -25,14 +26,12 @@ import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
+import com.github.rtyvz.senla.tr.runningtracker.service.RunningService
+import com.github.rtyvz.senla.tr.runningtracker.service.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
-import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
@@ -79,6 +78,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private lateinit var errorSavingTrackIntoDbReceiver: BroadcastReceiver
     private lateinit var networkErrorReceiver: BroadcastReceiver
     private lateinit var areYouRunReceiver: BroadcastReceiver
+    private lateinit var gpsStateChangeReceiver: BroadcastReceiver
     private lateinit var toolbar: MaterialToolbar
     private var currentLocation: Location? = null
     private val timeFormatter = SimpleDateFormat(STOP_WATCH_PATTERN, Locale.getDefault())
@@ -117,22 +117,24 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         mapFragment.getMapAsync(this)
 
         startRunningButton.setOnClickListener {
-            isStartButtonClicked = true
-            startAnimation(startLayout, R.animator.flip_out)
-            startAnimation(exitLayout, R.animator.flip_in)
-            exitLayout.isVisible = true
-            startRunningButton.isClickable = false
+            if (isGpsEnabled()) {
+                isStartButtonClicked = true
+                startAnimation(startLayout, R.animator.flip_out)
+                startAnimation(exitLayout, R.animator.flip_in)
+                exitLayout.isVisible = true
+                startRunningButton.isClickable = false
 
-            startTimer()
-            val intentRunningService = Intent(this, RunningService::class.java).apply {
-                putExtra(RunningService.EXTRA_CURRENT_TIME, System.currentTimeMillis())
-                putExtra(RunningService.EXTRA_CURRENT_LOCATION, currentLocation)
-            }
+                startTimer()
+                val intentRunningService = Intent(this, RunningService::class.java).apply {
+                    putExtra(RunningService.EXTRA_CURRENT_TIME, System.currentTimeMillis())
+                    putExtra(RunningService.EXTRA_CURRENT_LOCATION, currentLocation)
+                }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intentRunningService)
-            } else {
-                startService(intentRunningService)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(intentRunningService)
+                } else {
+                    startService(intentRunningService)
+                }
             }
         }
 
@@ -165,6 +167,16 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         initAreYouRunReceiver()
     }
 
+    private fun isGpsEnabled(): Boolean {
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            true
+        } else {
+            EnableGpsDialog.newInstance().show(supportFragmentManager, EnableGpsDialog.TAG)
+            false
+        }
+    }
+
     override fun onResume() {
         super.onResume()
 
@@ -173,6 +185,20 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         registerWrongUserTokenReceiver()
         registerNetworkErrorReceiver()
         registerAreYouRunReceiver()
+
+
+        gpsStateChangeReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (LocationManager.PROVIDERS_CHANGED_ACTION == intent?.action) {
+                    Log.d(TAG, "onReceive: asd")
+                }
+            }
+        }
+
+        localBroadcastManager.registerReceiver(
+            gpsStateChangeReceiver,
+            IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
+        )
     }
 
     private fun registerWrongUserTokenReceiver() {
@@ -386,7 +412,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
     override fun tryToRunningAgain() {
-        //rewrite activity state for restart run action
+        //todo rewrite activity state for restart run action
         recreate()
     }
 

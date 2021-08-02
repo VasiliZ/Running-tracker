@@ -57,4 +57,5 @@
     <string name="current_track_fragment_distance_label">Расстояние</string>
     <string name="current_fragment_track_spent_time_label">Длительность</string>
     <string name="current_fragment_run_distance_pattern">%1$s метр%2$s</string>
+    <string name="running_activity_are_you_enable_gps">Провеерьте влючен ли GPS</string>
 </resources>

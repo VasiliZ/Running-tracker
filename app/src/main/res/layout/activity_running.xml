@@ -26,7 +26,7 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/startLayout"
-        android:layout_width="@dimen/large_button_width"
+        android:layout_width="@dimen/large_width"
         android:layout_height="@dimen/large_button_height"
         android:layout_marginBottom="@dimen/large_margin"
         android:alpha="1"
@@ -55,7 +55,7 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/exitLayout"
-        android:layout_width="@dimen/large_button_width"
+        android:layout_width="@dimen/large_width"
         android:layout_height="@dimen/large_button_height"
         android:layout_marginBottom="@dimen/large_margin"
         android:alpha="0"
@@ -91,7 +91,7 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/resultLayout"
-        android:layout_width="@dimen/large_button_width"
+        android:layout_width="@dimen/large_width"
         android:layout_height="@dimen/large_button_height"
         android:layout_marginBottom="@dimen/large_margin"
         android:alpha="0"

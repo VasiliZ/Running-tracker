@@ -43,7 +43,9 @@ class MainRunningRepository {
                     callback(Result.Error(it.error.toString()))
                 } else {
                     when (it.result.status) {
-                        OK -> callback(Result.Success(it.result.toUserTracksSortedDesc()))
+                        OK -> { //nothing to do here
+                            //we wait data from database
+                        }
                         ERROR -> callback(Result.Error(it.result.errorCode.toString()))
                     }
                 }
@@ -99,7 +101,7 @@ class MainRunningRepository {
             }, Task.BACKGROUND_EXECUTOR)
             .continueWith({
                 //put all data to UI
-                if (!it.isFaulted && it.result.isNotEmpty()) {
+                if (!it.isFaulted) {
                     callback(Result.Success(UserTracks(it.result.sortedByDescending { trackEntity ->
                         trackEntity.beginsAt
                     })))

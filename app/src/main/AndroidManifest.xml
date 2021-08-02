@@ -36,7 +36,7 @@
             android:screenOrientation="portrait" />
 
         <service
-            android:name=".ui.running.RunningService"
+            android:name=".service.RunningService"
             android:foregroundServiceType="location" />
     </application>
 

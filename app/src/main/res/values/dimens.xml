@@ -5,7 +5,8 @@
     <dimen name="logo_size">100dp</dimen>
     <dimen name="nav_header_logo_size">60dp</dimen>
     <dimen name="nav_menu_item_size">30dp</dimen>
-    <dimen name="large_button_width">300dp</dimen>
+    <dimen name="large_width">300dp</dimen>
+    <dimen name="large_height">300dp</dimen>
     <dimen name="large_button_height">80dp</dimen>
 
     <!--margin-->

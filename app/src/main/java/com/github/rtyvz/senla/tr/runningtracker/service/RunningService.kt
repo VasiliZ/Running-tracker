@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.running
+package com.github.rtyvz.senla.tr.runningtracker.service
 
 import android.Manifest
 import android.app.Notification
@@ -21,6 +21,7 @@ import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.toPointEntity
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 
 class RunningService : Service(), LocationListener {
 
