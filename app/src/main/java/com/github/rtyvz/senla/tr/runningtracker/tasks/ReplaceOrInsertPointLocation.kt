@@ -6,12 +6,12 @@ import com.github.rtyvz.senla.tr.runningtracker.db.DBHelper
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 
 class ReplaceOrInsertPointLocation {
-    fun replaceTrackPoints(
+    fun insertTrackPoints(
         pointsList: List<PointEntity>,
         cancellationToken: CancellationToken
-    ) {
-        Task.callInBackground({
-            DBHelper.replacePointsIntoTheTable(pointsList)
+    ): Task<Unit> {
+        return Task.callInBackground({
+            DBHelper.insertPointsIntoTheTable(pointsList)
         }, cancellationToken)
     }
 }

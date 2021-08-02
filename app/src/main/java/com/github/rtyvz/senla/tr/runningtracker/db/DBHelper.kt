@@ -13,36 +13,24 @@ object DBHelper {
 
     fun replaceTrackIntoTable(tracksList: List<TrackEntity>) {
         tracksList.forEach { trackEntity ->
-            ReplaceDataTableBuilder(AppDb.TRACK_TABLE_NAME)
+            InsertDataTableBuilder(AppDb.TRACK_TABLE_NAME)
                 .setFieldsWithDataForReplace(AppDb.BEGIN_AT_FIELD_NAME, trackEntity.beginsAt)
                 .setFieldsWithDataForReplace(AppDb.TIME_FIELD_NAME, trackEntity.time)
                 .setFieldsWithDataForReplace(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
                 .setFieldsWithDataForReplace(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
                 .setFieldsWithDataForReplace(AppDb.IS_SENT_FIELD_NAME, trackEntity.isSent)
-                .setFieldsWithDataForReplace(AppDb.IS_SENT_FIELD_NAME, SENT_TRACK_FLAG)
                 .build(App.db)
         }
     }
 
-    fun replacePointsIntoTheTable(pointsList: List<PointEntity>) {
+    fun insertPointsIntoTheTable(pointsList: List<PointEntity>) {
         pointsList.forEach { pointEntity ->
-            ReplaceDataTableBuilder(AppDb.POINTS_TABLE_NAME)
+            InsertDataTableBuilder(AppDb.POINTS_TABLE_NAME)
                 .setFieldsWithDataForReplace(AppDb.BEGIN_AT_FIELD_NAME, pointEntity.beginAt)
                 .setFieldsWithDataForReplace(AppDb.LNG_FIELD_NAME, pointEntity.lng)
                 .setFieldsWithDataForReplace(AppDb.LAT_FIELD_NAME, pointEntity.lat)
-                .build(App.db)
+                .build(App.db, true)
         }
-    }
-
-    fun insertTrack(trackEntity: TrackEntity) {
-        InsertDataBuilder(AppDb.TRACK_TABLE_NAME)
-            .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, trackEntity.beginsAt)
-            .setFieldsWithData(AppDb.TIME_FIELD_NAME, trackEntity.time)
-            .setFieldsWithData(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
-            .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
-            .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, trackEntity.isSent)
-            .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, UNSENT_TRACKS_FLAG)
-            .build(App.db)
     }
 
     fun insertPoint(point: PointEntity) {
@@ -64,6 +52,16 @@ object DBHelper {
     fun deleteTrackFromDb(conditionForDelete: String) {
         DeleteDataBuilder(AppDb.TRACK_TABLE_NAME)
             .where("${AppDb.BEGIN_AT_FIELD_NAME} = $conditionForDelete")
+            .build(App.db)
+    }
+
+    fun updateTrack(trackEntity: TrackEntity) {
+        UpdateTableBuilder(AppDb.TRACK_TABLE_NAME)
+            .setFieldsWithData(AppDb.TIME_FIELD_NAME, trackEntity.time)
+            .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
+            .setFieldsWithData(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
+            .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, trackEntity.isSent)
+            .whereCondition("${AppDb.BEGIN_AT_FIELD_NAME} = ${trackEntity.beginsAt}")
             .build(App.db)
     }
 

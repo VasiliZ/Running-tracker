@@ -8,7 +8,6 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -19,6 +18,7 @@ import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.SimpleLocation
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.toPointEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
@@ -31,6 +31,7 @@ class RunningService : Service(), LocationListener {
         const val EXTRA_FINISH_RUNNING_TIME = "FINISH_RUNNING_TIME"
         const val EXTRA_CURRENT_LOCATION = "CURRENT_LOCATION"
         private const val EMPTY_STRING = ""
+        private const val EMPTY_LOCATION_PROVIDER = ""
         private const val RUNNING_SERVICE_CHANNEL_ID = "RUNNING_SERVICE_CHANNEL_ID"
         private const val RUNNING_SERVICE_CHANNEL_NAME = "RUNNING_SERVICE_CHANNEL_NAME"
         private const val DEFAULT_LONG_VALUE = 0L
@@ -85,17 +86,21 @@ class RunningService : Service(), LocationListener {
         } else {
             startRunningTime =
                 intent?.getLongExtra(EXTRA_CURRENT_TIME, DEFAULT_LONG_VALUE) ?: DEFAULT_LONG_VALUE
-            val startPoint = intent?.getParcelableExtra<Location>(EXTRA_CURRENT_LOCATION)
+            val startPoint = intent?.getParcelableExtra<SimpleLocation>(EXTRA_CURRENT_LOCATION)
 
             if (startPoint != null) {
-                pointsList.add(startPoint)
+                saveCurrentPoint(Location(EMPTY_LOCATION_PROVIDER).apply {
+                    latitude = startPoint.lat
+                    longitude = startPoint.lng
+                })
             }
 
             App.mainRunningRepository.insertTracksIntoDB(
                 TrackEntity(
                     beginsAt = startRunningTime,
                     time = 0L,
-                    distance = 0
+                    distance = 0,
+                    isSent = 0
                 )
             )
         }
@@ -132,7 +137,6 @@ class RunningService : Service(), LocationListener {
         val channel =
             NotificationChannel(channelId, chanelName, NotificationManager.IMPORTANCE_HIGH)
         channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-        channel.lightColor = Color.BLUE
         notificationManager.createNotificationChannel(channel)
         return channelId
     }
@@ -152,12 +156,7 @@ class RunningService : Service(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location) {
-        pointsList.add(location)
-        App.mainRunningRepository.insertLocationIntoDb(
-            location.toPointEntity(
-                startRunningTime
-            )
-        )
+        saveCurrentPoint(location)
     }
 
     private fun calculateDistance(): Int {
@@ -168,5 +167,14 @@ class RunningService : Service(), LocationListener {
             }
         }
         return distanceBetweenPoints.toInt()
+    }
+
+    private fun saveCurrentPoint(location: Location) {
+        pointsList.add(location)
+        App.mainRunningRepository.insertLocationIntoDb(
+            location.toPointEntity(
+                startRunningTime
+            )
+        )
     }
 }

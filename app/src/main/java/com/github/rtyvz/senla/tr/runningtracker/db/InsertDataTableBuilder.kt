@@ -2,7 +2,7 @@ package com.github.rtyvz.senla.tr.runningtracker.db
 
 import android.database.sqlite.SQLiteDatabase
 
-class ReplaceDataTableBuilder(private val tableName: String) {
+class InsertDataTableBuilder(private val tableName: String) {
 
     companion object {
         private const val SEPARATOR = ","
@@ -14,14 +14,19 @@ class ReplaceDataTableBuilder(private val tableName: String) {
 
     private val mapWithData = mutableMapOf<String, Any>()
 
-    fun setFieldsWithDataForReplace(fieldName: String, data: Any): ReplaceDataTableBuilder {
+    fun setFieldsWithDataForReplace(fieldName: String, data: Any): InsertDataTableBuilder {
         mapWithData[fieldName] = data
         return this
     }
 
-    fun build(db: SQLiteDatabase) {
+    fun build(db: SQLiteDatabase, isIgnore: Boolean = false) {
         val statement = db.compileStatement(
-            "INSERT OR REPLACE INTO $tableName ${
+            "INSERT ${
+                when (isIgnore) {
+                    true -> " OR IGNORE "
+                    else -> ""
+                }
+            }INTO $tableName ${
                 mapWithData.keys.joinToString(
                     separator = SEPARATOR,
                     prefix = OPEN_BRACKET,
@@ -35,7 +40,7 @@ class ReplaceDataTableBuilder(private val tableName: String) {
                 ) {
                     QUESTION_MARK
                 }
-            }"
+            } "
         )
         mapWithData.values.forEachIndexed { index, data ->
             when (data) {

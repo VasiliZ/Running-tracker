@@ -31,6 +31,7 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             .setTableField(REMOTE_ID_FIELD_NAME, INT_DEFAULT_ZERO_TYPE)
             .setTableField(DISTANCE_FIELD_NAME, INT_NOT_NULL_TYPE)
             .setTableField(IS_SENT_FIELD_NAME, INT_NOT_NULL_TYPE)
+            .setUniqueFields(listOf(BEGIN_AT_FIELD_NAME))
             .build(db)
 
         CreateTableBuilder(POINTS_TABLE_NAME)

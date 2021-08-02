@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -25,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.SimpleLocation
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
@@ -80,7 +80,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private lateinit var areYouRunReceiver: BroadcastReceiver
     private lateinit var gpsStateChangeReceiver: BroadcastReceiver
     private lateinit var toolbar: MaterialToolbar
-    private var currentLocation: Location? = null
+    private var currentLocationPoint: SimpleLocation? = null
     private val timeFormatter = SimpleDateFormat(STOP_WATCH_PATTERN, Locale.getDefault())
 
     private var handler: Handler? = null
@@ -127,7 +127,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                 startTimer()
                 val intentRunningService = Intent(this, RunningService::class.java).apply {
                     putExtra(RunningService.EXTRA_CURRENT_TIME, System.currentTimeMillis())
-                    putExtra(RunningService.EXTRA_CURRENT_LOCATION, currentLocation)
+                    putExtra(RunningService.EXTRA_CURRENT_LOCATION, currentLocationPoint)
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -360,20 +360,24 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private fun getDeviceLocation() {
         try {
             if (locationPermissionGranted) {
-                locationProvider.lastLocation.addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        currentLocation = it.result
-                        googleMap?.moveCamera(
-                            CameraUpdateFactory.newLatLngZoom(
-                                LatLng(
-                                    it.result.latitude,
-                                    it.result.longitude
-                                ), DEFAULT_ZOOM.toFloat()
+                locationProvider.lastLocation.addOnCompleteListener { location ->
+                    if (location.isSuccessful) {
+                        if (location.result != null) {
+                            val simpleLocation =
+                                SimpleLocation(location.result.latitude, location.result.longitude)
+                            currentLocationPoint = simpleLocation
+                            googleMap?.moveCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    LatLng(
+                                        simpleLocation.lat,
+                                        simpleLocation.lng
+                                    ), DEFAULT_ZOOM.toFloat()
+                                )
                             )
-                        )
-                    } else {
-                        Log.e(TAG, "Exception: %s", it.exception)
-                        googleMap?.uiSettings?.isMyLocationButtonEnabled = false
+                        } else {
+                            Log.e(TAG, "Exception: %s", location.exception)
+                            googleMap?.uiSettings?.isMyLocationButtonEnabled = false
+                        }
                     }
                 }
             }

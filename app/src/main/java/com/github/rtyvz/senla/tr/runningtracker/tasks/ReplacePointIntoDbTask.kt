@@ -8,7 +8,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 class ReplacePointIntoDbTask {
     fun updatePointIntoDb(cancellationToken: CancellationToken, pointsList: List<PointEntity>) {
         Task.callInBackground({
-            DBHelper.replacePointsIntoTheTable(pointsList)
+            DBHelper.insertPointsIntoTheTable(pointsList)
         }, cancellationToken)
     }
 }
