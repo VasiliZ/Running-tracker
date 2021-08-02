@@ -1,7 +1,6 @@
 package com.github.rtyvz.senla.tr.runningtracker.repository.main
 
 import android.content.Intent
-import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import bolts.CancellationTokenSource
 import bolts.Continuation
@@ -37,6 +36,7 @@ class MainRunningRepository {
         tracksRequest: TracksRequest,
         callback: (Result<UserTracks>) -> (Unit)
     ) {
+        //get tacks from network
         TasksProvider.getFetchingTrackFromNetworkTask(tracksRequest, cancellationToken.token)
             .continueWithTask({
                 if (it.isFaulted) {
@@ -50,22 +50,20 @@ class MainRunningRepository {
                 return@continueWithTask it
             }, Task.UI_THREAD_EXECUTOR)
             .continueWithTask({
+                //save tracks into database
                 if (!it.isFaulted && it.result.tracks.isNotEmpty()) {
-                    DBHelper.insertTracksIntoTable(
-                        it.result.tracks.map { track ->
-                            track.toSentTrackEntity()
-                        }
-                    )
+                    DBHelper.replaceTrackIntoTable(it.result.tracks.map { track ->
+                        track.toTrackEntity()
+                    })
                 }
                 return@continueWithTask it
             }, Task.BACKGROUND_EXECUTOR).continueWithTask({
-
+                //get all points for all tracks
                 if (!it.isFaulted && it.result.tracks.isNotEmpty()) {
                     val userToken =
                         App.instance.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
                     if (userToken != null && userToken.isNotBlank()) {
                         it.result.tracks.forEach { getTrack ->
-                            Log.d("get token", getTrack.beginsAt.toString())
                             listTask[
                                     getTrack.beginsAt] =
                                 TasksProvider.getPointsFromServerTask(
@@ -79,12 +77,13 @@ class MainRunningRepository {
                 return@continueWithTask Task.whenAll(listTask.values)
             }, Task.BACKGROUND_EXECUTOR)
             .onSuccess({
+                //insert points into table
                 if (it.isFaulted) {
                     //todo error can't load points for track
                 } else {
                     listTask.forEach { map ->
                         if (!it.isFaulted) {
-                            TasksProvider.getInsertTrackPointsTask(
+                            TasksProvider.getReplaceTrackPointsTask(
                                 cancellationToken.token,
                                 map.value.result.pointsList.map { point ->
                                     point.toPointEntity(map.key)
@@ -95,9 +94,11 @@ class MainRunningRepository {
                 return@onSuccess null
             }, Task.BACKGROUND_EXECUTOR)
             .continueWithTask(Continuation<Nothing?, Task<List<TrackEntity>>> {
+                //get all data from database
                 return@Continuation TasksProvider.getTracksFromDb(cancellationToken.token)
             }, Task.BACKGROUND_EXECUTOR)
             .continueWith({
+                //put all data to UI
                 if (!it.isFaulted && it.result.isNotEmpty()) {
                     callback(Result.Success(UserTracks(it.result.sortedByDescending { trackEntity ->
                         trackEntity.beginsAt
@@ -127,12 +128,12 @@ class MainRunningRepository {
         }
     }
 
-    fun insertTracksIntoDB(tracksList: List<TrackEntity>) {
-        TasksProvider.getInsertTrackIntoDbkTask(cancellationToken.token, tracksList)
+    fun insertTracksIntoDB(track: TrackEntity) {
+        TasksProvider.getInsertTrackTask(track, cancellationToken.token)
     }
 
-    fun insertLocationIntoDb(pointEntitiesList: List<PointEntity>) {
-        TasksProvider.getInsertTrackPointsTask(cancellationToken.token, pointEntitiesList)
+    fun insertLocationIntoDb(point: PointEntity) {
+        TasksProvider.getInsertPointTask(point, cancellationToken.token)
     }
 
     fun saveTrack(
@@ -140,7 +141,7 @@ class MainRunningRepository {
         listPoints: List<PointEntity>
     ) {
         val updateTrackIntoDbTask =
-            TasksProvider.getUpdateTrackIntoDb(track, cancellationToken.token)
+            TasksProvider.getInsertTrackTask(track, cancellationToken.token)
         val saveTrackOnRemoteServerTask = TasksProvider.getSaveTrackOnRemoteServerTask(
             cancellationToken = cancellationToken.token,
             track = track, listPoints = listPoints.map {
@@ -176,7 +177,7 @@ class MainRunningRepository {
                         )
                     }
                     null -> {
-                        TasksProvider.getUpdateTrackIntoDb(
+                        TasksProvider.getInsertTrackTask(
                             TrackEntity(
                                 beginsAt = track.beginsAt,
                                 time = track.time,
@@ -225,6 +226,7 @@ class MainRunningRepository {
         val mapPointTask = mutableMapOf<Long, Task<PointResponse>>()
         val mapUnsentTask = mutableMapOf<Long, Task<SaveTrackResponse>>()
         val updatedTrackTasks = mutableMapOf<Long, Task<Unit>>()
+        //get all tracks from database
         TasksProvider.getTracksFromDb(cancellationToken.token).continueWith({
             if (it.result.isNotEmpty()) {
                 callback(Result.Success(UserTracks(it.result.sortedByDescending { track ->
@@ -234,6 +236,7 @@ class MainRunningRepository {
             return@continueWith it.result
         }, Task.UI_THREAD_EXECUTOR)
             .continueWithTask({
+                //send request for all tracks in network
                 return@continueWithTask TasksProvider.getFetchingTrackFromNetworkTask(
                     TracksRequest(
                         App.instance.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
@@ -242,19 +245,21 @@ class MainRunningRepository {
                 )
             }, Task.BACKGROUND_EXECUTOR)
             .continueWithTask({
+                //save all tracks into database
                 val data = it.result
                 if (data != null && !it.isFaulted) {
-                    data.tracks.forEach { track ->
-                        updatedTrackTasks[track.beginsAt] = TasksProvider.getUpdateTrackIntoDb(
-                            track.toSentTrackEntity(), cancellationToken.token
-                        )
-                    }
+                    TasksProvider.getReplaceTrackIntoDbkTask(
+                        cancellationToken.token,
+                        data.tracks.map { track ->
+                            track.toTrackEntity()
+                        })
                 } else {
                     callback(Result.Error(it.result?.errorCode.toString()))
                 }
                 return@continueWithTask it
             }, Task.BACKGROUND_EXECUTOR)
             .continueWithTask({
+                //send request for all points for all tracks
                 val userToken =
                     App.instance.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
                 if (userToken != null && userToken.isNotBlank()) {
@@ -268,21 +273,23 @@ class MainRunningRepository {
                 return@continueWithTask Task.whenAll(mapPointTask.values)
             }, Task.BACKGROUND_EXECUTOR)
             .onSuccess({
+                //replace all points into the table
                 mapPointTask.forEach { tasksMap ->
                     if (!tasksMap.value.isFaulted) {
-                        tasksMap.value.result.pointsList.forEach { point ->
-                            TasksProvider.getUpdatePointsIntoDbTask(
-                                cancellationToken.token,
-                                point.toPointEntity(tasksMap.key)
-                            )
-                        }
+                        TasksProvider.getUpdatePointsIntoDbTask(
+                            cancellationToken.token,
+                            tasksMap.value.result.pointsList.map {
+                                it.toPointEntity(tasksMap.key)
+                            })
                     }
                 }
             }, Task.BACKGROUND_EXECUTOR)
             .continueWithTask({
+                //get all unsent tracks
                 return@continueWithTask TasksProvider.getUnsentTracks(cancellationToken.token)
             }, Task.BACKGROUND_EXECUTOR)
             .continueWithTask({
+                //push all tracks on remote server
                 it.result.forEach { trackForSend ->
                     mapUnsentTask[trackForSend.beginsAt] =
                         TasksProvider.getSaveTrackOnRemoteServerTask(
@@ -298,6 +305,7 @@ class MainRunningRepository {
                 if (it.isFaulted) {
                     callback(Result.Error("Не удалось отправить данные на сервер"))
                 } else {
+                    //save success request into database
                     mapUnsentTask.forEach { map ->
                         TasksProvider.getUpdateIdTrackTask(
                             map.value.result.remoteTrackId,
@@ -312,6 +320,7 @@ class MainRunningRepository {
                 if (it.isFaulted) {
                     callback(Result.Error("Не удалось отправить данные на сервер"))
                 } else {
+                    //update ui data from new data in databse
                     TasksProvider.getTracksFromDb(cancellationToken.token)
                         .continueWith({
                             if (it.result.isNotEmpty()) {

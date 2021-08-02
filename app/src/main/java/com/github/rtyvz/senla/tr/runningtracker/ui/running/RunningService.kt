@@ -91,12 +91,10 @@ class RunningService : Service(), LocationListener {
             }
 
             App.mainRunningRepository.insertTracksIntoDB(
-                listOf(
-                    TrackEntity(
-                        beginsAt = startRunningTime,
-                        time = 0L,
-                        distance = 0
-                    )
+                TrackEntity(
+                    beginsAt = startRunningTime,
+                    time = 0L,
+                    distance = 0
                 )
             )
         }
@@ -155,10 +153,8 @@ class RunningService : Service(), LocationListener {
     override fun onLocationChanged(location: Location) {
         pointsList.add(location)
         App.mainRunningRepository.insertLocationIntoDb(
-            listOf(
-                location.toPointEntity(
-                    startRunningTime
-                )
+            location.toPointEntity(
+                startRunningTime
             )
         )
     }

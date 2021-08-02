@@ -6,7 +6,7 @@ import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.PointResponse
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.PointsRequest
 
-class GetPointsFromServer {
+class GetPointsFromServerTask {
     fun getPoints(
         cancellationToken: CancellationToken,
         pointsRequest: PointsRequest

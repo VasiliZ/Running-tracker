@@ -1,7 +1,6 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.track
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -80,7 +79,7 @@ class CurrentTrackFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerC
         val track = arguments?.getParcelable<TrackEntity>(EXTRA_TRACK_ENTITY)
         if (track != null) {
             trackEntity = track
-            App.mainRunningRepository.getTrackPoints(track.id) {
+            App.mainRunningRepository.getPointsFromDb(track.beginsAt) {
                 when (it) {
                     is Result.Success -> {
                         setupMapData(googleMap, it.data.listPoints)
@@ -88,18 +87,7 @@ class CurrentTrackFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerC
                         setDataOnUI()
                     }
                     is Result.Error -> {
-                        App.mainRunningRepository.getPointsFromDb(track.beginsAt) { dbResult ->
-                            when (dbResult) {
-                                is Result.Success -> {
-                                    setupMapData(googleMap, dbResult.data.listPoints)
-                                    drawPath(googleMap, dbResult.data.listPoints)
-                                    setDataOnUI()
-                                }
-                                is Result.Error -> {
-                                    Log.d(TAG, "getPoints: Error")
-                                }
-                            }
-                        }
+
                     }
                 }
             }

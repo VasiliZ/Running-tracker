@@ -11,45 +11,45 @@ object DBHelper {
     private const val UNSENT_TRACKS_FLAG = 0
     private const val SENT_TRACK_FLAG = 1
 
-    fun insertTracksIntoTable(tracks: List<TrackEntity>) {
-        tracks.forEach {
-            InsertDataBuilder(AppDb.TRACK_TABLE_NAME)
-                .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, it.beginsAt)
-                .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, it.id)
-                .setFieldsWithData(AppDb.DISTANCE_FIELD_NAME, it.distance)
-                .setFieldsWithData(AppDb.TIME_FIELD_NAME, it.time)
-                .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, it.isSent)
+    fun replaceTrackIntoTable(tracksList: List<TrackEntity>) {
+        tracksList.forEach { trackEntity ->
+            ReplaceDataTableBuilder(AppDb.TRACK_TABLE_NAME)
+                .setFieldsWithDataForReplace(AppDb.BEGIN_AT_FIELD_NAME, trackEntity.beginsAt)
+                .setFieldsWithDataForReplace(AppDb.TIME_FIELD_NAME, trackEntity.time)
+                .setFieldsWithDataForReplace(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
+                .setFieldsWithDataForReplace(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
+                .setFieldsWithDataForReplace(AppDb.IS_SENT_FIELD_NAME, trackEntity.isSent)
+                .setFieldsWithDataForReplace(AppDb.IS_SENT_FIELD_NAME, SENT_TRACK_FLAG)
                 .build(App.db)
         }
     }
 
-    fun insertPointsIntoTable(points: List<PointEntity>) {
-        points.forEach {
-            InsertDataBuilder(AppDb.POINTS_TABLE_NAME)
-                .setFieldsWithData(AppDb.LAT_FIELD_NAME, it.lat)
-                .setFieldsWithData(AppDb.LNG_FIELD_NAME, it.lng)
-                .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, it.beginAt)
+    fun replacePointsIntoTheTable(pointsList: List<PointEntity>) {
+        pointsList.forEach { pointEntity ->
+            ReplaceDataTableBuilder(AppDb.POINTS_TABLE_NAME)
+                .setFieldsWithDataForReplace(AppDb.BEGIN_AT_FIELD_NAME, pointEntity.beginAt)
+                .setFieldsWithDataForReplace(AppDb.LNG_FIELD_NAME, pointEntity.lng)
+                .setFieldsWithDataForReplace(AppDb.LAT_FIELD_NAME, pointEntity.lat)
                 .build(App.db)
         }
     }
 
-    fun updateTackIntoTable(trackEntity: TrackEntity) {
-        UpdateTableBuilder(AppDb.TRACK_TABLE_NAME)
+    fun insertTrack(trackEntity: TrackEntity) {
+        InsertDataBuilder(AppDb.TRACK_TABLE_NAME)
+            .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, trackEntity.beginsAt)
             .setFieldsWithData(AppDb.TIME_FIELD_NAME, trackEntity.time)
             .setFieldsWithData(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
             .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
             .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, trackEntity.isSent)
-            .whereCondition("$BEGINS_AT_CONDITION = ${trackEntity.beginsAt}")
+            .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, UNSENT_TRACKS_FLAG)
             .build(App.db)
     }
 
-    fun replaceTrackIntoTable(trackEntity: TrackEntity) {
-        ReplaceDataTableBuilder(AppDb.TRACK_TABLE_NAME)
-            .setFieldsWithDataForReplace(AppDb.BEGIN_AT_FIELD_NAME, trackEntity.beginsAt)
-            .setFieldsWithDataForReplace(AppDb.TIME_FIELD_NAME, trackEntity.time)
-            .setFieldsWithDataForReplace(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
-            .setFieldsWithDataForReplace(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
-            .setFieldsWithDataForReplace(AppDb.IS_SENT_FIELD_NAME, trackEntity.isSent)
+    fun insertPoint(point: PointEntity) {
+        InsertDataBuilder(AppDb.POINTS_TABLE_NAME)
+            .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, point.beginAt)
+            .setFieldsWithData(AppDb.LNG_FIELD_NAME, point.lng)
+            .setFieldsWithData(AppDb.LAT_FIELD_NAME, point.lat)
             .build(App.db)
     }
 
@@ -58,15 +58,6 @@ object DBHelper {
             .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, id)
             .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, SENT_TRACK_FLAG)
             .whereCondition("$BEGINS_AT_CONDITION = $beginsAt")
-            .build(App.db)
-    }
-
-    fun updatePointIntoTable(pointEntity: PointEntity) {
-        UpdateTableBuilder(AppDb.POINTS_TABLE_NAME)
-            .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, pointEntity.beginAt)
-            .setFieldsWithData(AppDb.LNG_FIELD_NAME, pointEntity.lng)
-            .setFieldsWithData(AppDb.LAT_FIELD_NAME, pointEntity.lat)
-            .whereCondition("$BEGINS_AT_CONDITION = ${pointEntity.beginAt}")
             .build(App.db)
     }
 

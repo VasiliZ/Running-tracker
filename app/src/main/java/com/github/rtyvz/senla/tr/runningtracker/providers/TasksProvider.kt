@@ -29,17 +29,17 @@ object TasksProvider {
     ) =
         FetchTracksFromNetworkTask().fetchTracks(tracksRequest, cancellationToken)
 
-    fun getInsertTrackIntoDbkTask(
+    fun getReplaceTrackIntoDbkTask(
         cancellationToken: CancellationToken,
         listTrack: List<TrackEntity>
     ) =
-        InsertTracksIntoDbTask().insertTracksIntiDb(listTrack, cancellationToken)
+        ReplaceTrackIntoDbTask().replaceTracksIntiDb(listTrack, cancellationToken)
 
-    fun getInsertTrackPointsTask(
+    fun getReplaceTrackPointsTask(
         cancellationToken: CancellationToken,
-        pointsEntityList: List<PointEntity>
+        pointsList: List<PointEntity>
     ) =
-        InsertLocationIntoDbTask().insertLocation(pointsEntityList, cancellationToken)
+        ReplaceOrInsertPointLocation().replaceTrackPoints(pointsList, cancellationToken)
 
     fun getSaveTrackOnRemoteServerTask(
         track: TrackEntity,
@@ -52,8 +52,11 @@ object TasksProvider {
             cancellationToken
         )
 
-    fun getUpdateTrackIntoDb(track: TrackEntity, cancellationToken: CancellationToken) =
-        UpdateTackIntoDbTask().replaceTrackIntoDb(track, cancellationToken)
+    fun getInsertTrackTask(track: TrackEntity, cancellationToken: CancellationToken) =
+        InsertTackIntoDbTask().replaceTrackIntoDb(track, cancellationToken)
+
+    fun getInsertPointTask(point: PointEntity, cancellationToken: CancellationToken) =
+        InsertPointIntoDbTask().insertPoint(cancellationToken, point)
 
     fun getUpdateIdTrackTask(id: Long, beginAt: Long, cancellationToken: CancellationToken) =
         UpdateTrackIdTask().updateTrackId(cancellationToken, id, beginAt)
@@ -64,17 +67,17 @@ object TasksProvider {
     fun getPointsFromServerTask(
         cancellationToken: CancellationToken,
         pointsRequest: PointsRequest
-    ) = GetPointsFromServer().getPoints(cancellationToken, pointsRequest)
+    ) = GetPointsFromServerTask().getPoints(cancellationToken, pointsRequest)
 
     fun getPointsFromDbTask(cancellationToken: CancellationToken, beginAt: Long) =
         GetPointFromDbTask().getPointsFromDb(beginAt, cancellationToken)
 
     fun getTracksFromDb(cancellationToken: CancellationToken) =
-        GetTracksFromDb().getTracksFromDb(cancellationToken)
+        GetTracksFromDbTask().getTracksFromDb(cancellationToken)
 
     fun getUnsentTracks(cancellationToken: CancellationToken) =
         GetUnsentTracksTask().getUnsentTracks(cancellationToken)
 
-    fun getUpdatePointsIntoDbTask(cancellationToken: CancellationToken, pointEntity: PointEntity) =
-        UpdatePointIntoDbTask().updatePointIntoDb(cancellationToken, pointEntity)
+    fun getUpdatePointsIntoDbTask(cancellationToken: CancellationToken, points: List<PointEntity>) =
+        ReplacePointIntoDbTask().updatePointIntoDb(cancellationToken, points)
 }
