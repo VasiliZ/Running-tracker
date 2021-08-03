@@ -5,13 +5,13 @@ import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.db.DBHelper
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 
-class ReplaceTrackIntoDbTask {
-    fun replaceTracksIntiDb(
+class InsertTrackIntoDbTask {
+    fun insertTracksIntiDb(
         tracksList: List<TrackEntity>,
         cancellationToken: CancellationToken
     ): Task<Unit> {
         return Task.callInBackground({
-            DBHelper.replaceTrackIntoTable(tracksList)
+            DBHelper.insertTracksIntoTable(tracksList)
         }, cancellationToken)
     }
 }

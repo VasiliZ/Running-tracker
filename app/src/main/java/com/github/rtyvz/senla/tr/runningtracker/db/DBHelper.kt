@@ -11,7 +11,7 @@ object DBHelper {
     private const val UNSENT_TRACKS_FLAG = 0
     private const val SENT_TRACK_FLAG = 1
 
-    fun replaceTrackIntoTable(tracksList: List<TrackEntity>) {
+    fun insertTracksIntoTable(tracksList: List<TrackEntity>) {
         tracksList.forEach { trackEntity ->
             InsertDataTableBuilder(AppDb.TRACK_TABLE_NAME)
                 .setFieldsWithDataForReplace(AppDb.BEGIN_AT_FIELD_NAME, trackEntity.beginsAt)

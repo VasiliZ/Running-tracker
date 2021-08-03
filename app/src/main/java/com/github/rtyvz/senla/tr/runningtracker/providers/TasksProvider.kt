@@ -27,19 +27,19 @@ object TasksProvider {
         tracksRequest: TracksRequest,
         cancellationToken: CancellationToken
     ) =
-        FetchTracksFromNetworkTask().fetchTracks(tracksRequest, cancellationToken)
+        GetTracksFromNetworkTask().fetchTracks(tracksRequest, cancellationToken)
 
-    fun getReplaceTrackIntoDbkTask(
+    fun getInsertTracksIntoDbkTask(
         cancellationToken: CancellationToken,
         listTrack: List<TrackEntity>
     ) =
-        ReplaceTrackIntoDbTask().replaceTracksIntiDb(listTrack, cancellationToken)
+        InsertTrackIntoDbTask().insertTracksIntiDb(listTrack, cancellationToken)
 
     fun getInsertTrackPointsTask(
         cancellationToken: CancellationToken,
         pointsList: List<PointEntity>
     ) =
-        ReplaceOrInsertPointLocation().insertTrackPoints(pointsList, cancellationToken)
+        InsertPointsIntoDbTask().insertTrackPoints(pointsList, cancellationToken)
 
     fun getSaveTrackOnRemoteServerTask(
         track: TrackEntity,
@@ -77,9 +77,6 @@ object TasksProvider {
 
     fun getUnsentTracks(cancellationToken: CancellationToken) =
         GetUnsentTracksTask().getUnsentTracks(cancellationToken)
-
-    fun getUpdatePointsIntoDbTask(cancellationToken: CancellationToken, points: List<PointEntity>) =
-        ReplacePointIntoDbTask().updatePointIntoDb(cancellationToken, points)
 
     fun getUpdateTrackTask(track: TrackEntity, cancellationToken: CancellationToken) =
         UpdateTrackTask().updateTrack(track, cancellationToken)

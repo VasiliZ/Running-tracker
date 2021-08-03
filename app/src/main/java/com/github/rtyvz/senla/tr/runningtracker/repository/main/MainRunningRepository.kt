@@ -58,7 +58,7 @@ class MainRunningRepository {
             .continueWithTask({
                 //save tracks into database
                 if (!it.isFaulted && it.result.tracks.isNotEmpty()) {
-                    DBHelper.replaceTrackIntoTable(it.result.tracks.map { track ->
+                    DBHelper.insertTracksIntoTable(it.result.tracks.map { track ->
                         track.toSentTrackEntity()
                     })
                 }
@@ -246,10 +246,10 @@ class MainRunningRepository {
                 //save all tracks into database
                 val data = it.result
                 if (data != null && !it.isFaulted) {
-                    TasksProvider.getReplaceTrackIntoDbkTask(
+                    TasksProvider.getInsertTracksIntoDbkTask(
                         cancellationToken.token,
                         data.tracks.map { track ->
-                            track.toTrackEntity()
+                            track.toSentTrackEntity()
                         })
                 } else {
                     callback(Result.Error(it.result?.errorCode.toString()))
@@ -271,10 +271,10 @@ class MainRunningRepository {
                 return@continueWithTask Task.whenAll(mapPointTask.values)
             }, Task.BACKGROUND_EXECUTOR)
             .onSuccess({
-                //replace all points into the table
+                //insert all points into the table
                 mapPointTask.forEach { tasksMap ->
                     if (!tasksMap.value.isFaulted) {
-                        TasksProvider.getUpdatePointsIntoDbTask(
+                        TasksProvider.getInsertTrackPointsTask(
                             cancellationToken.token,
                             tasksMap.value.result.pointsList.map {
                                 it.toPointEntity(tasksMap.key)
@@ -305,7 +305,7 @@ class MainRunningRepository {
                 if (it.isFaulted) {
                     callback(Result.Error("Не удалось отправить данные на сервер"))
                 } else {
-                    //save success request into database
+                    //save success request into database after save unsent points
                     mapUnsentTask.forEach { map ->
                         TasksProvider.getUpdateIdTrackTask(
                             map.value.result.remoteTrackId,
@@ -320,7 +320,7 @@ class MainRunningRepository {
                 if (it.isFaulted) {
                     callback(Result.Error("Не удалось отправить данные на сервер"))
                 } else {
-                    //update ui data from new data in databse
+                    //update ui data from new data in database
                     TasksProvider.getTracksFromDb(cancellationToken.token)
                         .continueWith({
                             if (it.result.isNotEmpty()) {

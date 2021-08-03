@@ -11,7 +11,7 @@ class InsertTackIntoDbTask {
         cancellationToken: CancellationToken
     ): Task<Unit> {
         return Task.callInBackground({
-            DBHelper.replaceTrackIntoTable(listOf(track))
+            DBHelper.insertTracksIntoTable(listOf(track))
         }, cancellationToken)
     }
 }
