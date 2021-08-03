@@ -81,6 +81,6 @@ object TasksProvider {
     fun getUpdateTrackTask(track: TrackEntity, cancellationToken: CancellationToken) =
         UpdateTrackTask().updateTrack(track, cancellationToken)
 
-    fun getClearUserDataTask(cancellationToken: CancellationToken) =
-        ClearUserDataTask().clearUserData(cancellationToken)
+    fun getClearUserDataTask() =
+        ClearUserDataTask().clearUserData()
 }
