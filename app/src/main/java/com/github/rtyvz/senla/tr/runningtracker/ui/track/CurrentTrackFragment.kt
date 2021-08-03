@@ -1,6 +1,7 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.track
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,11 +15,14 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
 import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithUTC
 import com.github.rtyvz.senla.tr.runningtracker.extension.toLatLng
-import com.google.android.gms.maps.*
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.*
 import com.google.android.material.textview.MaterialTextView
 
-class CurrentTrackFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
 
     companion object {
         fun newInstance(trackEntity: TrackEntity): CurrentTrackFragment {
@@ -38,10 +42,11 @@ class CurrentTrackFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerC
     }
 
     private lateinit var trackEntity: TrackEntity
+    private lateinit var mapView: MapView
     private var map: GoogleMap? = null
-    private var currentTrackMapView: MapView? = null
     private lateinit var distanceTextView: MaterialTextView
     private lateinit var timeActionTextView: MaterialTextView
+    private var trackPoints: List<PointEntity> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,35 +61,51 @@ class CurrentTrackFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerC
 
         findViews(view)
 
-        with(currentTrackMapView) {
-            this?.onCreate(savedInstanceState)
-            this?.onResume()
-            this?.getMapAsync(this@CurrentTrackFragment)
-            MapsInitializer.initialize(requireContext())
+        mapView.onCreate(savedInstanceState)
+        mapView.onResume()
+
+        try {
+            MapsInitializer.initialize(requireContext().applicationContext)
+        } catch (e: Exception) {
+            Log.d(TAG, "onViewCreated: map init error")
         }
+
+        try {
+            mapView.getMapAsync { googleMap ->
+                getPoints()
+                map = googleMap
+            }
+        } catch (e: Exception) {
+            e.localizedMessage
+        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        mapView.onResume()
     }
 
     private fun findViews(view: View) {
-        currentTrackMapView = view.findViewById(R.id.currentTrackMapView)
         distanceTextView = view.findViewById(R.id.distanceTextView)
         timeActionTextView = view.findViewById(R.id.timeActionTextView)
+        mapView = view.findViewById(R.id.currentTrackMapView)
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        map = googleMap
-        getPoints(googleMap)
-    }
-
-    private fun getPoints(googleMap: GoogleMap) {
+    private fun getPoints() {
         val track = arguments?.getParcelable<TrackEntity>(EXTRA_TRACK_ENTITY)
         if (track != null) {
             trackEntity = track
             App.mainRunningRepository.getTrackPoints(track.id, track.beginsAt) {
                 when (it) {
                     is Result.Success -> {
-                        setupMapData(googleMap, it.data.listPoints)
-                        drawPath(googleMap, it.data.listPoints)
-                        setDataOnUI()
+                        trackPoints = it.data.listPoints
+                        if (trackPoints.isNotEmpty()) {
+                            setupMapData(map, trackPoints)
+                            drawPath(map, trackPoints)
+                            setDataOnUI()
+                        }
                     }
                     is Result.Error -> {
 
@@ -103,33 +124,37 @@ class CurrentTrackFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerC
         timeActionTextView.text = trackEntity.time.toDateTimeWithUTC(DATE_TIME_PATTERN)
     }
 
-    private fun drawPath(googleMap: GoogleMap, listPoints: List<PointEntity>) {
-        val lineOptions = PolylineOptions()
-        with(lineOptions) {
-            addAll(listPoints.map {
-                it.toLatLng()
-            })
-            width(10f)
-            color(ContextCompat.getColor(requireContext(), R.color.main_app_color))
-            googleMap.addPolyline(lineOptions)
+    private fun drawPath(googleMap: GoogleMap?, listPoints: List<PointEntity>) {
+        googleMap?.let {
+            val lineOptions = PolylineOptions()
+            with(lineOptions) {
+                addAll(listPoints.map {
+                    it.toLatLng()
+                })
+                width(10f)
+                color(ContextCompat.getColor(requireContext(), R.color.main_app_color))
+                it.addPolyline(lineOptions)
+            }
         }
     }
 
-    private fun setupMapData(googleMap: GoogleMap, pointsList: List<PointEntity>) {
-        val startPoint = pointsList.first()
-        val finishPoint = pointsList.last()
-        val startMarker = MarkerOptions().position(LatLng(startPoint.lat, startPoint.lng))
-            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-            .title(START_MARKER_TITLE)
-        val finishMarker = MarkerOptions()
-            .position(LatLng(finishPoint.lat, finishPoint.lng))
-            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-            .title(FINISH_MARKER_TITLE)
-        googleMap.addMarker(startMarker)
-        googleMap.addMarker(finishMarker)
-        val cameraUpdate =
-            CameraUpdateFactory.newLatLngBounds(getMiddlePoint(pointsList), CAMERA_PADDING)
-        googleMap.animateCamera(cameraUpdate)
+    private fun setupMapData(googleMap: GoogleMap?, pointsList: List<PointEntity>) {
+        googleMap?.let { it ->
+            val startPoint = pointsList.first()
+            val finishPoint = pointsList.last()
+            val startMarker = MarkerOptions().position(LatLng(startPoint.lat, startPoint.lng))
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                .title(START_MARKER_TITLE)
+            val finishMarker = MarkerOptions()
+                .position(LatLng(finishPoint.lat, finishPoint.lng))
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                .title(FINISH_MARKER_TITLE)
+            it.addMarker(startMarker)
+            it.addMarker(finishMarker)
+            val cameraUpdate =
+                CameraUpdateFactory.newLatLngBounds(getMiddlePoint(pointsList), CAMERA_PADDING)
+            it.animateCamera(cameraUpdate)
+        }
     }
 
     private fun getMiddlePoint(pointsList: List<PointEntity>): LatLngBounds {
@@ -140,15 +165,16 @@ class CurrentTrackFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerC
         return bounds.build()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onPause() {
+        mapView.onPause()
 
-        currentTrackMapView?.onDestroy()
+        super.onPause()
     }
 
-    override fun onLowMemory() {
-        currentTrackMapView?.onLowMemory()
-        super.onLowMemory()
+    override fun onDestroy() {
+        mapView.onDestroy()
+
+        super.onDestroy()
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
