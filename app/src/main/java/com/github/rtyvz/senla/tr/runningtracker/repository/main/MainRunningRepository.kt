@@ -43,8 +43,12 @@ class MainRunningRepository {
                     callback(Result.Error(it.error.toString()))
                 } else {
                     when (it.result.status) {
-                        OK -> { //nothing to do here
-                            //we wait data from database
+                        OK -> {
+                            callback(Result.Success(UserTracks(it.result.tracks.sortedByDescending { track ->
+                                track.beginsAt
+                            }.map { mapTrack ->
+                                mapTrack.toTrackEntity()
+                            })))
                         }
                         ERROR -> callback(Result.Error(it.result.errorCode.toString()))
                     }
@@ -99,14 +103,6 @@ class MainRunningRepository {
                 //get all data from database
                 return@continueWith TasksProvider.getTracksFromDb(cancellationToken.token).result
             }, Task.BACKGROUND_EXECUTOR)
-            .continueWith({
-                //put all data to UI
-                if (!it.isFaulted) {
-                    callback(Result.Success(UserTracks(it.result.sortedByDescending { trackEntity ->
-                        trackEntity.beginsAt
-                    })))
-                }
-            }, Task.UI_THREAD_EXECUTOR)
     }
 
     fun getTrackPoints(remoteTrackId: Long, callback: (Result<CurrentTrackPoints>) -> Unit) {
