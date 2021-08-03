@@ -46,7 +46,7 @@ class TracksFragment : Fragment() {
     private lateinit var listTrackRecycler: RecyclerView
     private val runningAdapter by lazy {
         TracksAdapter {
-            (activity as OnClickItemListListener).onItemClick(it)
+            (activity as OnItemClickListListener).onItemClick(it)
         }
     }
 
@@ -129,7 +129,7 @@ class TracksFragment : Fragment() {
         }
     }
 
-    interface OnClickItemListListener {
+    interface OnItemClickListListener {
         fun onItemClick(trackEntity: TrackEntity)
     }
 }

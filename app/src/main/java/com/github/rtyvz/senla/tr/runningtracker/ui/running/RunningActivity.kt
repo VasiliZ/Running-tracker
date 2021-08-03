@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.SimpleLocation
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
@@ -56,6 +57,8 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
             "local:BROADCAST_WRONG_USER_TOKEN"
         const val BROADCAST_NETWORK_ERROR =
             "local:BROADCAST_NETWORK_ERROR"
+        const val BROADCAST_GPS_ENABLED = "local:BROADCAST_GPS_ENABLED"
+        const val BROADCAST_GPS_DISABLED = "local:BROADCAST_GPS_DISABLED"
         private const val STOP_WATCH_PATTERN = "mm:ss,SS"
         private const val DEFAULT_INT_VALUE = 0
         private const val FIRST_ARRAY_INDEX = 0
@@ -74,12 +77,15 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private lateinit var localBroadcastManager: LocalBroadcastManager
     private lateinit var runningDistanceReceiver: BroadcastReceiver
     private lateinit var wrongUserTokenReceiver: BroadcastReceiver
+    private lateinit var gpsProviderDisabledReceiver: BroadcastReceiver
+    private lateinit var gpsProviderEnabledReceiver: BroadcastReceiver
     private lateinit var runDistanceTextView: MaterialTextView
     private lateinit var errorSavingTrackIntoDbReceiver: BroadcastReceiver
     private lateinit var networkErrorReceiver: BroadcastReceiver
     private lateinit var areYouRunReceiver: BroadcastReceiver
     private lateinit var gpsStateChangeReceiver: BroadcastReceiver
     private lateinit var toolbar: MaterialToolbar
+    private lateinit var gpsStatus: MaterialTextView
     private var currentLocationPoint: SimpleLocation? = null
     private val timeFormatter = SimpleDateFormat(STOP_WATCH_PATTERN, Locale.getDefault())
 
@@ -165,6 +171,8 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         initWrongUserTokenReceiver()
         initNetworkErrorReceiver()
         initAreYouRunReceiver()
+        initGpsEnabledReceiver()
+        initGpsDisabledReceiver()
     }
 
     private fun isGpsEnabled(): Boolean {
@@ -185,6 +193,8 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         registerWrongUserTokenReceiver()
         registerNetworkErrorReceiver()
         registerAreYouRunReceiver()
+        registerGpsEnabledReceiver()
+        registerGpsDisabledReceiver()
 
 
         gpsStateChangeReceiver = object : BroadcastReceiver() {
@@ -198,6 +208,18 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         localBroadcastManager.registerReceiver(
             gpsStateChangeReceiver,
             IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
+        )
+    }
+
+    private fun registerGpsDisabledReceiver() {
+        localBroadcastManager.registerReceiver(
+            gpsProviderDisabledReceiver, IntentFilter(BROADCAST_GPS_DISABLED)
+        )
+    }
+
+    private fun registerGpsEnabledReceiver() {
+        localBroadcastManager.registerReceiver(
+            gpsProviderEnabledReceiver, IntentFilter(BROADCAST_GPS_ENABLED)
         )
     }
 
@@ -234,6 +256,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
     private fun findViews() {
+        gpsStatus = findViewById(R.id.gpsStatusTextView)
         startRunningButton = findViewById(R.id.startRunningButton)
         exitLayout = findViewById(R.id.exitLayout)
         startLayout = findViewById(R.id.startLayout)
@@ -310,6 +333,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         wrongUserTokenReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 startActivity(Intent(this@RunningActivity, LoginActivity::class.java))
+                App.mainRunningRepository.clearCache()
                 finish()
             }
         }
@@ -333,6 +357,22 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         areYouRunReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 AreYouRunDialog.newInstance().show(supportFragmentManager, AreYouRunDialog.TAG)
+            }
+        }
+    }
+
+    private fun initGpsDisabledReceiver() {
+        gpsProviderDisabledReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                gpsStatus.isVisible = true
+            }
+        }
+    }
+
+    private fun initGpsEnabledReceiver() {
+        gpsProviderEnabledReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                gpsStatus.isVisible = false
             }
         }
     }
@@ -405,6 +445,8 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         localBroadcastManager.unregisterReceiver(wrongUserTokenReceiver)
         localBroadcastManager.unregisterReceiver(networkErrorReceiver)
         localBroadcastManager.unregisterReceiver(areYouRunReceiver)
+        localBroadcastManager.unregisterReceiver(gpsProviderEnabledReceiver)
+        localBroadcastManager.unregisterReceiver(gpsProviderDisabledReceiver)
 
         super.onPause()
     }

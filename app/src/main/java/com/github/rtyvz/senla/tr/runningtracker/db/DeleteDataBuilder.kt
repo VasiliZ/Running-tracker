@@ -8,6 +8,7 @@ class DeleteDataBuilder(private val tableName: String) {
     companion object {
         private const val DELETE_FROM = "DELETE FROM "
         private const val WHERE = " WHERE "
+        private const val EMPTY_STRING = ""
     }
 
     fun where(whereCondition: String): DeleteDataBuilder {
@@ -16,10 +17,15 @@ class DeleteDataBuilder(private val tableName: String) {
     }
 
     fun build(db: SQLiteDatabase) {
-        if (conditionForDelete != null) {
-            db.execSQL("$DELETE_FROM $tableName $WHERE $conditionForDelete")
-        } else {
-            throw IllegalArgumentException("Where condition must be placed")
-        }
+        db.execSQL(
+            "$DELETE_FROM $tableName ${
+                when (conditionForDelete) {
+                    null -> EMPTY_STRING
+                    else -> {
+                        "$WHERE  $conditionForDelete"
+                    }
+                }
+            }"
+        )
     }
 }

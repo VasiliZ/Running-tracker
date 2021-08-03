@@ -332,4 +332,8 @@ class MainRunningRepository {
                 }
             }
     }
+
+    fun clearCache() {
+        TasksProvider.getClearUserDataTask(cancellationToken.token)
+    }
 }

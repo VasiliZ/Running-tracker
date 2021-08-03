@@ -70,15 +70,10 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
             Log.d(TAG, "onViewCreated: map init error")
         }
 
-        try {
-            mapView.getMapAsync { googleMap ->
-                getPoints()
-                map = googleMap
-            }
-        } catch (e: Exception) {
-            e.localizedMessage
+        mapView.getMapAsync { googleMap ->
+            getPoints()
+            map = googleMap
         }
-
     }
 
     override fun onResume() {

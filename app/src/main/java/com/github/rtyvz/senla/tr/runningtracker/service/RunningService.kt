@@ -13,6 +13,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -157,6 +158,17 @@ class RunningService : Service(), LocationListener {
 
     override fun onLocationChanged(location: Location) {
         saveCurrentPoint(location)
+        Log.d("TAG", "onLocationChanged: $location")
+    }
+
+    override fun onProviderEnabled(provider: String) {
+        LocalBroadcastManager.getInstance(this)
+            .sendBroadcastSync(Intent(RunningActivity.BROADCAST_GPS_ENABLED))
+    }
+
+    override fun onProviderDisabled(provider: String) {
+        LocalBroadcastManager.getInstance(this)
+            .sendBroadcastSync(Intent(RunningActivity.BROADCAST_GPS_DISABLED))
     }
 
     private fun calculateDistance(): Int {

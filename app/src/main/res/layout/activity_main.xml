@@ -32,7 +32,8 @@
         app:menu="@menu/drawer_menu">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
+            android:id="@+id/exitFromAppLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_margin="@dimen/middle_margin">
@@ -50,7 +51,7 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/exitAppTextView"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/drawer_exit_label"
                 android:textColor="@color/text_color_black"

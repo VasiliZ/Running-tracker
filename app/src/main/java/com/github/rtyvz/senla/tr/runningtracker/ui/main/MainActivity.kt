@@ -1,23 +1,27 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.main
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.track.CurrentTrackFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    HandleClosingActivityContract, TracksFragment.OnClickItemListListener {
+    HandleClosingActivityContract, TracksFragment.OnItemClickListListener {
 
     companion object {
         private const val USER_TOKEN = "USER_TOKEN"
@@ -34,6 +38,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var navHeaderUserEmailTextView: MaterialTextView
     private lateinit var navigationView: NavigationView
     private lateinit var headerNavView: View
+    private lateinit var exitFromAppLayout: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +50,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         openMainFragment(isFirstTimeLaunchApp(getSharedPreference()))
         setSupportActionBar(toolBar)
         navigationView.setNavigationItemSelectedListener(this)
+
+        exitFromAppLayout.setOnClickListener {
+            App.mainRunningRepository.clearCache()
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
     }
 
     private fun isFirstTimeLaunchApp(sharedPreference: SharedPreferences): Boolean {
@@ -71,6 +82,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toolBar = findViewById(R.id.toolBar)
         navHeaderUserEmailTextView = headerNavView.findViewById(R.id.userEmailTextView)
         navHeaderUserNameTextView = headerNavView.findViewById(R.id.userNameTextView)
+        exitFromAppLayout = findViewById(R.id.exitFromAppLayout)
 
     }
 

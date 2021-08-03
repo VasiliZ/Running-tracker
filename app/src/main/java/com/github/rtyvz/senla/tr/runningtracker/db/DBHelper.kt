@@ -143,4 +143,14 @@ object DBHelper {
         }
         return listPoints
     }
+
+    fun deleteDataFromTrackTable() {
+        DeleteDataBuilder(AppDb.TRACK_TABLE_NAME)
+            .build(App.db)
+    }
+
+    fun deleteDataFromPointTable() {
+        DeleteDataBuilder(AppDb.POINTS_TABLE_NAME)
+            .build(App.db)
+    }
 }

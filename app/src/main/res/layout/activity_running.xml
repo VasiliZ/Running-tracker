@@ -21,8 +21,25 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolBar" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/gpsStatusTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?android:attr/actionBarSize"
+        android:background="@color/main_app_color"
+        android:text="@string/running_activity_wait_gps_label"
+        android:textAlignment="center"
+        android:textColor="@color/text_color_black"
+        android:textSize="@dimen/middle_text_size"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/startLayout"
@@ -73,12 +90,13 @@
             android:layout_height="@dimen/large_button_height"
             android:layout_gravity="start"
             android:insetLeft="0dp"
+            app:cornerRadius="@dimen/middle_corner_radius"
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
             android:text="@string/running_activity_finish_label" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/timerTextView"
             android:layout_width="150dp"
             android:layout_height="@dimen/large_button_height"
@@ -102,7 +120,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/runDistanceTextView"
             android:layout_width="150dp"
             android:layout_height="@dimen/large_button_height"
@@ -112,7 +130,7 @@
             android:textSize="@dimen/middle_text_size"
             android:textStyle="bold" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/stoppedTimerTextView"
             android:layout_width="150dp"
             android:layout_height="@dimen/large_button_height"
