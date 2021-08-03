@@ -16,12 +16,16 @@ import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.track.CurrentTrackFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.ErrorResponseFirstRunDialog
+import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.ErrorResponseNextRunDialog
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    HandleClosingActivityContract, TracksFragment.OnItemClickListListener {
+    HandleClosingActivityContract, TracksFragment.OnItemClickListListener,
+    TracksFragment.LogOutFromApp, ErrorResponseFirstRunDialog.ErrorResponseDialogCallBack,
+    ErrorResponseNextRunDialog.ErrorResponseDialogCallBack {
 
     companion object {
         private const val USER_TOKEN = "USER_TOKEN"
@@ -70,7 +74,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun openMainFragment(isFirstTimeRunFlag: Boolean) {
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragmentContainer, TracksFragment.newInstance(isFirstTimeRunFlag))
+            .replace(
+                R.id.fragmentContainer,
+                TracksFragment.newInstance(isFirstTimeRunFlag),
+                TracksFragment.TAG
+            )
             .addToBackStack(TracksFragment.TAG)
             .commit()
         navigationView.setCheckedItem(R.id.mainItem)
@@ -126,5 +134,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             CurrentTrackFragment.TAG
         ).addToBackStack(CurrentTrackFragment.TAG)
             .commit()
+    }
+
+    override fun logout() {
+        App.mainRunningRepository.clearCache()
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
+    }
+
+    override fun retryRequestTracksData() {
+        val fragment = supportFragmentManager.findFragmentByTag(TracksFragment.TAG)
+        if (fragment is TracksFragment) {
+            fragment.retryRequest()
+        }
+    }
+
+    override fun retryRequestTracksDataForNextRun() {
+        val fragment = supportFragmentManager.findFragmentByTag(TracksFragment.TAG)
+        if (fragment is TracksFragment) {
+            fragment.getTracksFromDb()
+        }
     }
 }

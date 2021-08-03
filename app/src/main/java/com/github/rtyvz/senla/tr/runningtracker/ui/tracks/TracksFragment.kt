@@ -1,7 +1,6 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.tracks
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -63,11 +62,10 @@ class TracksFragment : Fragment() {
 
         findViews(view)
 
-        val sharedPrefs = requireActivity().getSharedPreference()
-        val token = sharedPrefs.getString(USER_TOKEN, EMPTY_STRING)
+        val token = requireActivity().getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
 
         if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
-            getTrackFirstTime(token, sharedPrefs)
+            getTrackFirstTime(token)
         } else {
             getTracksFromDb()
         }
@@ -86,7 +84,7 @@ class TracksFragment : Fragment() {
         listTrackRecycler = view.findViewById(R.id.tracksListRecyclerView)
     }
 
-    private fun getTrackFirstTime(token: String, sharedPrefs: SharedPreferences) {
+    private fun getTrackFirstTime(token: String) {
         progressBar.isVisible = true
         App.mainRunningRepository.getTracks(TracksRequest(token)) {
             progressBar.isVisible = false
@@ -94,12 +92,20 @@ class TracksFragment : Fragment() {
                 is Result.Error -> {
                     when (it.error) {
                         INVALID_TOKEN -> {
-                            sharedPrefs.edit().clear().apply()
+                            requireContext().getSharedPreference().edit().clear().apply()
                             startActivity(Intent(requireContext(), LoginActivity::class.java))
                             (activity as HandleClosingActivityContract).closeActivity()
                         }
                         else -> {
-                            //todo set dialog with error here
+                            when (it.error) {
+                                INVALID_TOKEN -> {
+                                    (activity as LogOutFromApp).logout()
+                                }
+                                else -> {
+                                    ErrorResponseFirstRunDialog.newInstance()
+                                        .show(childFragmentManager, ErrorResponseFirstRunDialog.TAG)
+                                }
+                            }
                         }
                     }
                 }
@@ -116,14 +122,21 @@ class TracksFragment : Fragment() {
         }
     }
 
-    private fun getTracksFromDb() {
+    fun getTracksFromDb() {
         App.mainRunningRepository.getTracksFromDb {
             when (it) {
                 is Result.Success -> {
                     runningAdapter.submitList(it.data.tracksList)
                 }
                 is Result.Error -> {
-
+                    when (it.error) {
+                        INVALID_TOKEN -> {
+                            (activity as LogOutFromApp).logout()
+                        }
+                        else ->
+                            ErrorResponseNextRunDialog.newInstance()
+                                .show(childFragmentManager, ErrorResponseNextRunDialog.TAG)
+                    }
                 }
             }
         }
@@ -131,5 +144,16 @@ class TracksFragment : Fragment() {
 
     interface OnItemClickListListener {
         fun onItemClick(trackEntity: TrackEntity)
+    }
+
+    interface LogOutFromApp {
+        fun logout()
+    }
+
+    fun retryRequest() {
+        val token = requireActivity().getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
+        if (token != null && token.isNotBlank()) {
+            getTrackFirstTime(token)
+        }
     }
 }

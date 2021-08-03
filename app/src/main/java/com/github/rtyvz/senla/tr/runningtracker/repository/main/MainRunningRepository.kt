@@ -322,9 +322,9 @@ class MainRunningRepository {
                 } else {
                     //update ui data from new data in database
                     TasksProvider.getTracksFromDb(cancellationToken.token)
-                        .continueWith({
-                            if (it.result.isNotEmpty()) {
-                                callback(Result.Success(UserTracks(it.result.sortedByDescending { track ->
+                        .continueWith({ listTrack ->
+                            if (listTrack.result.isNotEmpty()) {
+                                callback(Result.Success(UserTracks(listTrack.result.sortedByDescending { track ->
                                     track.beginsAt
                                 })))
                             }
