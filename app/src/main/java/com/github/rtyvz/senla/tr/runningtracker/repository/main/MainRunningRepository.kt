@@ -116,7 +116,7 @@ class MainRunningRepository {
             ).continueWithTask({
                 if (!it.isFaulted && it.result.pointsList.isNotEmpty()) {
                     when (it.result.status) {
-                        OK -> callback(Result.Success(it.result.toCurrentTrackPoints(System.currentTimeMillis())))
+                        OK -> callback(Result.Success(it.result.toCurrentTrackPoints()))
                         ERROR -> callback(Result.Error(it.result.errorCode.toString()))
                     }
                 }
