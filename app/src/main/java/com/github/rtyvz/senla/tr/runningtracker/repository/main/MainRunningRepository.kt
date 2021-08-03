@@ -59,7 +59,7 @@ class MainRunningRepository {
                 //save tracks into database
                 if (!it.isFaulted && it.result.tracks.isNotEmpty()) {
                     DBHelper.replaceTrackIntoTable(it.result.tracks.map { track ->
-                        track.toTrackEntity()
+                        track.toSentTrackEntity()
                     })
                 }
                 return@continueWithTask it
