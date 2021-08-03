@@ -27,7 +27,8 @@
         android:contentDescription="@string/fragment_main_fab_desc"
         android:elevation="@dimen/middle_elevation"
         android:src="@drawable/ic_running"
-        app:borderWidth="0dp" />
+        app:borderWidth="0dp"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/informationTextView"

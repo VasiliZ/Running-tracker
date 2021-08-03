@@ -120,7 +120,7 @@ class MainRunningRepository {
             ).continueWithTask({
                 if (!it.isFaulted && it.result.pointsList.isNotEmpty()) {
                     when (it.result.status) {
-                        OK -> callback(Result.Success(it.result.toCurrentTrackPoints()))
+                        OK -> callback(Result.Success(it.result.toCurrentTrackPoints(System.currentTimeMillis())))
                         ERROR -> callback(Result.Error(it.result.errorCode.toString()))
                     }
                 }
@@ -289,7 +289,7 @@ class MainRunningRepository {
                 return@continueWithTask TasksProvider.getUnsentTracks(cancellationToken.token)
             }, Task.BACKGROUND_EXECUTOR)
             .continueWithTask({
-                //push all tracks on remote server
+                //push all unsent tracks on remote server
                 it.result.forEach { trackForSend ->
                     mapUnsentTask[trackForSend.beginsAt] =
                         TasksProvider.getSaveTrackOnRemoteServerTask(

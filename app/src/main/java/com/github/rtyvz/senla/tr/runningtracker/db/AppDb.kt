@@ -20,6 +20,7 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         const val TIME_FIELD_NAME = "time"
         const val DISTANCE_FIELD_NAME = "distance"
         const val LNG_FIELD_NAME = "lng"
+        const val ID_FIELD_NAME = "id"
         const val LAT_FIELD_NAME = "lat"
         const val IS_SENT_FIELD_NAME = "isSent"
     }
@@ -38,6 +39,7 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             .setTableField(BEGIN_AT_FIELD_NAME, INT_NOT_NULL_TYPE)
             .setTableField(LNG_FIELD_NAME, REAL_NOT_NULL_TYPE)
             .setTableField(LAT_FIELD_NAME, REAL_NOT_NULL_TYPE)
+            .setTableField(ID_FIELD_NAME, PRIMARY_FIELD_TYPE)
             .setUniqueFields(listOf(BEGIN_AT_FIELD_NAME, LNG_FIELD_NAME, LAT_FIELD_NAME))
             .build(db)
     }

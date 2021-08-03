@@ -121,6 +121,7 @@ object DBHelper {
     private fun selectPointsFromDb(beginsAt: Long): Cursor? {
         return SelectDataBuilder(listOf(AppDb.POINTS_TABLE_NAME))
             .fieldFromSelect("${AppDb.POINTS_TABLE_NAME}.*")
+            .orderByAsc(AppDb.ID_FIELD_NAME)
             .where("${AppDb.BEGIN_AT_FIELD_NAME} = $beginsAt")
             .build(App.db)
     }

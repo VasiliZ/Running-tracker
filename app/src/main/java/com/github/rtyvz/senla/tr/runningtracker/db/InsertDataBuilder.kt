@@ -48,6 +48,7 @@ class InsertDataBuilder(private val tableName: String) {
                 is Int -> statement?.bindLong(index + 1, mutableEntry.toLong())
                 is Long -> statement?.bindLong(index + 1, mutableEntry.toLong())
                 is Double -> statement?.bindDouble(index + 1, mutableEntry.toDouble())
+                is Float -> statement?.bindDouble(index + 1, mutableEntry.toDouble())
                 else -> statement?.bindNull(index + 1)
             }
         }

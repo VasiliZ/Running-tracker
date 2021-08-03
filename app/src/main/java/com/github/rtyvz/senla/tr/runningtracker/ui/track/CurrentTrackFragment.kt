@@ -137,7 +137,12 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         googleMap?.let { it ->
             val startPoint = pointsList.first()
             val finishPoint = pointsList.last()
-            val startMarker = MarkerOptions().position(LatLng(startPoint.lat, startPoint.lng))
+            val startMarker = MarkerOptions().position(
+                LatLng(
+                    startPoint.lat,
+                    startPoint.lng
+                )
+            )
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
                 .title(START_MARKER_TITLE)
             val finishMarker = MarkerOptions()

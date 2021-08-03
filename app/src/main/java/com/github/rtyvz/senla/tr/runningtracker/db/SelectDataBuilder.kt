@@ -11,13 +11,21 @@ class SelectDataBuilder(private val tableNames: List<String>) {
         private const val SEPARATOR = ","
         private const val WHERE_KEYWORD = " WHERE "
         private const val EMPTY_STRING = ""
+        private const val ORDER_BY = " ORDER BY "
+        private const val ASC = " ASC "
     }
 
     private val selectedFields = mutableListOf<String>()
     private var where: String = EMPTY_STRING
+    private var orderByCondition: String = EMPTY_STRING
 
     fun fieldFromSelect(field: String): SelectDataBuilder {
         selectedFields.add(field)
+        return this
+    }
+
+    fun orderByAsc(condition: String): SelectDataBuilder {
+        orderByCondition = condition
         return this
     }
 
@@ -36,7 +44,13 @@ class SelectDataBuilder(private val tableNames: List<String>) {
                         else -> {
                             "$WHERE_KEYWORD $where"
                         }
-                    },
+                    } + when (orderByCondition) {
+                EMPTY_STRING -> EMPTY_STRING
+                else -> {
+                    "$ORDER_BY $orderByCondition $ASC"
+                }
+
+            },
             null
         )
     }
