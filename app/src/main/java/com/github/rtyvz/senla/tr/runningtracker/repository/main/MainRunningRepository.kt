@@ -105,7 +105,11 @@ class MainRunningRepository {
             }, Task.BACKGROUND_EXECUTOR)
     }
 
-    fun getTrackPoints(remoteTrackId: Long, callback: (Result<CurrentTrackPoints>) -> Unit) {
+    fun getTrackPoints(
+        remoteTrackId: Long,
+        beginsAt: Long,
+        callback: (Result<CurrentTrackPoints>) -> Unit
+    ) {
         val userToken = App.instance.getSharedPreference().getString(
             USER_TOKEN, EMPTY_STRING
         )
@@ -113,16 +117,26 @@ class MainRunningRepository {
             TasksProvider.getPointsFromServerTask(
                 cancellationToken.token,
                 PointsRequest(userToken, remoteTrackId)
-            ).continueWith({
-                if (it.isFaulted) {
-                    callback(Result.Error(it.error.toString()))
-                } else {
+            ).continueWithTask({
+                if (!it.isFaulted && it.result.pointsList.isNotEmpty()) {
                     when (it.result.status) {
                         OK -> callback(Result.Success(it.result.toCurrentTrackPoints()))
                         ERROR -> callback(Result.Error(it.result.errorCode.toString()))
                     }
                 }
-            }, Task.UI_THREAD_EXECUTOR)
+                return@continueWithTask it
+            }, Task.UI_THREAD_EXECUTOR).continueWith {
+                if (it.isFaulted) {
+                    TasksProvider.getPointsFromDbTask(cancellationToken.token, beginsAt)
+                        .continueWith({ pointsList ->
+                            if (pointsList.isFaulted) {
+                                callback(Result.Error(pointsList.error.toString()))
+                            } else {
+                                callback(Result.Success(CurrentTrackPoints(pointsList.result)))
+                            }
+                        }, Task.UI_THREAD_EXECUTOR)
+                }
+            }
         }
     }
 
@@ -185,9 +199,10 @@ class MainRunningRepository {
                             ), cancellationToken.token
                         ).continueWith({ updateTrackTask ->
                             if (updateTrackTask.isFaulted) {
-                                LocalBroadcastManager.getInstance(App.instance).sendBroadcastSync(
-                                    Intent(RunningActivity.BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE)
-                                )
+                                LocalBroadcastManager.getInstance(App.instance)
+                                    .sendBroadcastSync(
+                                        Intent(RunningActivity.BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE)
+                                    )
                             }
                         }, Task.UI_THREAD_EXECUTOR)
                     }
@@ -206,24 +221,9 @@ class MainRunningRepository {
         TasksProvider.getDeleteTrackFromDbTask(cancellationToken.token, beginsAt.toString())
     }
 
-    fun getPointsFromDb(beginsAt: Long, callback: (Result<CurrentTrackPoints>) -> Unit) {
-        TasksProvider.getPointsFromDbTask(cancellationToken.token, beginsAt)
-            .continueWith({
-                if (it.isFaulted) {
-                    //todo detailed message
-                    callback(Result.Error(it.error.toString()))
-                } else {
-                    if (it.result.isNotEmpty()) {
-                        callback(Result.Success(CurrentTrackPoints(it.result)))
-                    }
-                }
-            }, Task.UI_THREAD_EXECUTOR)
-    }
-
     fun getTracksFromDb(callback: (Result<UserTracks>) -> Unit) {
         val mapPointTask = mutableMapOf<Long, Task<PointResponse>>()
         val mapUnsentTask = mutableMapOf<Long, Task<SaveTrackResponse>>()
-        val updatedTrackTasks = mutableMapOf<Long, Task<Unit>>()
         //get all tracks from database
         TasksProvider.getTracksFromDb(cancellationToken.token).continueWith({
             if (it.result.isNotEmpty()) {

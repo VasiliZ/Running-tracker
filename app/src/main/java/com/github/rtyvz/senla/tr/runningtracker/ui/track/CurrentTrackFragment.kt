@@ -79,7 +79,7 @@ class CurrentTrackFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerC
         val track = arguments?.getParcelable<TrackEntity>(EXTRA_TRACK_ENTITY)
         if (track != null) {
             trackEntity = track
-            App.mainRunningRepository.getTrackPoints(track.id) {
+            App.mainRunningRepository.getTrackPoints(track.id, track.beginsAt) {
                 when (it) {
                     is Result.Success -> {
                         setupMapData(googleMap, it.data.listPoints)
