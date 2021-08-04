@@ -27,7 +27,8 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
 
     override fun onCreate(db: SQLiteDatabase?) {
         CreateTableBuilder(TRACK_TABLE_NAME)
-            .setTableField(BEGIN_AT_FIELD_NAME, PRIMARY_FIELD_TYPE)
+            .setTableField(ID_FIELD_NAME, PRIMARY_FIELD_TYPE)
+            .setTableField(BEGIN_AT_FIELD_NAME, INT_NOT_NULL_TYPE)
             .setTableField(TIME_FIELD_NAME, INT_NOT_NULL_TYPE)
             .setTableField(REMOTE_ID_FIELD_NAME, INT_DEFAULT_ZERO_TYPE)
             .setTableField(DISTANCE_FIELD_NAME, INT_NOT_NULL_TYPE)

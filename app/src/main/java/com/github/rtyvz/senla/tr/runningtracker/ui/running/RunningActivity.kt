@@ -200,7 +200,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         registerGpsEnabledReceiver()
         registerGpsDisabledReceiver()
 
-
         gpsStateChangeReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 if (LocationManager.PROVIDERS_CHANGED_ACTION == intent?.action) {

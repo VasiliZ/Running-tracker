@@ -19,7 +19,7 @@ object DBHelper {
                 .setFieldsWithDataForReplace(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
                 .setFieldsWithDataForReplace(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
                 .setFieldsWithDataForReplace(AppDb.IS_SENT_FIELD_NAME, trackEntity.isSent)
-                .build(App.db)
+                .build(App.db, true)
         }
     }
 

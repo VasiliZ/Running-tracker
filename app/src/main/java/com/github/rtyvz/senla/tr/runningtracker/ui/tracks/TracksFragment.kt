@@ -9,6 +9,7 @@ import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
@@ -43,6 +44,8 @@ class TracksFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var fab: FloatingActionButton
     private lateinit var listTrackRecycler: RecyclerView
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+
     private val runningAdapter by lazy {
         TracksAdapter {
             (activity as OnItemClickListListener).onItemClick(it)
@@ -54,7 +57,7 @@ class TracksFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_list_running, container, false)
+        return inflater.inflate(R.layout.fragment_tracks_list, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -65,13 +68,19 @@ class TracksFragment : Fragment() {
         val token = requireActivity().getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
 
         if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
-            getTrackFirstTime(token)
+            getTrackFromServer(token)
         } else {
             getTracksFromDb()
         }
 
         fab.setOnClickListener {
             startActivity(Intent(requireContext(), RunningActivity::class.java))
+        }
+
+        swipeRefreshLayout.setOnRefreshListener {
+            if (token != null && token.isNotBlank()) {
+                getTrackFromServer(token)
+            }
         }
 
         listTrackRecycler.adapter = runningAdapter
@@ -82,11 +91,13 @@ class TracksFragment : Fragment() {
         progressBar = view.findViewById(R.id.progressBar)
         fab = view.findViewById(R.id.fab)
         listTrackRecycler = view.findViewById(R.id.tracksListRecyclerView)
+        swipeRefreshLayout = view.findViewById(R.id.swipeLayout)
     }
 
-    private fun getTrackFirstTime(token: String) {
+    private fun getTrackFromServer(token: String) {
         progressBar.isVisible = true
         App.mainRunningRepository.getTracks(TracksRequest(token)) {
+            swipeRefreshLayout.isRefreshing = false
             progressBar.isVisible = false
             when (it) {
                 is Result.Error -> {
@@ -153,7 +164,7 @@ class TracksFragment : Fragment() {
     fun retryRequest() {
         val token = requireActivity().getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
         if (token != null && token.isNotBlank()) {
-            getTrackFirstTime(token)
+            getTrackFromServer(token)
         }
     }
 }
