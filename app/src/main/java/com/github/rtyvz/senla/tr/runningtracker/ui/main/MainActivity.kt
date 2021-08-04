@@ -148,13 +148,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun openMainFragment(isFirstTimeRunFlag: Boolean) {
-        showFragment(
-            fragment = TracksFragment.newInstance(isFirstTimeRunFlag),
-            fragmentTag = TracksFragment.TAG,
-            clearToTag = CurrentTrackFragment.TAG,
-            clearInclusive = false,
-            containerId = R.id.listTrackContainer
-        )
+        val fragment = supportFragmentManager.findFragmentByTag(CurrentTrackFragment.TAG)
+        if (fragment is CurrentTrackFragment && !isTrackContainerAvailable()) {
+            showFragment(
+                fragment = CurrentTrackFragment.newInstance(lastSelectedTrack!!),
+                fragmentTag = CurrentTrackFragment.TAG,
+                clearToTag = CurrentTrackFragment.TAG,
+                clearInclusive = true,
+                containerId = R.id.listTrackContainer
+            )
+        } else {
+            showFragment(
+                fragment = TracksFragment.newInstance(isFirstTimeRunFlag),
+                fragmentTag = TracksFragment.TAG,
+                clearToTag = TracksFragment.TAG,
+                clearInclusive = true,
+                containerId = R.id.listTrackContainer
+            )
+        }
         navigationView.setCheckedItem(R.id.mainItem)
     }
 
@@ -186,6 +197,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TracksFragment.newInstance(isFirstTimeLaunchApp(getSharedPreference())),
                         fragmentTag,
                         NotificationFragment.TAG,
+                        true,
                         containerId = R.id.listTrackContainer
                     )
                 }
@@ -204,7 +216,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         NotificationFragment.newInstance(),
                         fragmentTag,
                         TracksFragment.TAG,
-                        clearInclusive = false,
+                        clearInclusive = true,
                         containerId = R.id.listTrackContainer
                     )
                 }
@@ -263,6 +275,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 showFragment(
                     CurrentTrackFragment.newInstance(trackEntity),
                     CurrentTrackFragment.TAG,
+
                     containerId = R.id.currentTrackContainer
                 )
             }
