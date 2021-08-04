@@ -97,8 +97,8 @@ class TracksFragment : Fragment() {
     private fun getTrackFromServer(token: String) {
         progressBar.isVisible = true
         App.mainRunningRepository.getTracks(TracksRequest(token)) {
-            swipeRefreshLayout.isRefreshing = false
             progressBar.isVisible = false
+            swipeRefreshLayout.isRefreshing = false
             when (it) {
                 is Result.Error -> {
                     when (it.error) {
@@ -122,7 +122,6 @@ class TracksFragment : Fragment() {
                 }
                 is Result.Success -> {
                     if (it.data.tracksList.isEmpty()) {
-                        informationTextView.isVisible = true
                         informationTextView.text =
                             getString(R.string.main_fragment_havent_got_data_for_display)
                     } else {

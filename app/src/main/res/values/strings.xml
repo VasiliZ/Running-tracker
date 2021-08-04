@@ -51,6 +51,7 @@
     <string name="running_activity_dialog_finish_button_is_not_click_yet">Сперва нажмите на кнопку финиш</string>
     <string name="running_activity_are_you_enable_gps">Провеерьте влючен ли GPS</string>
     <string name="running_activity_wait_gps_label">Ожидаем данных GPS</string>
+    <string name="running_activity_error_get_data">Не удалось загрузить данные, попробовать еще раз?</string>
     <!--track_item-->
     <string name="track_item_start_time_label">Время старта</string>
     <string name="track_item_spent_time_label">Затраченное время</string>
@@ -59,6 +60,8 @@
     <string name="current_track_fragment_distance_label">Расстояние</string>
     <string name="current_fragment_track_spent_time_label">Длительность</string>
     <string name="current_fragment_run_distance_pattern">%1$s метр%2$s</string>
-    <string name="running_activity_error_get_data">Не удалось загрузить данные, попробовать еще раз?</string>
+    <!--main activity-->
+    <string name="main_activity_drawer_open">Открыт</string>
+    <string name="main_activity_drawer_close">Закрыт</string>
 
 </resources>

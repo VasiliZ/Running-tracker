@@ -2,12 +2,16 @@ package com.github.rtyvz.senla.tr.runningtracker.ui.main
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
@@ -43,6 +47,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var navigationView: NavigationView
     private lateinit var headerNavView: View
     private lateinit var exitFromAppLayout: ConstraintLayout
+    private lateinit var drawerLayout: DrawerLayout
+    private var drawerToggle: ActionBarDrawerToggle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,8 +57,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         findViews()
         getUserDataFromPrefs(getSharedPreference())
         setDataToNavHeader()
+
+        drawerToggle?.let {
+            drawerLayout.addDrawerListener(it)
+        }
+
         openMainFragment(isFirstTimeLaunchApp(getSharedPreference()))
         setSupportActionBar(toolBar)
+
+        drawerToggle = ActionBarDrawerToggle(
+            this,
+            drawerLayout,
+            toolBar,
+            R.string.main_activity_drawer_open,
+            R.string.main_activity_drawer_close
+        )
+
         navigationView.setNavigationItemSelectedListener(this)
 
         exitFromAppLayout.setOnClickListener {
@@ -60,6 +80,35 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+
+        drawerToggle?.syncState()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        drawerToggle?.onConfigurationChanged(newConfig)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (drawerToggle?.onOptionsItemSelected(item) == true) {
+            return true
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+            return
+        }
+
+        super.onBackPressed()
     }
 
     private fun isFirstTimeLaunchApp(sharedPreference: SharedPreferences): Boolean {
@@ -85,6 +134,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun findViews() {
+        drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.navigationView)
         headerNavView = navigationView.getHeaderView(0)
         toolBar = findViewById(R.id.toolBar)
