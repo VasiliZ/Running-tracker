@@ -27,6 +27,7 @@ import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.SimpleLocation
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
+import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithUTC
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
@@ -62,6 +63,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         private const val STOP_WATCH_PATTERN = "mm:ss,SS"
         private const val DEFAULT_INT_VALUE = 0
         private const val FIRST_ARRAY_INDEX = 0
+        private const val NANO_TIME_DIVIDER = 1000000
     }
 
     private var locationPermissionGranted: Boolean = false
@@ -89,14 +91,15 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private var currentLocationPoint: SimpleLocation? = null
     private val timeFormatter = SimpleDateFormat(STOP_WATCH_PATTERN, Locale.getDefault())
 
+    private var startRunningTime: Long = 0L
     private var handler: Handler? = null
     private var isFinishButtonClicked = false
     private var isStartButtonClicked = false
-    private var timeInHundredthOfASecond = 0L
+    private var timeMillis = 0L
     private var timeTicker = object : Runnable {
         override fun run() {
-            timeInHundredthOfASecond += TIMER_INTERVAL
-            updateWatch(timeInHundredthOfASecond)
+            timeMillis = (System.nanoTime() - startRunningTime) / NANO_TIME_DIVIDER
+            updateWatch(timeMillis)
             handler?.postDelayed(this, TIMER_INTERVAL)
         }
     }
@@ -124,6 +127,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
 
         startRunningButton.setOnClickListener {
             if (isGpsEnabled()) {
+                startRunningTime = System.nanoTime()
                 isStartButtonClicked = true
                 startAnimation(startLayout, R.animator.flip_out)
                 startAnimation(exitLayout, R.animator.flip_in)
@@ -132,7 +136,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
 
                 startTimer()
                 val intentRunningService = Intent(this, RunningService::class.java).apply {
-                    putExtra(RunningService.EXTRA_CURRENT_TIME, System.currentTimeMillis())
+                    putExtra(RunningService.EXTRA_CURRENT_TIME, timeMillis)
                     putExtra(RunningService.EXTRA_CURRENT_LOCATION, currentLocationPoint)
                 }
 
@@ -154,13 +158,13 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
             val stopActionRunningServiceIntent = Intent(this, RunningService::class.java)
                 .apply {
                     action = ACTION_RUNNING_SERVICE_STOP
-                    putExtra(RunningService.EXTRA_FINISH_RUNNING_TIME, timeInHundredthOfASecond)
+                    putExtra(RunningService.EXTRA_FINISH_RUNNING_TIME, timeMillis)
                 }
 
             stopTimer()
             startService(stopActionRunningServiceIntent)
 
-            resultRunningTimeTextView.text = timeFormatter.format(timeInHundredthOfASecond)
+            resultRunningTimeTextView.text = timeFormatter.format(timeMillis)
         }
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -427,7 +431,8 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
     private fun updateWatch(timeInHundredthOfASecond: Long) {
-        timerTextView.text = timeFormatter.format(timeInHundredthOfASecond)
+        timerTextView.text =
+            timeInHundredthOfASecond.toDateTimeWithUTC(STOP_WATCH_PATTERN)
     }
 
     private fun startTimer() {

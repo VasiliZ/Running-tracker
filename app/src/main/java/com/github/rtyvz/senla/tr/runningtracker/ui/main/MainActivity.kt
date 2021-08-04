@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private lateinit var userData: UserData
-    private lateinit var toolBar: Toolbar
+    private var toolBar: Toolbar? = null
     private lateinit var navHeaderUserNameTextView: MaterialTextView
     private lateinit var navHeaderUserEmailTextView: MaterialTextView
     private lateinit var navigationView: NavigationView
