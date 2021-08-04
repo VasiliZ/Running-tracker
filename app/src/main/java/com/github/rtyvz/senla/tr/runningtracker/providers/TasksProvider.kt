@@ -52,17 +52,17 @@ object TasksProvider {
             cancellationToken
         )
 
-    fun getInsertTrackTask(track: TrackEntity, cancellationToken: CancellationToken) =
-        InsertTackIntoDbTask().replaceTrackIntoDb(track, cancellationToken)
+    fun getInsertTrackTask(track: TrackEntity) =
+        InsertTackIntoDbTask().replaceTrackIntoDb(track)
 
-    fun getInsertPointTask(point: PointEntity, cancellationToken: CancellationToken) =
-        InsertPointIntoDbTask().insertPoint(cancellationToken, point)
+    fun getInsertPointTask(point: PointEntity) =
+        InsertPointIntoDbTask().insertPoint(point)
 
     fun getUpdateIdTrackTask(id: Long, beginAt: Long, cancellationToken: CancellationToken) =
         UpdateTrackIdTask().updateTrackId(cancellationToken, id, beginAt)
 
-    fun getDeleteTrackFromDbTask(cancellationToken: CancellationToken, condition: String) =
-        RemoveTrackFromDbTask().removeTrackFromDb(cancellationToken, condition)
+    fun getDeleteTrackFromDbTask(condition: String) =
+        RemoveTrackFromDbTask().removeTrackFromDb(condition)
 
     fun getPointsFromServerTask(
         cancellationToken: CancellationToken,

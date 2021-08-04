@@ -137,13 +137,11 @@ class MainRunningRepository {
     }
 
     fun insertTracksIntoDB(track: TrackEntity) {
-        val cancellationToken = CancellationTokenSource()
-        TasksProvider.getInsertTrackTask(track, cancellationToken.token)
+        TasksProvider.getInsertTrackTask(track)
     }
 
     fun insertLocationIntoDb(point: PointEntity) {
-        val cancellationToken = CancellationTokenSource()
-        TasksProvider.getInsertPointTask(point, cancellationToken.token)
+        TasksProvider.getInsertPointTask(point)
     }
 
     fun saveTrack(
@@ -183,7 +181,6 @@ class MainRunningRepository {
                     }
                     NO_POINTS -> {
                         TasksProvider.getDeleteTrackFromDbTask(
-                            cancellationToken.token,
                             track.beginsAt.toString()
                         )
                     }
@@ -217,8 +214,7 @@ class MainRunningRepository {
     }
 
     fun removeEmptyTrack(beginsAt: Long) {
-        val cancellationToken = CancellationTokenSource()
-        TasksProvider.getDeleteTrackFromDbTask(cancellationToken.token, beginsAt.toString())
+        TasksProvider.getDeleteTrackFromDbTask(beginsAt.toString())
     }
 
     fun getTracksFromDb(callback: (Result<UserTracks>) -> Unit) {
