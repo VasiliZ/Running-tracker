@@ -91,14 +91,15 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private var currentLocationPoint: SimpleLocation? = null
     private val timeFormatter = SimpleDateFormat(STOP_WATCH_PATTERN, Locale.getDefault())
 
-    private var startRunningTime: Long = 0L
+    private var startTimerRunningTime: Long = 0L
+    private var startRunMillis: Long = 0L
     private var handler: Handler? = null
     private var isFinishButtonClicked = false
     private var isStartButtonClicked = false
     private var timeMillis = 0L
     private var timeTicker = object : Runnable {
         override fun run() {
-            timeMillis = (System.nanoTime() - startRunningTime) / NANO_TIME_DIVIDER
+            timeMillis = (System.nanoTime() - startTimerRunningTime) / NANO_TIME_DIVIDER
             updateWatch(timeMillis)
             handler?.postDelayed(this, TIMER_INTERVAL)
         }
@@ -127,7 +128,8 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
 
         startRunningButton.setOnClickListener {
             if (isGpsEnabled()) {
-                startRunningTime = System.nanoTime()
+                startTimerRunningTime = System.nanoTime()
+                startRunMillis = System.currentTimeMillis()
                 isStartButtonClicked = true
                 startAnimation(startLayout, R.animator.flip_out)
                 startAnimation(exitLayout, R.animator.flip_in)
@@ -136,7 +138,10 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
 
                 startTimer()
                 val intentRunningService = Intent(this, RunningService::class.java).apply {
-                    putExtra(RunningService.EXTRA_CURRENT_TIME, timeMillis)
+                    putExtra(
+                        RunningService.EXTRA_CURRENT_TIME,
+                        startRunMillis
+                    )
                     putExtra(RunningService.EXTRA_CURRENT_LOCATION, currentLocationPoint)
                 }
 
@@ -158,7 +163,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
             val stopActionRunningServiceIntent = Intent(this, RunningService::class.java)
                 .apply {
                     action = ACTION_RUNNING_SERVICE_STOP
-                    putExtra(RunningService.EXTRA_FINISH_RUNNING_TIME, timeMillis)
+                    putExtra(RunningService.EXTRA_FINISH_RUNNING_TIME, startRunMillis)
                 }
 
             stopTimer()
