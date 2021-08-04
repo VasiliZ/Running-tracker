@@ -12,6 +12,9 @@ import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
@@ -108,6 +111,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return
         }
 
+        if (supportFragmentManager.backStackEntryCount == 1) {
+            finish()
+            return
+        }
+
         super.onBackPressed()
     }
 
@@ -121,15 +129,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun openMainFragment(isFirstTimeRunFlag: Boolean) {
-        supportFragmentManager
-            .beginTransaction()
-            .replace(
-                R.id.fragmentContainer,
-                TracksFragment.newInstance(isFirstTimeRunFlag),
-                TracksFragment.TAG
-            )
-            .addToBackStack(TracksFragment.TAG)
-            .commit()
+        showFragment(
+            fragment = TracksFragment.newInstance(isFirstTimeRunFlag),
+            fragmentTag = TracksFragment.TAG,
+            clearInclusive = false,
+            containerId = R.id.fragmentContainer
+        )
         navigationView.setCheckedItem(R.id.mainItem)
     }
 
@@ -145,8 +150,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+
         return when (item.itemId) {
             R.id.mainItem -> {
+                val fragmentTag = TracksFragment.TAG
+                val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
+                drawerLayout.closeDrawer(GravityCompat.START)
+                if (foundFragment != null && fragmentTag == foundFragment.tag) {
+                    return true
+                } else {
+                    showFragment(
+                        TracksFragment.newInstance(isFirstTimeLaunchApp(getSharedPreference())),
+                        fragmentTag,
+                        clearInclusive = true,
+                        containerId = R.id.fragmentContainer
+                    )
+                }
                 navigationView.setCheckedItem(item.itemId)
                 return true
             }
@@ -173,6 +192,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navHeaderUserNameTextView.text = userData.name
     }
 
+    private fun showFragment(
+        fragment: Fragment,
+        fragmentTag: String,
+        clearToTag: String? = null,
+        clearInclusive: Boolean,
+        containerId: Int
+    ) {
+        if (clearToTag != null || clearInclusive) {
+            supportFragmentManager.popBackStack(
+                clearToTag,
+                if (clearInclusive) FragmentManager.POP_BACK_STACK_INCLUSIVE else 0
+            )
+        }
+
+        supportFragmentManager.beginTransaction()
+            .replace(containerId, fragment, fragmentTag)
+            .addToBackStack(fragmentTag)
+            .commit()
+    }
+
     override fun closeActivity() {
         finish()
     }
@@ -183,6 +222,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             CurrentTrackFragment.newInstance(trackEntity),
             CurrentTrackFragment.TAG
         ).addToBackStack(CurrentTrackFragment.TAG)
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
             .commit()
     }
 
