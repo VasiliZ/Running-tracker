@@ -38,7 +38,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
-import java.text.SimpleDateFormat
 import java.util.*
 
 class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
@@ -89,8 +88,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private lateinit var toolbar: MaterialToolbar
     private lateinit var gpsStatus: MaterialTextView
     private var currentLocationPoint: SimpleLocation? = null
-    private val timeFormatter = SimpleDateFormat(STOP_WATCH_PATTERN, Locale.getDefault())
-
     private var startTimerRunningTime: Long = 0L
     private var startRunMillis: Long = 0L
     private var handler: Handler? = null
@@ -169,7 +166,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
             stopTimer()
             startService(stopActionRunningServiceIntent)
 
-            resultRunningTimeTextView.text = timeFormatter.format(timeMillis)
+            resultRunningTimeTextView.text = timeMillis.toDateTimeWithUTC(STOP_WATCH_PATTERN)
         }
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
