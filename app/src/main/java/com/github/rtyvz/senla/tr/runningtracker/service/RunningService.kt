@@ -13,7 +13,6 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -41,7 +40,10 @@ class RunningService : Service(), LocationListener {
         private const val MIN_DISTANCE_FOR_LOCATION_UPDATES_METERS = 5F
         private const val OFFSET_FOR_CALCULATE_DISTANCE = 2
         private const val NEXT_INDEX = 1
+        private const val UNSENT_TRACK_FLAG = 0
         private const val NOTIFICATION_ID = 1
+        private const val INITIAL_TIME = 0L
+        private const val INITIAL_DISTANCE = 0
     }
 
     private val pointsList = mutableListOf<Location>()
@@ -67,7 +69,7 @@ class RunningService : Service(), LocationListener {
                         beginsAt = startRunningTime,
                         time = intent.getLongExtra(EXTRA_FINISH_RUNNING_TIME, DEFAULT_LONG_VALUE),
                         distance = distance,
-                        isSent = 0
+                        isSent = UNSENT_TRACK_FLAG
                     ), pointsList.map {
                         it.toPointEntity(startRunningTime)
                     })
@@ -99,9 +101,9 @@ class RunningService : Service(), LocationListener {
             App.mainRunningRepository.insertTracksIntoDB(
                 TrackEntity(
                     beginsAt = startRunningTime,
-                    time = 0L,
-                    distance = 0,
-                    isSent = 0
+                    time = INITIAL_TIME,
+                    distance = INITIAL_DISTANCE,
+                    isSent = UNSENT_TRACK_FLAG
                 )
             )
         }
@@ -158,7 +160,6 @@ class RunningService : Service(), LocationListener {
 
     override fun onLocationChanged(location: Location) {
         saveCurrentPoint(location)
-        Log.d("TAG", "onLocationChanged: $location")
     }
 
     override fun onProviderEnabled(provider: String) {
