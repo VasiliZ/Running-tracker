@@ -29,7 +29,7 @@ class ErrorResponseNextRunDialog : DialogFragment() {
         return AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.running_activity_error_get_data))
             .setPositiveButton(getString(R.string.running_activity_dialog_ok_button)) { dialog, _ ->
-                callBack?.retryRequestTracksDataForNextRun()
+                callBack?.retryRequestTracksDataFromDb()
                 dialog.dismiss()
             }
             .setNegativeButton(getString(R.string.running_activity_dialog_cancel_button)) { dialog, _ ->
@@ -45,6 +45,6 @@ class ErrorResponseNextRunDialog : DialogFragment() {
     }
 
     interface ErrorResponseDialogCallBack {
-        fun retryRequestTracksDataForNextRun()
+        fun retryRequestTracksDataFromDb()
     }
 }

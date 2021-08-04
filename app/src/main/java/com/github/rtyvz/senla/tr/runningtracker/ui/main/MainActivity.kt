@@ -222,7 +222,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 return true
             }
-
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -268,6 +267,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onTrackItemClick(trackEntity: TrackEntity) {
         lastSelectedTrack = trackEntity
         if (isTrackContainerAvailable()) {
+            enableHomeButton(false)
+
             val fragment = supportFragmentManager.findFragmentByTag(CurrentTrackFragment.TAG)
             if (fragment is CurrentTrackFragment) {
                 fragment.setTrack(trackEntity)
@@ -275,11 +276,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 showFragment(
                     CurrentTrackFragment.newInstance(trackEntity),
                     CurrentTrackFragment.TAG,
-
                     containerId = R.id.currentTrackContainer
                 )
             }
         } else {
+            enableHomeButton(true)
+
             showFragment(
                 CurrentTrackFragment.newInstance(trackEntity),
                 CurrentTrackFragment.TAG,
@@ -288,20 +290,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    private fun enableHomeButton(isEnable: Boolean) {
+        supportActionBar?.setDisplayHomeAsUpEnabled(isEnable)
+        supportActionBar?.setHomeButtonEnabled(isEnable)
+    }
+
     override fun logout() {
         App.mainRunningRepository.clearCache()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
 
-    override fun retryRequestTracksData() {
+    override fun retryRequestTracksDataFromServer() {
         val fragment = supportFragmentManager.findFragmentByTag(TracksFragment.TAG)
         if (fragment is TracksFragment) {
             fragment.retryRequest()
         }
     }
 
-    override fun retryRequestTracksDataForNextRun() {
+    override fun retryRequestTracksDataFromDb() {
         val fragment = supportFragmentManager.findFragmentByTag(TracksFragment.TAG)
         if (fragment is TracksFragment) {
             fragment.getTracksFromDb()
