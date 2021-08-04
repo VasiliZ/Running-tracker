@@ -10,6 +10,7 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 class NotificationFragment : Fragment() {
 
     companion object {
+        val TAG = NotificationFragment::class.java.simpleName.toString()
 
         fun newInstance(): NotificationFragment {
             return NotificationFragment()

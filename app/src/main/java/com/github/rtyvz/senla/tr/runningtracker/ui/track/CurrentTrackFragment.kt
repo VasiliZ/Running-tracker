@@ -41,8 +41,7 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         val TAG = CurrentTrackFragment::class.java.simpleName.toString()
     }
 
-    private lateinit var trackEntity: TrackEntity
-    private lateinit var mapView: MapView
+    private var mapView: MapView? = null
     private var map: GoogleMap? = null
     private lateinit var distanceTextView: MaterialTextView
     private lateinit var timeActionTextView: MaterialTextView
@@ -61,8 +60,8 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
 
         findViews(view)
 
-        mapView.onCreate(savedInstanceState)
-        mapView.onResume()
+        mapView?.onCreate(savedInstanceState)
+        mapView?.onResume()
 
         try {
             MapsInitializer.initialize(requireContext().applicationContext)
@@ -70,8 +69,9 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
             Log.d(TAG, "onViewCreated: map init error")
         }
 
-        mapView.getMapAsync { googleMap ->
-            getPoints()
+        mapView?.getMapAsync { googleMap ->
+            val track = arguments?.getParcelable<TrackEntity>(EXTRA_TRACK_ENTITY)
+            getPoints(track)
             map = googleMap
         }
     }
@@ -79,7 +79,7 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
     override fun onResume() {
         super.onResume()
 
-        mapView.onResume()
+        mapView?.onResume()
     }
 
     private fun findViews(view: View) {
@@ -88,18 +88,17 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         mapView = view.findViewById(R.id.currentTrackMapView)
     }
 
-    private fun getPoints() {
-        val track = arguments?.getParcelable<TrackEntity>(EXTRA_TRACK_ENTITY)
-        if (track != null) {
-            trackEntity = track
-            App.mainRunningRepository.getTrackPoints(track.id, track.beginsAt) {
+    private fun getPoints(trackEntity: TrackEntity?) {
+        if (trackEntity != null) {
+            App.mainRunningRepository.getTrackPoints(trackEntity.id, trackEntity.beginsAt) {
                 when (it) {
                     is Result.Success -> {
                         trackPoints = it.data.listPoints
                         if (trackPoints.isNotEmpty()) {
+                            map?.clear()
                             setupMapData(map, trackPoints)
                             drawPath(map, trackPoints)
-                            setDataOnUI()
+                            setDataOnUI(trackEntity)
                         }
                     }
                     is Result.Error -> {
@@ -110,7 +109,7 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         }
     }
 
-    private fun setDataOnUI() {
+    private fun setDataOnUI(trackEntity: TrackEntity) {
         distanceTextView.text = String.format(
             getString(R.string.current_fragment_run_distance_pattern),
             trackEntity.distance,
@@ -123,8 +122,8 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         googleMap?.let {
             val lineOptions = PolylineOptions()
             with(lineOptions) {
-                addAll(listPoints.map {
-                    it.toLatLng()
+                addAll(listPoints.map { point ->
+                    point.toLatLng()
                 })
                 width(10f)
                 color(ContextCompat.getColor(requireContext(), R.color.main_app_color))
@@ -165,20 +164,24 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         return bounds.build()
     }
 
+    override fun onMarkerClick(marker: Marker): Boolean {
+        marker.showInfoWindow()
+        return true
+    }
+
+    fun setTrack(trackEntity: TrackEntity) {
+        getPoints(trackEntity)
+    }
+
     override fun onPause() {
-        mapView.onPause()
+        mapView?.onPause()
 
         super.onPause()
     }
 
     override fun onDestroy() {
-        mapView.onDestroy()
+        mapView?.onDestroy()
 
         super.onDestroy()
-    }
-
-    override fun onMarkerClick(marker: Marker): Boolean {
-        marker.showInfoWindow()
-        return true
     }
 }

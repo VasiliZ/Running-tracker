@@ -13,8 +13,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
@@ -22,6 +22,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
+import com.github.rtyvz.senla.tr.runningtracker.ui.notification.NotificationFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.track.CurrentTrackFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.ErrorResponseFirstRunDialog
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.ErrorResponseNextRunDialog
@@ -41,6 +42,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private const val USER_EMAIL = "USER_EMAIL"
         private const val EMPTY_STRING = ""
         private const val FIRST_TIME_RUN_APP = "FIRST_TIME_RUN_APP"
+        private const val EXTRA_LAST_SELECTED_TRACK = "LAST_SELECTED_TRACK"
     }
 
     private lateinit var userData: UserData
@@ -51,11 +53,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var headerNavView: View
     private lateinit var exitFromAppLayout: ConstraintLayout
     private lateinit var drawerLayout: DrawerLayout
+    private var trackContainer: FragmentContainerView? = null
     private var drawerToggle: ActionBarDrawerToggle? = null
+    private var lastSelectedTrack: TrackEntity? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if (savedInstanceState != null) {
+            lastSelectedTrack = savedInstanceState.getParcelable(EXTRA_LAST_SELECTED_TRACK)
+        }
 
         findViews()
         getUserDataFromPrefs(getSharedPreference())
@@ -75,6 +83,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.string.main_activity_drawer_open,
             R.string.main_activity_drawer_close
         )
+
+        lastSelectedTrack?.let { lastTrack ->
+            if (isTrackContainerAvailable()) {
+                showFragment(
+                    CurrentTrackFragment.newInstance(lastTrack),
+                    CurrentTrackFragment.TAG,
+                    clearInclusive = false,
+                    containerId = R.id.currentTrackContainer
+                )
+            }
+        }
 
         navigationView.setNavigationItemSelectedListener(this)
 
@@ -132,13 +151,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         showFragment(
             fragment = TracksFragment.newInstance(isFirstTimeRunFlag),
             fragmentTag = TracksFragment.TAG,
+            clearToTag = CurrentTrackFragment.TAG,
             clearInclusive = false,
-            containerId = R.id.fragmentContainer
+            containerId = R.id.listTrackContainer
         )
         navigationView.setCheckedItem(R.id.mainItem)
     }
 
     private fun findViews() {
+        trackContainer = findViewById(R.id.currentTrackContainer)
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.navigationView)
         headerNavView = navigationView.getHeaderView(0)
@@ -148,6 +169,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         exitFromAppLayout = findViewById(R.id.exitFromAppLayout)
 
     }
+
+    private fun isTrackContainerAvailable() = trackContainer != null
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
 
@@ -162,8 +185,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     showFragment(
                         TracksFragment.newInstance(isFirstTimeLaunchApp(getSharedPreference())),
                         fragmentTag,
-                        clearInclusive = true,
-                        containerId = R.id.fragmentContainer
+                        NotificationFragment.TAG,
+                        containerId = R.id.listTrackContainer
                     )
                 }
                 navigationView.setCheckedItem(item.itemId)
@@ -171,6 +194,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.notificationsItem -> {
                 navigationView.setCheckedItem(item.itemId)
+                val fragmentTag = NotificationFragment.TAG
+                val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
+                drawerLayout.closeDrawer(GravityCompat.START)
+                if (foundFragment != null && fragmentTag == foundFragment.tag) {
+                    return true
+                } else {
+                    showFragment(
+                        NotificationFragment.newInstance(),
+                        fragmentTag,
+                        TracksFragment.TAG,
+                        clearInclusive = false,
+                        containerId = R.id.listTrackContainer
+                    )
+                }
                 return true
             }
 
@@ -196,15 +233,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         fragment: Fragment,
         fragmentTag: String,
         clearToTag: String? = null,
-        clearInclusive: Boolean,
+        clearInclusive: Boolean = false,
         containerId: Int
     ) {
-        if (clearToTag != null || clearInclusive) {
+
+        if (clearToTag != null && clearInclusive)
             supportFragmentManager.popBackStack(
                 clearToTag,
                 if (clearInclusive) FragmentManager.POP_BACK_STACK_INCLUSIVE else 0
             )
-        }
 
         supportFragmentManager.beginTransaction()
             .replace(containerId, fragment, fragmentTag)
@@ -216,14 +253,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         finish()
     }
 
-    override fun onItemClick(trackEntity: TrackEntity) {
-        supportFragmentManager.beginTransaction().replace(
-            R.id.fragmentContainer,
-            CurrentTrackFragment.newInstance(trackEntity),
-            CurrentTrackFragment.TAG
-        ).addToBackStack(CurrentTrackFragment.TAG)
-            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-            .commit()
+    override fun onTrackItemClick(trackEntity: TrackEntity) {
+        lastSelectedTrack = trackEntity
+        if (isTrackContainerAvailable()) {
+            val fragment = supportFragmentManager.findFragmentByTag(CurrentTrackFragment.TAG)
+            if (fragment is CurrentTrackFragment) {
+                fragment.setTrack(trackEntity)
+            } else {
+                showFragment(
+                    CurrentTrackFragment.newInstance(trackEntity),
+                    CurrentTrackFragment.TAG,
+                    containerId = R.id.currentTrackContainer
+                )
+            }
+        } else {
+            showFragment(
+                CurrentTrackFragment.newInstance(trackEntity),
+                CurrentTrackFragment.TAG,
+                containerId = R.id.listTrackContainer
+            )
+        }
     }
 
     override fun logout() {
@@ -244,5 +293,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (fragment is TracksFragment) {
             fragment.getTracksFromDb()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelable(EXTRA_LAST_SELECTED_TRACK, lastSelectedTrack)
+
+        super.onSaveInstanceState(outState)
     }
 }

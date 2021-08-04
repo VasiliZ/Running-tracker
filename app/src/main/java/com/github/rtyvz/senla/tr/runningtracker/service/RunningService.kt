@@ -171,11 +171,12 @@ class RunningService : Service(), LocationListener {
             .sendBroadcastSync(Intent(RunningActivity.BROADCAST_GPS_DISABLED))
     }
 
+    //todo check this method
     private fun calculateDistance(): Int {
         var distanceBetweenPoints = INITIAL_DISTANCE_BETWEEN_POINTS
-        pointsList.forEachIndexed { innerIndex, innerLocation ->
-            if (innerIndex <= pointsList.size - OFFSET_FOR_CALCULATE_DISTANCE) {
-                distanceBetweenPoints += innerLocation.distanceTo(pointsList[innerIndex + NEXT_INDEX])
+        pointsList.forEachIndexed { index, innerLocation ->
+            if (index <= pointsList.size - OFFSET_FOR_CALCULATE_DISTANCE) {
+                distanceBetweenPoints += innerLocation.distanceTo(pointsList[index + NEXT_INDEX])
             }
         }
         return distanceBetweenPoints.toInt()

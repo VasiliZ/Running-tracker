@@ -48,7 +48,7 @@ class TracksFragment : Fragment() {
 
     private val runningAdapter by lazy {
         TracksAdapter {
-            (activity as OnItemClickListListener).onItemClick(it)
+            (activity as OnItemClickListListener).onTrackItemClick(it)
         }
     }
 
@@ -153,7 +153,7 @@ class TracksFragment : Fragment() {
     }
 
     interface OnItemClickListListener {
-        fun onItemClick(trackEntity: TrackEntity)
+        fun onTrackItemClick(trackEntity: TrackEntity)
     }
 
     interface LogOutFromApp {

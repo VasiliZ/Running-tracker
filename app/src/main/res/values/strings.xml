@@ -54,7 +54,7 @@
     <string name="running_activity_error_get_data">Не удалось загрузить данные, попробовать еще раз?</string>
     <!--track_item-->
     <string name="track_item_start_time_label">Время старта</string>
-    <string name="track_item_spent_time_label">Затраченное время</string>
+    <string name="track_item_spent_time_label">Время бега</string>
     <string name="track_item_distance_label">Расстояние</string>
     <!--current_track_fragment-->
     <string name="current_track_fragment_distance_label">Расстояние</string>
