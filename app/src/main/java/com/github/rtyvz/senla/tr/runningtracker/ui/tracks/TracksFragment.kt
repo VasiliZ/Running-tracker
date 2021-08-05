@@ -48,7 +48,7 @@ class TracksFragment : Fragment() {
 
     private val runningAdapter by lazy {
         TracksAdapter {
-            (activity as OnItemClickListListener).onTrackItemClick(it)
+            (parentFragment as OnItemClickListListener).onTrackItemClick(it)
         }
     }
 

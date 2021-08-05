@@ -17,7 +17,7 @@
             android:background="@color/main_app_color" />
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/listTrackContainer"
+            android:id="@+id/mainFragmentContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>
