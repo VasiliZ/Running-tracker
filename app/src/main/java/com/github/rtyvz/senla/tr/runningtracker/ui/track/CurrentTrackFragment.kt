@@ -59,7 +59,6 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         findViews(view)
-
         mapView?.onCreate(savedInstanceState)
         mapView?.onResume()
 

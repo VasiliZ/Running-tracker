@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.entity.State
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
@@ -50,6 +51,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val state = App.state
+        if (state == null) {
+            App.state = State()
+        }
 
         findViews()
         getUserDataFromPrefs(getSharedPreference())
@@ -116,11 +122,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         if (supportFragmentManager.backStackEntryCount == 1) {
-            finish()
-            return
+            val fragment = supportFragmentManager.findFragmentByTag(MainRunningFragment.TAG)
+            if (fragment is MainRunningFragment && fragment.isVisible) {
+                if (fragment.onBackPressed()) {
+                    finish()
+                }
+            } else {
+                finish()
+            }
         }
-
-        super.onBackPressed()
     }
 
     private fun findViews() {

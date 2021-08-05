@@ -24,7 +24,6 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
     companion object {
         val TAG = MainRunningFragment::class.java.simpleName.toString()
         private const val FIRST_TIME_RUN_APP = "FIRST_TIME_RUN_APP"
-        private const val EXTRA_LAST_SELECTED_TRACK = "LAST_SELECTED_TRACK"
 
         fun newInstance(): MainRunningFragment {
             return MainRunningFragment()
@@ -48,13 +47,8 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
 
         currentTrackContainer = view.findViewById(R.id.currentTrackContainer)
 
-        if (savedInstanceState != null) {
-            lastSelectedTrack =
-                savedInstanceState.getParcelable(EXTRA_LAST_SELECTED_TRACK)
-        }
-
         openMainFragment(isFirstTimeLaunchApp(requireActivity().getSharedPreference()))
-        lastSelectedTrack?.let { lastTrack ->
+        App.state?.lastOpenedUserTrack?.let { lastTrack ->
             if (isTrackContainerAvailable()) {
                 showFragment(
                     CurrentTrackFragment.newInstance(lastTrack),
@@ -66,16 +60,26 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
         }
     }
 
+    fun onBackPressed(): Boolean {
+        return when {
+            (childFragmentManager.backStackEntryCount == 1) -> true
+            else -> {
+                childFragmentManager.popBackStack()
+                App.state?.lastOpenedUserTrack = null
+                false
+            }
+        }
+    }
+
     private fun openMainFragment(isFirstTimeRunFlag: Boolean) {
-        val fragment = childFragmentManager.findFragmentByTag(CurrentTrackFragment.TAG)
-        if (fragment is CurrentTrackFragment && !isTrackContainerAvailable()) {
-            lastSelectedTrack?.let {
+        if (!isTrackContainerAvailable() && App.state?.lastOpenedUserTrack != null) {
+            App.state?.lastOpenedUserTrack?.let {
                 showFragment(
                     fragment = CurrentTrackFragment.newInstance(it),
                     fragmentTag = CurrentTrackFragment.TAG,
                     clearToTag = CurrentTrackFragment.TAG,
-                    clearInclusive = true,
-                    containerId = R.id.currentTrackContainer
+                    clearInclusive = false,
+                    containerId = R.id.listTrackContainer
                 )
             }
         } else {
@@ -98,7 +102,6 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
         }
     }
 
-
     private fun isTrackContainerAvailable() = currentTrackContainer != null
 
     override fun logout() {
@@ -120,7 +123,7 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
     }
 
     override fun onTrackItemClick(trackEntity: TrackEntity) {
-        lastSelectedTrack = trackEntity
+        App.state?.lastOpenedUserTrack = trackEntity
         if (isTrackContainerAvailable()) {
             val fragment = childFragmentManager.findFragmentByTag(CurrentTrackFragment.TAG)
             if (fragment is CurrentTrackFragment) {
@@ -159,11 +162,5 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
             .replace(containerId, fragment, fragmentTag)
             .addToBackStack(fragmentTag)
             .commit()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putParcelable(EXTRA_LAST_SELECTED_TRACK, lastSelectedTrack)
-
-        super.onSaveInstanceState(outState)
     }
 }

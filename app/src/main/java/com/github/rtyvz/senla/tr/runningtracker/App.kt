@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb
+import com.github.rtyvz.senla.tr.runningtracker.entity.State
 import com.github.rtyvz.senla.tr.runningtracker.network.RunningAppApi
 import com.github.rtyvz.senla.tr.runningtracker.repository.login.LoginFlowRepository
 import com.github.rtyvz.senla.tr.runningtracker.repository.main.MainRunningRepository
@@ -16,6 +17,7 @@ class App : Application() {
 
     companion object {
         lateinit var instance: App
+        var state: State? = null
         lateinit var api: RunningAppApi
         lateinit var db: SQLiteDatabase
         lateinit var loginFlowRepository: LoginFlowRepository
