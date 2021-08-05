@@ -42,7 +42,6 @@ class CreateTableBuilder(private val tableName: String) {
                                     it
                                 }
                     }
-
                 }
             }$CLOSE_BRACKET"
         )

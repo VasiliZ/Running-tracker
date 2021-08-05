@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.github.rtyvz.senla.tr.runningtracker.App
@@ -82,8 +83,8 @@ class TracksFragment : Fragment() {
                 getTrackFromServer(token)
             }
         }
-
         listTrackRecycler.adapter = runningAdapter
+
     }
 
     private fun findViews(view: View) {
@@ -137,6 +138,9 @@ class TracksFragment : Fragment() {
             when (it) {
                 is Result.Success -> {
                     runningAdapter.submitList(it.data.tracksList)
+                    listTrackRecycler.layoutManager?.scrollToPosition(
+                        App.state?.firstVisibleItemPosition ?: 0
+                    )
                 }
                 is Result.Error -> {
                     when (it.error) {
@@ -165,5 +169,11 @@ class TracksFragment : Fragment() {
         if (token != null && token.isNotBlank()) {
             getTrackFromServer(token)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        App.state?.firstVisibleItemPosition =
+            (listTrackRecycler.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+        super.onSaveInstanceState(outState)
     }
 }
