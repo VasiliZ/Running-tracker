@@ -47,9 +47,19 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.media.action.DISPLAY_NOTIFICATION" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </receiver>
 
-        <service android:name=".ui.notification.AlarmService" />
+        <service android:name=".ui.notification.AlarmService">
+            <intent-filter>
+                <action android:name=".ui.notification.AlarmService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
