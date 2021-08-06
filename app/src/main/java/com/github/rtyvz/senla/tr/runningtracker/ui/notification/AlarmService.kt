@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.ui.notification.AlarmBroadcastReceiver.Companion.EXTRA_START_ALARM_SERVICE
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
@@ -59,7 +60,7 @@ class AlarmService : Service() {
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                     .build()
 
-            notifyManager.notify(alarmId, notification)
+            NotificationManagerCompat.from(this).notify(alarmId, notification)
         }
         return START_STICKY
     }
