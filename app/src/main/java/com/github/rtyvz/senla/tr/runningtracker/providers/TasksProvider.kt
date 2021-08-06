@@ -5,6 +5,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.network.Point
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.PointsRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
@@ -83,4 +84,11 @@ object TasksProvider {
 
     fun getClearUserDataTask() =
         ClearUserDataTask().clearUserData()
+
+    fun getInsertAlarmTask(alarmEntity: AlarmEntity) =
+        SaveNotificationToDbTask().saveNotificationToDb(alarmEntity)
+
+    fun getSelectNotificationsTask() = SelectNotificationsTask().getNotifications()
+    fun getUpdateNotificationTask(alarmEntity: AlarmEntity) =
+        UpdateNotificationTask().updateNotification(alarmEntity)
 }

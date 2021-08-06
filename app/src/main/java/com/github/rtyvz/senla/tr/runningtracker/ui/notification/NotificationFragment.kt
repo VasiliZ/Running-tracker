@@ -1,12 +1,14 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.notification
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
+import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -25,8 +27,27 @@ class NotificationFragment : Fragment() {
     }
 
     private lateinit var fab: FloatingActionButton
+    private lateinit var notificationRecyclerView: RecyclerView
     private var timePicker: MaterialTimePicker? = null
     private var datePicker: MaterialDatePicker<Long>? = null
+    private var hour: Int = 0
+    private var minute: Int = 0
+    private val notificationAdapter by lazy {
+        NotificationAdapter { isChecked, alarmEntity ->
+            val changedStatueAlarm = when (isChecked) {
+                true -> {
+                    Alarm(alarmEntity).schedule(requireContext())
+                    alarmEntity.copy(isEnabled = 1)
+                }
+                else -> {
+                    Alarm(alarmEntity).cancelAlarm(requireContext())
+                    alarmEntity.copy(isEnabled = 0)
+                }
+
+            }
+            App.notificationRepository.updateNotification(changedStatueAlarm)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,13 +63,23 @@ class NotificationFragment : Fragment() {
         findViews(view)
         createTimePicker()
         createDatePicker()
+        getNotificationsFromDb()
+
+        notificationRecyclerView.adapter = notificationAdapter
         fab.setOnClickListener {
             timePicker?.show(childFragmentManager, TIME_PICKER_DIALOG)
         }
     }
 
+    private fun getNotificationsFromDb() {
+        App.notificationRepository.getNotifications {
+            notificationAdapter.addItems(it)
+        }
+    }
+
     private fun findViews(view: View) {
         fab = view.findViewById(R.id.addNotificationFab)
+        notificationRecyclerView = view.findViewById(R.id.notificationsList)
     }
 
     private fun createTimePicker() {
@@ -59,7 +90,8 @@ class NotificationFragment : Fragment() {
             .build()
 
         timePicker?.addOnPositiveButtonClickListener {
-            Log.d(TAG, "createTimePicker: ${timePicker?.hour} ${timePicker?.minute}")
+            hour = timePicker?.hour ?: 0
+            minute = timePicker?.minute ?: 0
             datePicker?.show(childFragmentManager, DATE_PICKER_DIALOG)
             timePicker?.dismiss()
         }
@@ -74,6 +106,25 @@ class NotificationFragment : Fragment() {
             .setTitleText(getString(R.string.natifocation_fragment_select_day_for_run))
             .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
             .build()
+
+        datePicker?.addOnCancelListener {
+            it.dismiss()
+        }
+
+        datePicker?.addOnPositiveButtonClickListener {
+            val alarmEntity = AlarmEntity(
+                Random().nextInt(Int.MAX_VALUE),
+                hour,
+                minute,
+                getString(R.string.notification_fragment_lets_go_running),
+                it,
+                1
+            )
+            val alarm = Alarm(alarmEntity)
+            notificationAdapter.addItem(alarmEntity)
+            App.notificationRepository.saveNotificationInDb(alarmEntity)
+            alarm.schedule(App.instance)
+        }
     }
 
     override fun onDestroy() {

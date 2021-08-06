@@ -2,10 +2,13 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/middle_margin">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/timeTextView"
+        tools:text="06:22"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@color/text_color_black"
@@ -18,6 +21,7 @@
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/daysTextView"
         android:layout_width="0dp"
+        tools:text="Понедельник"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@id/switchNotification"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,6 +30,7 @@
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/switchNotification"
         android:layout_width="wrap_content"
+        android:theme="@style/SwitchTheme"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

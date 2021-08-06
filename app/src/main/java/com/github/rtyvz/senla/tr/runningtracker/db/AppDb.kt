@@ -11,10 +11,12 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         private const val DB_NAME = "running_tracker.db"
         const val TRACK_TABLE_NAME = "tracks"
         const val POINTS_TABLE_NAME = "points"
+        const val ALARM_TABLE_NAME = "alarms"
         const val REMOTE_ID_FIELD_NAME = "remote_id"
         private const val PRIMARY_FIELD_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT"
         private const val INT_NOT_NULL_TYPE = "INTEGER NOT NULL"
         private const val REAL_NOT_NULL_TYPE = "REAL NOT NULL"
+        private const val STRING_NOT_NULL_TYPE = "STRING NOT NULL"
         private const val INT_DEFAULT_ZERO_TYPE = "INTEGER DEFAULT 0"
         const val BEGIN_AT_FIELD_NAME = "beginAt"
         const val TIME_FIELD_NAME = "time"
@@ -23,6 +25,13 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         const val ID_FIELD_NAME = "id"
         const val LAT_FIELD_NAME = "lat"
         const val IS_SENT_FIELD_NAME = "isSent"
+        const val ALARM_ID_FIELD_NAME = "alarmId"
+        const val HOUR_FIELD_NAME = "hour"
+        const val MINUTE_FIELD_NAME = "minute"
+        const val TITLE_FIELD_NAME = "title"
+        const val DAY_FIELD_NAME = "day"
+        const val IS_ENABLED_NOTIFICATION = "isEnabled"
+
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -42,6 +51,16 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             .setTableField(LAT_FIELD_NAME, REAL_NOT_NULL_TYPE)
             .setTableField(ID_FIELD_NAME, PRIMARY_FIELD_TYPE)
             .setUniqueFields(listOf(BEGIN_AT_FIELD_NAME, LNG_FIELD_NAME, LAT_FIELD_NAME))
+            .build(db)
+
+        CreateTableBuilder(ALARM_TABLE_NAME)
+            .setTableField(ID_FIELD_NAME, PRIMARY_FIELD_TYPE)
+            .setTableField(ALARM_ID_FIELD_NAME, INT_NOT_NULL_TYPE)
+            .setTableField(HOUR_FIELD_NAME, INT_NOT_NULL_TYPE)
+            .setTableField(MINUTE_FIELD_NAME, INT_NOT_NULL_TYPE)
+            .setTableField(TITLE_FIELD_NAME, STRING_NOT_NULL_TYPE)
+            .setTableField(DAY_FIELD_NAME, STRING_NOT_NULL_TYPE)
+            .setTableField(IS_ENABLED_NOTIFICATION, INT_NOT_NULL_TYPE)
             .build(db)
     }
 

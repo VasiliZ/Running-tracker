@@ -22,7 +22,7 @@ class TracksAdapter(private val handleItemClick: (TrackEntity) -> (Unit)) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RunningViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.track_item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_track, parent, false)
         return RunningViewHolder(view).apply {
             this.itemView.setOnClickListener {
                 handleItemClick(currentList[adapterPosition])

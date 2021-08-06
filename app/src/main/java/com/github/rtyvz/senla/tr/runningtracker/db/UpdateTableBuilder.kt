@@ -7,6 +7,7 @@ class UpdateTableBuilder(private val tableName: String) {
         private const val UPDATE = "UPDATE "
         private const val SET = "SET "
         private const val SEPARATOR = ","
+        private const val QUESTION_MARK = "?"
         private const val WHERE = " WHERE "
     }
 
@@ -24,12 +25,22 @@ class UpdateTableBuilder(private val tableName: String) {
     }
 
     fun build(db: SQLiteDatabase) {
-        db.execSQL(
-            "$UPDATE $tableName $SET ${
-                fieldsAndDataMap.entries.joinToString(separator = SEPARATOR) {
-                    "${it.key} = ${it.value}"
-                }
-            } $WHERE $whereCondition"
-        )
+        val statement = db.compileStatement("$UPDATE $tableName $SET ${
+            fieldsAndDataMap.entries.joinToString(separator = SEPARATOR) {
+                "${it.key} = $QUESTION_MARK"
+            }
+        } $WHERE $whereCondition")
+
+        fieldsAndDataMap.values.forEachIndexed { index, mutableEntry ->
+            when (mutableEntry) {
+                is String -> statement?.bindString(index + 1, mutableEntry.toString())
+                is Int -> statement?.bindLong(index + 1, mutableEntry.toLong())
+                is Long -> statement?.bindLong(index + 1, mutableEntry.toLong())
+                is Double -> statement?.bindDouble(index + 1, mutableEntry.toDouble())
+                is Float -> statement?.bindDouble(index + 1, mutableEntry.toDouble())
+                else -> statement?.bindNull(index + 1)
+            }
+        }
+        statement?.executeInsert()
     }
 }

@@ -2,6 +2,14 @@ package com.github.rtyvz.senla.tr.runningtracker.db
 
 import android.database.Cursor
 import com.github.rtyvz.senla.tr.runningtracker.App
+import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.ALARM_ID_FIELD_NAME
+import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.ALARM_TABLE_NAME
+import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.DAY_FIELD_NAME
+import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.HOUR_FIELD_NAME
+import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.IS_ENABLED_NOTIFICATION
+import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.MINUTE_FIELD_NAME
+import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.TITLE_FIELD_NAME
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 
@@ -152,6 +160,55 @@ object DBHelper {
 
     fun deleteDataFromPointTable() {
         DeleteDataBuilder(AppDb.POINTS_TABLE_NAME)
+            .build(App.db)
+    }
+
+    fun insertNotificationToDb(alarmEntity: AlarmEntity) {
+        InsertDataBuilder(ALARM_TABLE_NAME)
+            .setFieldsWithData(ALARM_ID_FIELD_NAME, alarmEntity.alarmId)
+            .setFieldsWithData(HOUR_FIELD_NAME, alarmEntity.hour)
+            .setFieldsWithData(MINUTE_FIELD_NAME, alarmEntity.minute)
+            .setFieldsWithData(TITLE_FIELD_NAME, alarmEntity.title)
+            .setFieldsWithData(DAY_FIELD_NAME, alarmEntity.day)
+            .setFieldsWithData(IS_ENABLED_NOTIFICATION, alarmEntity.isEnabled)
+            .build(App.db)
+    }
+
+    fun getNotifications(): List<AlarmEntity> {
+        val listNotification = mutableListOf<AlarmEntity>()
+        val cursor = SelectDataBuilder(listOf(ALARM_TABLE_NAME))
+            .fieldFromSelect("${ALARM_TABLE_NAME}.*")
+            .orderByAsc(AppDb.ID_FIELD_NAME)
+            .build(App.db)
+
+        cursor?.use {
+            if (it.moveToFirst()) {
+                do {
+                    listNotification.add(
+                        AlarmEntity(
+                            alarmId = it.getInt(it.getColumnIndex(ALARM_ID_FIELD_NAME)),
+                            hour = it.getInt(it.getColumnIndex(HOUR_FIELD_NAME)),
+                            minute = it.getInt(it.getColumnIndex(MINUTE_FIELD_NAME)),
+                            title = it.getString(it.getColumnIndex(TITLE_FIELD_NAME)),
+                            day = it.getLong(it.getColumnIndex(DAY_FIELD_NAME)),
+                            isEnabled = it.getInt(it.getColumnIndex(IS_ENABLED_NOTIFICATION))
+                        )
+                    )
+                } while (it.moveToNext())
+            }
+        }
+        return listNotification
+    }
+
+    fun updateNotification(alarmEntity: AlarmEntity) {
+        UpdateTableBuilder(ALARM_TABLE_NAME)
+            .setFieldsWithData(ALARM_ID_FIELD_NAME, alarmEntity.alarmId)
+            .setFieldsWithData(HOUR_FIELD_NAME, alarmEntity.hour)
+            .setFieldsWithData(MINUTE_FIELD_NAME, alarmEntity.minute)
+            .setFieldsWithData(TITLE_FIELD_NAME, alarmEntity.title)
+            .setFieldsWithData(DAY_FIELD_NAME, alarmEntity.day)
+            .setFieldsWithData(IS_ENABLED_NOTIFICATION, alarmEntity.isEnabled)
+            .whereCondition("${ALARM_ID_FIELD_NAME} = ${alarmEntity.alarmId}")
             .build(App.db)
     }
 }
