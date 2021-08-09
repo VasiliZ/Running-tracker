@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/large_margin"
         android:backgroundTint="@color/dark_main_app_color"
-        android:contentDescription="@string/fragment_notifications_fab_desc"
+        android:contentDescription="@string/notification_fragment_fab_desc"
         android:src="@drawable/notifications"
         app:borderWidth="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

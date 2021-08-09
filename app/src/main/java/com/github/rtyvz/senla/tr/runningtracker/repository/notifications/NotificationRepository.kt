@@ -19,4 +19,8 @@ object NotificationRepository {
     fun updateNotification(alarmEntity: AlarmEntity) {
         TasksProvider.getUpdateNotificationTask(alarmEntity)
     }
+
+    fun deleteNotification(alarmEntity: AlarmEntity) {
+        TasksProvider.getDeleteNotificationByIdTask(alarmEntity.alarmId)
+    }
 }

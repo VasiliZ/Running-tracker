@@ -178,7 +178,7 @@ object DBHelper {
         val listNotification = mutableListOf<AlarmEntity>()
         val cursor = SelectDataBuilder(listOf(ALARM_TABLE_NAME))
             .fieldFromSelect("${ALARM_TABLE_NAME}.*")
-            .orderByAsc(AppDb.ID_FIELD_NAME)
+            .orderByAsc(HOUR_FIELD_NAME)
             .build(App.db)
 
         cursor?.use {
@@ -208,7 +208,13 @@ object DBHelper {
             .setFieldsWithData(TITLE_FIELD_NAME, alarmEntity.title)
             .setFieldsWithData(DAY_FIELD_NAME, alarmEntity.day)
             .setFieldsWithData(IS_ENABLED_NOTIFICATION, alarmEntity.isEnabled)
-            .whereCondition("${ALARM_ID_FIELD_NAME} = ${alarmEntity.alarmId}")
+            .whereCondition("$ALARM_ID_FIELD_NAME = ${alarmEntity.alarmId}")
+            .build(App.db)
+    }
+
+    fun deleteNotificationById(alarmId: Int) {
+        DeleteDataBuilder(ALARM_TABLE_NAME)
+            .where("$ALARM_ID_FIELD_NAME = $alarmId")
             .build(App.db)
     }
 }

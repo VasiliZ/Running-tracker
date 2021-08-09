@@ -91,4 +91,7 @@ object TasksProvider {
     fun getSelectNotificationsTask() = SelectNotificationsTask().getNotifications()
     fun getUpdateNotificationTask(alarmEntity: AlarmEntity) =
         UpdateNotificationTask().updateNotification(alarmEntity)
+
+    fun getDeleteNotificationByIdTask(alarmId: Int) =
+        DeleteNotificationByIdTask().deleteNotificationById(alarmId)
 }

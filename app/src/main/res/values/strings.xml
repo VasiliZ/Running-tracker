@@ -64,9 +64,12 @@
     <string name="main_activity_drawer_open">Открыт</string>
     <string name="main_activity_drawer_close">Закрыт</string>
     <!--fragment notifications-->
-    <string name="fragment_notifications_fab_desc">Добавление уведомлений</string>
-    <string name="natifocation_fragment_select_time_for_run">Укажите время для напоминания о беге</string>
-    <string name="natifocation_fragment_select_day_for_run">Выберите день для пробежки</string>
+    <string name="notification_fragment_fab_desc">Добавление уведомлений</string>
+    <string name="notification_fragment_select_time_for_run">Укажите время для напоминания о беге</string>
+    <string name="notification_fragment_select_day_for_run">Выберите день для пробежки</string>
     <string name="notification_fragment_lets_go_running">Давай побегаем!</string>
-
+    <string name="notification_adapter_time_pattern">%1$s : %2$s</string>
+    <string name="notification_adapter_delete_notification_title">Удалить уведомление?</string>
+    <string name="notification_adapter_dialog_ok_button">Да</string>
+    <string name="notification_adapter_dialog_cancel_button">Нет</string>
 </resources>
