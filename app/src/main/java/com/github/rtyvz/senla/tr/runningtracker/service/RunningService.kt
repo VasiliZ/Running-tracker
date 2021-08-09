@@ -122,12 +122,7 @@ class RunningService : Service(), LocationListener {
         val notificationBuilder = NotificationCompat.Builder(this, chanelNotificationId)
         val notification = notificationBuilder.setOngoing(true)
             .setSmallIcon(R.drawable.ic_running)
-            .setPriority(
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> NotificationManager.IMPORTANCE_HIGH
-                    else -> Notification.PRIORITY_HIGH
-                }
-            )
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(Notification.CATEGORY_SERVICE)
             .build()
         startForeground(NOTIFICATION_ID, notification)

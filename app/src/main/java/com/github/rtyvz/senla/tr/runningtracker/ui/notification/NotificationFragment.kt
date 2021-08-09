@@ -1,9 +1,11 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.notification
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.github.rtyvz.senla.tr.runningtracker.App
@@ -36,11 +38,14 @@ class NotificationFragment : Fragment() {
         NotificationAdapter { isChecked, alarmEntity ->
             val changedStatueAlarm = when (isChecked) {
                 true -> {
-                    Alarm(alarmEntity).schedule(requireContext())
+                    NotificationWorkManager().createWorkForNotification(alarmEntity)
                     alarmEntity.copy(isEnabled = 1)
                 }
                 else -> {
-                    Alarm(alarmEntity).cancelAlarm(requireContext())
+                    NotificationWorkManager().deleteWork(
+                        alarmEntity.alarmId.toString(),
+                        requireContext()
+                    )
                     alarmEntity.copy(isEnabled = 0)
                 }
 
@@ -101,6 +106,7 @@ class NotificationFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun createDatePicker() {
         datePicker = MaterialDatePicker.Builder.datePicker()
             .setTitleText(getString(R.string.natifocation_fragment_select_day_for_run))
@@ -120,10 +126,8 @@ class NotificationFragment : Fragment() {
                 it,
                 1
             )
-            val alarm = Alarm(alarmEntity)
+            NotificationWorkManager().createWorkForNotification(alarmEntity)
             notificationAdapter.addItem(alarmEntity)
-            App.notificationRepository.saveNotificationInDb(alarmEntity)
-            alarm.schedule(App.instance)
         }
     }
 
