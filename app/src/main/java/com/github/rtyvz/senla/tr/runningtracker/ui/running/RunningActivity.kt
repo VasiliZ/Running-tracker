@@ -31,6 +31,9 @@ import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithUTC
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.dialogs.AreYouRunDialog
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.dialogs.ClickFinishButtonDialog
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.dialogs.EnableGpsDialog
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*

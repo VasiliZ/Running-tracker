@@ -38,7 +38,7 @@ class RunningService : Service(), LocationListener {
         private const val INITIAL_DISTANCE_BETWEEN_POINTS = 0.0
         private const val MIN_TIME_FOR_LOCATION_UPDATES_MILLIS = 2000L
         private const val MIN_DISTANCE_FOR_LOCATION_UPDATES_METERS = 5F
-        private const val OFFSET_FOR_CALCULATE_DISTANCE = 2
+        private const val OFFSET_FOR_CALCULATE_DISTANCE = 1
         private const val NEXT_INDEX = 1
         private const val UNSENT_TRACK_FLAG = 0
         private const val NOTIFICATION_ID = 1
@@ -141,8 +141,8 @@ class RunningService : Service(), LocationListener {
 
     private fun startTrackingRunning() {
         val permission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        if (permission == PackageManager.PERMISSION_GRANTED) {
 
+        if (permission == PackageManager.PERMISSION_GRANTED) {
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
@@ -167,11 +167,10 @@ class RunningService : Service(), LocationListener {
             .sendBroadcastSync(Intent(RunningActivity.BROADCAST_GPS_DISABLED))
     }
 
-    //todo check this method
     private fun calculateDistance(): Int {
         var distanceBetweenPoints = INITIAL_DISTANCE_BETWEEN_POINTS
         pointsList.forEachIndexed { index, innerLocation ->
-            if (index <= pointsList.size - OFFSET_FOR_CALCULATE_DISTANCE) {
+            if (index < pointsList.size - OFFSET_FOR_CALCULATE_DISTANCE) {
                 distanceBetweenPoints += innerLocation.distanceTo(pointsList[index + NEXT_INDEX])
             }
         }
