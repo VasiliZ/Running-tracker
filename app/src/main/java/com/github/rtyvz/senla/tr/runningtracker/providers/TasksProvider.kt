@@ -94,4 +94,8 @@ object TasksProvider {
 
     fun getDeleteNotificationByIdTask(alarmId: Int) =
         DeleteNotificationByIdTask().deleteNotificationById(alarmId)
+
+    fun getDeleteTrackPointsTask(startRunningTime: Long) {
+        DeleteTrackPointsTask().deletePoints(startRunningTime)
+    }
 }

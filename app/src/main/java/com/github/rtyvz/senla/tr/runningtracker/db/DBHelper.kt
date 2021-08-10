@@ -8,6 +8,7 @@ import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.DAY_FIELD_NAM
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.HOUR_FIELD_NAME
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.IS_ENABLED_NOTIFICATION
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.MINUTE_FIELD_NAME
+import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.POINTS_TABLE_NAME
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.TITLE_FIELD_NAME
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
@@ -215,6 +216,12 @@ object DBHelper {
     fun deleteNotificationById(alarmId: Int) {
         DeleteDataBuilder(ALARM_TABLE_NAME)
             .where("$ALARM_ID_FIELD_NAME = $alarmId")
+            .build(App.db)
+    }
+
+    fun deleteTrackPoints(startRunningTime: Long) {
+        DeleteDataBuilder(POINTS_TABLE_NAME)
+            .where("${AppDb.BEGIN_AT_FIELD_NAME} = $startRunningTime")
             .build(App.db)
     }
 }

@@ -334,4 +334,8 @@ class MainRunningRepository {
     fun clearCache() {
         TasksProvider.getClearUserDataTask()
     }
+
+    fun removeTrackPoints(startRunningTime: Long) {
+        TasksProvider.getDeleteTrackPointsTask(startRunningTime)
+    }
 }

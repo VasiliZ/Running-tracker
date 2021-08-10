@@ -75,6 +75,7 @@ class RunningService : Service(), LocationListener {
                     })
             } else {
                 App.mainRunningRepository.removeEmptyTrack(startRunningTime)
+                App.mainRunningRepository.removeTrackPoints(startRunningTime)
                 LocalBroadcastManager.getInstance(this)
                     .sendBroadcastSync(Intent(RunningActivity.BROADCAST_ARE_YOU_RUN))
             }
@@ -120,7 +121,8 @@ class RunningService : Service(), LocationListener {
         }
 
         val notificationBuilder = NotificationCompat.Builder(this, chanelNotificationId)
-        val notification = notificationBuilder.setOngoing(true)
+        val notification = notificationBuilder
+            .setOngoing(true)
             .setSmallIcon(R.drawable.ic_running)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(Notification.CATEGORY_SERVICE)
