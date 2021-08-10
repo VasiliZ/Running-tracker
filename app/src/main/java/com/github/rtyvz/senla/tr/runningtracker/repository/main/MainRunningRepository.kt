@@ -5,6 +5,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import bolts.CancellationTokenSource
 import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.App
+import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.db.DBHelper
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.*
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.ERROR
@@ -16,6 +17,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserTracks
 import com.github.rtyvz.senla.tr.runningtracker.extension.*
 import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
+import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
 
 class MainRunningRepository {
 
@@ -84,7 +86,7 @@ class MainRunningRepository {
             .onSuccess({
                 //insert points into table
                 if (it.isFaulted) {
-                    //todo error can't load points for track
+                    callback(Result.Error(TracksFragment.GET_POINTS_ERROR))
                 } else {
                     listTask.forEach { map ->
                         if (!it.isFaulted) {
@@ -301,7 +303,7 @@ class MainRunningRepository {
                 return@continueWithTask Task.whenAll(mapUnsentTask.values)
             }, Task.BACKGROUND_EXECUTOR).onSuccess({
                 if (it.isFaulted) {
-                    callback(Result.Error("Не удалось отправить данные на сервер"))
+                    callback(Result.Error(App.instance.getString(R.string.main_activity_cant_sent_data_to_server)))
                 } else {
                     //save success request into database after save unsent points
                     mapUnsentTask.forEach { map ->
@@ -316,7 +318,7 @@ class MainRunningRepository {
             }, Task.BACKGROUND_EXECUTOR, cancellationToken.token)
             .continueWith {
                 if (it.isFaulted) {
-                    callback(Result.Error("Не удалось отправить данные на сервер"))
+                    callback(Result.Error(App.instance.getString(R.string.main_activity_cant_sent_data_to_server)))
                 } else {
                     //update ui data from new data in database
                     TasksProvider.getTracksFromDb(cancellationToken.token)

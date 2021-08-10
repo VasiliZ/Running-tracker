@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.tracks
+package com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -27,7 +27,7 @@ class ErrorResponseNextRunDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.running_activity_error_get_data))
+            .setTitle(getString(R.string.tracks_fragment_error_get_data))
             .setPositiveButton(getString(R.string.running_activity_dialog_ok_button)) { dialog, _ ->
                 callBack?.retryRequestTracksDataFromDb()
                 dialog.dismiss()

@@ -63,6 +63,7 @@
     <!--main activity-->
     <string name="main_activity_drawer_open">Открыт</string>
     <string name="main_activity_drawer_close">Закрыт</string>
+    <string name="main_activity_cant_sent_data_to_server">Не удалось отправить данные на сервер</string>
     <!--fragment notifications-->
     <string name="notification_fragment_fab_desc">Добавление уведомлений</string>
     <string name="notification_fragment_select_time_for_run">Укажите время для напоминания о беге</string>
@@ -72,4 +73,10 @@
     <string name="notification_adapter_delete_notification_title">Удалить уведомление?</string>
     <string name="notification_adapter_dialog_ok_button">Да</string>
     <string name="notification_adapter_dialog_cancel_button">Нет</string>
+
+    <!--tracks fragment-->
+    <string name="tracks_fragment_error_get_data">Не удалось загрузить данные, попробовать еще раз?</string>
+    <string name="tracks_fragment_error_get_points">Не удалось загрузить данные для треков, проверьте соединение и попробуйте еще раз</string>
+    <string name="tracks_fragment_dialog_confirm_click_finish_button">Хорошо</string>
+    <string name="tracks_fragment_havent_got_data_for_display">Нет данных для отображения</string>
 </resources>

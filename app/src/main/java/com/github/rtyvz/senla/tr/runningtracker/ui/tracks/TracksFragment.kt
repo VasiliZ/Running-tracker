@@ -20,6 +20,9 @@ import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
+import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorFetchingPointsDialog
+import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorResponseFirstRunDialog
+import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorResponseNextRunDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textview.MaterialTextView
 
@@ -28,6 +31,7 @@ class TracksFragment : Fragment() {
     companion object {
         val TAG: String = TracksFragment::class.java.simpleName.toString()
         private const val EMPTY_STRING = ""
+        const val GET_POINTS_ERROR = "GET_POINTS_ERROR"
         private const val USER_TOKEN = "USER_TOKEN"
         private const val INVALID_TOKEN = "INVALID_TOKEN"
         private const val EXTRA_IS_FIRST_TIME_RUN_APP = "IS_FIRST_TIME_RUN_APP"
@@ -113,6 +117,11 @@ class TracksFragment : Fragment() {
                                 INVALID_TOKEN -> {
                                     (activity as LogOutFromApp).logout()
                                 }
+                                GET_POINTS_ERROR -> {
+                                    ErrorFetchingPointsDialog.newInstance().show(
+                                        childFragmentManager, ErrorFetchingPointsDialog.TAG
+                                    )
+                                }
                                 else -> {
                                     ErrorResponseFirstRunDialog.newInstance()
                                         .show(childFragmentManager, ErrorResponseFirstRunDialog.TAG)
@@ -124,7 +133,7 @@ class TracksFragment : Fragment() {
                 is Result.Success -> {
                     if (it.data.tracksList.isEmpty()) {
                         informationTextView.text =
-                            getString(R.string.main_fragment_havent_got_data_for_display)
+                            getString(R.string.tracks_fragment_havent_got_data_for_display)
                     } else {
                         runningAdapter.submitList(it.data.tracksList)
                     }
