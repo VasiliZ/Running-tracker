@@ -22,7 +22,7 @@ class ErrorResponseNextRunDialog : DialogFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        callBack = (activity as ErrorResponseDialogCallBack)
+        callBack = (parentFragment as ErrorResponseDialogCallBack)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

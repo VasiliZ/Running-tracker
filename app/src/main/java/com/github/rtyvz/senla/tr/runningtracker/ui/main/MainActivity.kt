@@ -20,6 +20,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.State
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.notification.NotificationFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.MainRunningFragment
@@ -27,7 +28,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    HandleClosingActivityContract {
+    HandleClosingActivityContract, LogoutFromApp {
 
     companion object {
         private const val USER_TOKEN = "USER_TOKEN"
@@ -78,9 +79,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navigationView.setNavigationItemSelectedListener(this)
 
         exitFromAppLayout.setOnClickListener {
-            App.mainRunningRepository.clearCache()
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
+            logout()
         }
 
         openTracksListFragment()
@@ -220,5 +219,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun enableHomeButton(isEnable: Boolean) {
         supportActionBar?.setDisplayHomeAsUpEnabled(isEnable)
         supportActionBar?.setHomeButtonEnabled(isEnable)
+    }
+
+    override fun logout() {
+        App.mainRunningRepository.clearCache()
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
 }

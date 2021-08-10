@@ -12,14 +12,13 @@ import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
+import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
 import com.github.rtyvz.senla.tr.runningtracker.ui.track.CurrentTrackFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorResponseFirstRunDialog
-import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorResponseNextRunDialog
 
 class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
-    TracksFragment.LogOutFromApp, ErrorResponseFirstRunDialog.ErrorResponseDialogCallBack,
-    ErrorResponseNextRunDialog.ErrorResponseDialogCallBack {
+    TracksFragment.LogOutFromApp, ErrorResponseFirstRunDialog.ErrorResponseDialogCallBack {
 
     companion object {
         val TAG = MainRunningFragment::class.java.simpleName.toString()
@@ -31,8 +30,6 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
     }
 
     private var currentTrackContainer: FragmentContainerView? = null
-
-    private var lastSelectedTrack: TrackEntity? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -106,19 +103,13 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
 
     override fun logout() {
         App.mainRunningRepository.clearCache()
+        (activity as LogoutFromApp).logout()
     }
 
     override fun retryRequestTracksDataFromServer() {
         val fragment = childFragmentManager.findFragmentByTag(TracksFragment.TAG)
         if (fragment is TracksFragment) {
             fragment.retryRequest()
-        }
-    }
-
-    override fun retryRequestTracksDataFromDb() {
-        val fragment = childFragmentManager.findFragmentByTag(TracksFragment.TAG)
-        if (fragment is TracksFragment) {
-            fragment.getTracksFromDb()
         }
     }
 

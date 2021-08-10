@@ -26,7 +26,7 @@ import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorResponseN
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textview.MaterialTextView
 
-class TracksFragment : Fragment() {
+class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialogCallBack {
 
     companion object {
         val TAG: String = TracksFragment::class.java.simpleName.toString()
@@ -201,5 +201,9 @@ class TracksFragment : Fragment() {
         App.state?.firstVisibleItemPosition =
             (listTrackRecycler.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
         super.onSaveInstanceState(outState)
+    }
+
+    override fun retryRequestTracksDataFromDb() {
+        getTracksFromDb()
     }
 }
