@@ -82,7 +82,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             logout()
         }
 
-        openTracksListFragment()
+        if (App.state?.listTracks?.isNotEmpty() == true) {
+            openFragmentAfterRotate()
+        } else {
+            openTracksListFragment()
+        }
+    }
+
+    private fun openFragmentAfterRotate() {
+        val fragment = supportFragmentManager.findFragmentByTag(MainRunningFragment.TAG)
+        if (fragment is MainRunningFragment) {
+            showFragment(
+                MainRunningFragment.newInstance(),
+                MainRunningFragment.TAG,
+                MainRunningFragment.TAG,
+            )
+            navigationView.setCheckedItem(R.id.mainItem)
+        }
+        val fragmentNotification =
+            supportFragmentManager.findFragmentByTag(NotificationFragment.TAG)
+        if (fragmentNotification is NotificationFragment) {
+            showFragment(
+                NotificationFragment.newInstance(),
+                NotificationFragment.TAG,
+                NotificationFragment.TAG,
+            )
+            navigationView.setCheckedItem(R.id.notificationsItem)
+        }
     }
 
     private fun openTracksListFragment() {
