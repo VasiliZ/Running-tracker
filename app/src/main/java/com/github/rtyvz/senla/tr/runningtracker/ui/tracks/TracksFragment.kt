@@ -32,9 +32,11 @@ class TracksFragment : Fragment() {
         val TAG: String = TracksFragment::class.java.simpleName.toString()
         private const val EMPTY_STRING = ""
         const val GET_POINTS_ERROR = "GET_POINTS_ERROR"
+        const val EMPTY_DATA_RESULT = "EMPTY_DATA_RESULT"
         private const val USER_TOKEN = "USER_TOKEN"
         private const val INVALID_TOKEN = "INVALID_TOKEN"
         private const val EXTRA_IS_FIRST_TIME_RUN_APP = "IS_FIRST_TIME_RUN_APP"
+        private const val FIRST_ITEM_FOR_SCROLL = 0
 
         fun newInstance(isFirstTimeRunAppFlag: Boolean): TracksFragment {
             return TracksFragment().apply {
@@ -75,7 +77,11 @@ class TracksFragment : Fragment() {
         if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
             getTrackFromServer(token)
         } else {
-            getTracksFromDb()
+            if (App.state?.listTracks?.isEmpty() == true) {
+                getTracksFromDb()
+            } else {
+                restoreData()
+            }
         }
 
         fab.setOnClickListener {
@@ -89,6 +95,10 @@ class TracksFragment : Fragment() {
         }
         listTrackRecycler.adapter = runningAdapter
 
+    }
+
+    private fun restoreData() {
+        runningAdapter.submitList(App.state?.listTracks)
     }
 
     private fun findViews(view: View) {
@@ -135,6 +145,7 @@ class TracksFragment : Fragment() {
                         informationTextView.text =
                             getString(R.string.tracks_fragment_havent_got_data_for_display)
                     } else {
+                        informationTextView.isVisible = false
                         runningAdapter.submitList(it.data.tracksList)
                     }
                 }
@@ -146,15 +157,21 @@ class TracksFragment : Fragment() {
         App.mainRunningRepository.getTracksFromDb {
             when (it) {
                 is Result.Success -> {
+                    App.state?.listTracks = it.data.tracksList
+                    informationTextView.isVisible = false
                     runningAdapter.submitList(it.data.tracksList)
                     listTrackRecycler.layoutManager?.scrollToPosition(
-                        App.state?.firstVisibleItemPosition ?: 0
+                        App.state?.firstVisibleItemPosition ?: FIRST_ITEM_FOR_SCROLL
                     )
                 }
                 is Result.Error -> {
                     when (it.error) {
                         INVALID_TOKEN -> {
                             (activity as LogOutFromApp).logout()
+                        }
+                        EMPTY_DATA_RESULT -> {
+                            informationTextView.text =
+                                getString(R.string.tracks_fragment_havent_got_data_for_display)
                         }
                         else ->
                             ErrorResponseNextRunDialog.newInstance()

@@ -229,6 +229,8 @@ class MainRunningRepository {
                 callback(Result.Success(UserTracks(it.result.sortedByDescending { track ->
                     track.beginsAt
                 })))
+            } else {
+                callback(Result.Error(TracksFragment.EMPTY_DATA_RESULT))
             }
             return@continueWith it.result
         }, Task.UI_THREAD_EXECUTOR)
@@ -241,7 +243,7 @@ class MainRunningRepository {
                     cancellationToken.token
                 )
             }, Task.BACKGROUND_EXECUTOR, cancellationToken.token)
-            .continueWithTask({
+            .continueWith({
                 //save all tracks into database
                 val data = it.result
                 if (data != null && !it.isFaulted) {
@@ -254,14 +256,14 @@ class MainRunningRepository {
                     cancellationToken.cancel()
                     callback(Result.Error(it.result?.errorCode.toString()))
                 }
-                return@continueWithTask it
+                return@continueWith it
             }, Task.BACKGROUND_EXECUTOR)
             .continueWithTask({
                 //send request for all points for all tracks
                 val userToken =
                     App.instance.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
                 if (userToken != null && userToken.isNotBlank()) {
-                    it.result?.tracks?.forEach { track ->
+                    it.result?.result?.tracks?.forEach { track ->
                         mapPointTask[track.beginsAt] = TasksProvider.getPointsFromServerTask(
                             cancellationToken.token,
                             PointsRequest(userToken, track.id)
@@ -288,7 +290,7 @@ class MainRunningRepository {
                 //get all unsent tracks
                 return@continueWithTask TasksProvider.getUnsentTracks(cancellationToken.token)
             }, Task.BACKGROUND_EXECUTOR, cancellationToken.token)
-            .continueWithTask({
+            .continueWith({
                 //push all unsent tracks on remote server
                 it.result.forEach { trackForSend ->
                     mapUnsentTask[trackForSend.beginsAt] =
@@ -300,7 +302,7 @@ class MainRunningRepository {
                             cancellationToken.token
                         )
                 }
-                return@continueWithTask Task.whenAll(mapUnsentTask.values)
+                return@continueWith Task.whenAll(mapUnsentTask.values)
             }, Task.BACKGROUND_EXECUTOR).onSuccess({
                 if (it.isFaulted) {
                     callback(Result.Error(App.instance.getString(R.string.main_activity_cant_sent_data_to_server)))
