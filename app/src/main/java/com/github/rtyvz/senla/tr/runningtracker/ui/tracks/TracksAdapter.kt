@@ -10,7 +10,7 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
 import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTime
-import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithUTC
+import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithZeroUTC
 import com.google.android.material.textview.MaterialTextView
 
 class TracksAdapter(private val handleItemClick: (TrackEntity) -> (Unit)) :
@@ -52,7 +52,7 @@ class TracksAdapter(private val handleItemClick: (TrackEntity) -> (Unit)) :
                     data.distance.humanizeDistance().trim()
                 )
             )
-            timeRunning.text = data.time.toDateTimeWithUTC(RUNNING_TIME_PATTERN)
+            timeRunning.text = data.time.toDateTimeWithZeroUTC(RUNNING_TIME_PATTERN)
         }
     }
 

@@ -145,7 +145,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-
         return when (item.itemId) {
             R.id.mainItem -> {
                 val fragmentTag = MainRunningFragment.TAG
@@ -202,7 +201,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         fragmentTag: String,
         clearToTag: String? = null
     ) {
-
         if (clearToTag != null)
             supportFragmentManager.popBackStack(
                 clearToTag,

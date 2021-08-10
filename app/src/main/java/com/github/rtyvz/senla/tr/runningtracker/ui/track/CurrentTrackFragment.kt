@@ -13,7 +13,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
-import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithUTC
+import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithZeroUTC
 import com.github.rtyvz.senla.tr.runningtracker.extension.toLatLng
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -22,7 +22,8 @@ import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.*
 import com.google.android.material.textview.MaterialTextView
 
-class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
+class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
+    ErrorGetCurrentTrackPointsDialog.HandleErrorGetTrackPoints {
 
     companion object {
         fun newInstance(trackEntity: TrackEntity): CurrentTrackFragment {
@@ -101,7 +102,8 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                         }
                     }
                     is Result.Error -> {
-
+                        ErrorGetCurrentTrackPointsDialog.newInstance()
+                            .show(childFragmentManager, ErrorGetCurrentTrackPointsDialog.TAG)
                     }
                 }
             }
@@ -114,7 +116,7 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
             trackEntity.distance,
             trackEntity.distance.humanizeDistance()
         )
-        timeActionTextView.text = trackEntity.time.toDateTimeWithUTC(DATE_TIME_PATTERN)
+        timeActionTextView.text = trackEntity.time.toDateTimeWithZeroUTC(DATE_TIME_PATTERN)
     }
 
     private fun drawPath(googleMap: GoogleMap?, listPoints: List<PointEntity>) {
@@ -182,5 +184,9 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         mapView?.onDestroy()
 
         super.onDestroy()
+    }
+
+    override fun retryGetPoints() {
+        getPoints(arguments?.getParcelable(EXTRA_TRACK_ENTITY))
     }
 }

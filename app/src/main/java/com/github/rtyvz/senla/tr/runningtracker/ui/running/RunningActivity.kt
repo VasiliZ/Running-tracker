@@ -27,7 +27,7 @@ import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.SimpleLocation
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
-import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithUTC
+import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithZeroUTC
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
@@ -170,7 +170,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
             stopTimer()
             startService(stopActionRunningServiceIntent)
 
-            resultRunningTimeTextView.text = timeMillis.toDateTimeWithUTC(STOP_WATCH_PATTERN)
+            resultRunningTimeTextView.text = timeMillis.toDateTimeWithZeroUTC(STOP_WATCH_PATTERN)
         }
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -437,7 +437,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private fun updateWatch(timeInHundredthOfASecond: Long) {
         timerTextView.text =
-            timeInHundredthOfASecond.toDateTimeWithUTC(STOP_WATCH_PATTERN)
+            timeInHundredthOfASecond.toDateTimeWithZeroUTC(STOP_WATCH_PATTERN)
     }
 
     private fun startTimer() {
