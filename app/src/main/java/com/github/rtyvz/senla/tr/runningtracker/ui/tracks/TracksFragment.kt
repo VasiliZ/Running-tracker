@@ -73,16 +73,17 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         findViews(view)
 
         val token = requireActivity().getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
-
+/*
         if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
             getTrackFromServer(token)
         } else {
-            if (App.state?.listTracks?.isEmpty() == true) {
-                getTracksFromDb()
-            } else {
-                restoreData()
-            }
-        }
+            getTracksFromDb(
+                when (App.state?.listTracks?.isNotEmpty()) {
+                    true -> false
+                    else -> true
+                }
+            )
+        }*/
 
         fab.setOnClickListener {
             startActivity(Intent(requireContext(), RunningActivity::class.java))
@@ -97,8 +98,21 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
 
     }
 
-    private fun restoreData() {
-        runningAdapter.submitList(App.state?.listTracks)
+    override fun onResume() {
+        super.onResume()
+
+        val token = requireActivity().getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
+
+        if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
+            getTrackFromServer(token)
+        } else {
+            getTracksFromDb(
+                when (App.state?.listTracks?.isNotEmpty()) {
+                    true -> true
+                    else -> false
+                }
+            )
+        }
     }
 
     private fun findViews(view: View) {
@@ -153,8 +167,8 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         }
     }
 
-    fun getTracksFromDb() {
-        App.mainRunningRepository.getTracksFromDb {
+    private fun getTracksFromDb(isViewUpdateOnly: Boolean) {
+        App.mainRunningRepository.getTracksFromDb(isViewUpdateOnly) {
             when (it) {
                 is Result.Success -> {
                     App.state?.listTracks = it.data.tracksList
@@ -204,6 +218,6 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
     }
 
     override fun retryRequestTracksDataFromDb() {
-        getTracksFromDb()
+        getTracksFromDb(false)
     }
 }

@@ -219,7 +219,7 @@ class MainRunningRepository {
         TasksProvider.getDeleteTrackFromDbTask(beginsAt.toString())
     }
 
-    fun getTracksFromDb(callback: (Result<UserTracks>) -> Unit) {
+    fun getTracksFromDb(isViewUpdateOnly: Boolean, callback: (Result<UserTracks>) -> Unit) {
         val mapPointTask = mutableMapOf<Long, Task<PointResponse>>()
         val mapUnsentTask = mutableMapOf<Long, Task<SaveTrackResponse>>()
         val cancellationToken = CancellationTokenSource()
@@ -236,12 +236,17 @@ class MainRunningRepository {
         }, Task.UI_THREAD_EXECUTOR)
             .continueWithTask({
                 //send request for all tracks in network
-                return@continueWithTask TasksProvider.getFetchingTrackFromNetworkTask(
-                    TracksRequest(
-                        App.instance.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
-                    ),
-                    cancellationToken.token
-                )
+                if (isViewUpdateOnly) {
+                    cancellationToken.cancel()
+                    return@continueWithTask null
+                } else {
+                    return@continueWithTask TasksProvider.getFetchingTrackFromNetworkTask(
+                        TracksRequest(
+                            App.instance.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
+                        ),
+                        cancellationToken.token
+                    )
+                }
             }, Task.BACKGROUND_EXECUTOR, cancellationToken.token)
             .continueWith({
                 //save all tracks into database
@@ -253,12 +258,14 @@ class MainRunningRepository {
                             track.toSentTrackEntity()
                         })
                 } else {
-                    cancellationToken.cancel()
-                    callback(Result.Error(it.result?.errorCode.toString()))
+                    if (!isViewUpdateOnly) {
+                        cancellationToken.cancel()
+                        callback(Result.Error(it.result?.errorCode.toString()))
+                    }
                 }
                 return@continueWith it
             }, Task.BACKGROUND_EXECUTOR)
-            .continueWithTask({
+            .continueWith({
                 //send request for all points for all tracks
                 val userToken =
                     App.instance.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
@@ -270,7 +277,7 @@ class MainRunningRepository {
                         )
                     }
                 }
-                return@continueWithTask Task.whenAll(mapPointTask.values)
+                return@continueWith Task.whenAll(mapPointTask.values)
             }, Task.BACKGROUND_EXECUTOR, cancellationToken.token)
             .onSuccess({
                 //insert all points into the table
@@ -304,7 +311,7 @@ class MainRunningRepository {
                 }
                 return@continueWith Task.whenAll(mapUnsentTask.values)
             }, Task.BACKGROUND_EXECUTOR).onSuccess({
-                if (it.isFaulted) {
+                if (it.isFaulted && !isViewUpdateOnly) {
                     callback(Result.Error(App.instance.getString(R.string.main_activity_cant_sent_data_to_server)))
                 } else {
                     //save success request into database after save unsent points
@@ -319,6 +326,10 @@ class MainRunningRepository {
                 return@onSuccess it
             }, Task.BACKGROUND_EXECUTOR, cancellationToken.token)
             .continueWith {
+                if (!isViewUpdateOnly) {
+                    return@continueWith null
+                }
+
                 if (it.isFaulted) {
                     callback(Result.Error(App.instance.getString(R.string.main_activity_cant_sent_data_to_server)))
                 } else {

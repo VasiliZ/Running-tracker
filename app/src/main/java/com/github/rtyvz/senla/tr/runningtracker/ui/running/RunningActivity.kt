@@ -164,7 +164,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
             val stopActionRunningServiceIntent = Intent(this, RunningService::class.java)
                 .apply {
                     action = ACTION_RUNNING_SERVICE_STOP
-                    putExtra(RunningService.EXTRA_FINISH_RUNNING_TIME, startRunMillis)
+                    putExtra(RunningService.EXTRA_FINISH_RUNNING_TIME, timeMillis)
                 }
 
             stopTimer()
