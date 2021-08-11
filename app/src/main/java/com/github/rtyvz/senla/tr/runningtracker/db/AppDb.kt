@@ -31,6 +31,7 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         const val TITLE_FIELD_NAME = "title"
         const val DAY_FIELD_NAME = "day"
         const val IS_ENABLED_NOTIFICATION = "isEnabled"
+        const val OLD_ID_FIELD_NAME = "oldId"
 
     }
 
@@ -61,6 +62,7 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             .setTableField(TITLE_FIELD_NAME, STRING_NOT_NULL_TYPE)
             .setTableField(DAY_FIELD_NAME, STRING_NOT_NULL_TYPE)
             .setTableField(IS_ENABLED_NOTIFICATION, INT_NOT_NULL_TYPE)
+            .setTableField(OLD_ID_FIELD_NAME, INT_NOT_NULL_TYPE)
             .build(db)
     }
 

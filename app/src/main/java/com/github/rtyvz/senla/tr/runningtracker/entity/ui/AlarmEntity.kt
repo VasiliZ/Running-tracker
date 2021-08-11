@@ -10,5 +10,6 @@ data class AlarmEntity(
     val minute: Int = 0,
     val title: String,
     val day: Long = 5000L,
-    var isEnabled: Int
+    var isEnabled: Int,
+    var oldId: Int = 0
 ) : Parcelable

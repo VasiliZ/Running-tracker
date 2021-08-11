@@ -8,6 +8,7 @@ import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.DAY_FIELD_NAM
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.HOUR_FIELD_NAME
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.IS_ENABLED_NOTIFICATION
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.MINUTE_FIELD_NAME
+import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.OLD_ID_FIELD_NAME
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.POINTS_TABLE_NAME
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.TITLE_FIELD_NAME
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
@@ -171,6 +172,7 @@ object DBHelper {
             .setFieldsWithData(MINUTE_FIELD_NAME, alarmEntity.minute)
             .setFieldsWithData(TITLE_FIELD_NAME, alarmEntity.title)
             .setFieldsWithData(DAY_FIELD_NAME, alarmEntity.day)
+            .setFieldsWithData(OLD_ID_FIELD_NAME, alarmEntity.oldId)
             .setFieldsWithData(IS_ENABLED_NOTIFICATION, alarmEntity.isEnabled)
             .build(App.db)
     }
@@ -192,7 +194,8 @@ object DBHelper {
                             minute = it.getInt(it.getColumnIndex(MINUTE_FIELD_NAME)),
                             title = it.getString(it.getColumnIndex(TITLE_FIELD_NAME)),
                             day = it.getLong(it.getColumnIndex(DAY_FIELD_NAME)),
-                            isEnabled = it.getInt(it.getColumnIndex(IS_ENABLED_NOTIFICATION))
+                            isEnabled = it.getInt(it.getColumnIndex(IS_ENABLED_NOTIFICATION)),
+                            oldId = it.getInt(it.getColumnIndex(OLD_ID_FIELD_NAME))
                         )
                     )
                 } while (it.moveToNext())
@@ -209,7 +212,8 @@ object DBHelper {
             .setFieldsWithData(TITLE_FIELD_NAME, alarmEntity.title)
             .setFieldsWithData(DAY_FIELD_NAME, alarmEntity.day)
             .setFieldsWithData(IS_ENABLED_NOTIFICATION, alarmEntity.isEnabled)
-            .whereCondition("$ALARM_ID_FIELD_NAME = ${alarmEntity.alarmId}")
+            .setFieldsWithData(OLD_ID_FIELD_NAME, alarmEntity.oldId)
+            .whereCondition("$ALARM_ID_FIELD_NAME = ${alarmEntity.oldId}")
             .build(App.db)
     }
 

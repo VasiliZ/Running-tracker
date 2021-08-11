@@ -15,7 +15,8 @@ import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import java.util.*
 
-class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotification {
+class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotification,
+    NotificationAdapter.OnSwipeStateChanger {
 
     companion object {
         val TAG = NotificationFragment::class.java.simpleName.toString()
@@ -35,33 +36,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
     private var minute: Int = 0
     private var positionForAdapterAdapter: Int = 0
     private var alarmEntity: AlarmEntity? = null
-    private val notificationAdapter by lazy {
-        NotificationAdapter({ isChecked, alarmEntity ->
-            val changedStatueAlarm = when (isChecked) {
-                true -> {
-                    NotificationWorkManager().createWorkForNotification(alarmEntity)
-                    alarmEntity.copy(isEnabled = 1)
-                }
-                else -> {
-                    NotificationWorkManager().deleteWork(
-                        alarmEntity.alarmId.toString(),
-                        requireContext()
-                    )
-                    alarmEntity.copy(isEnabled = 0)
-                }
-            }
-            App.notificationRepository.updateNotification(changedStatueAlarm)
-        }, { clickCallBack, position ->
-            alarmEntity = clickCallBack
-            positionForAdapterAdapter = position
-            timePicker?.show(childFragmentManager, TIME_PICKER_DIALOG)
-        }, { longClickCallback, position ->
-            DeleteNotificationDialog.newInstance(longClickCallback, position).show(
-                childFragmentManager, DeleteNotificationDialog.TAG
-            )
-
-        })
-    }
+    private var notificationAdapter: NotificationAdapter? = null
 
 
     override fun onCreateView(
@@ -79,6 +54,16 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         createTimePicker()
         createDatePicker()
         getNotificationsFromDb()
+        notificationAdapter = NotificationAdapter(this,
+            { clickCallBack, position ->
+                alarmEntity = clickCallBack
+                positionForAdapterAdapter = position
+                timePicker?.show(childFragmentManager, TIME_PICKER_DIALOG)
+            }, { longClickCallback, position ->
+                DeleteNotificationDialog.newInstance(longClickCallback, position).show(
+                    childFragmentManager, DeleteNotificationDialog.TAG
+                )
+            })
 
         notificationRecyclerView.adapter = notificationAdapter
         fab.setOnClickListener {
@@ -88,7 +73,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
 
     private fun getNotificationsFromDb() {
         App.notificationRepository.getNotifications {
-            notificationAdapter.addItems(it)
+            notificationAdapter?.addItems(it)
         }
     }
 
@@ -132,8 +117,12 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         }
     }
 
+    private fun updateAdapter(position: Int, alarmEntity: AlarmEntity) {
+        notificationAdapter?.updateItem(position, alarmEntity)
+    }
+
     private fun removeItem(longClickCallback: AlarmEntity, position: Int) {
-        notificationAdapter.removeItem(position)
+        notificationAdapter?.removeItem(position)
         App.notificationRepository.deleteNotification(longClickCallback)
     }
 
@@ -153,7 +142,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
             innerAlarmEntity.let { settings ->
                 NotificationWorkManager().createWorkForNotification(settings)
                 App.notificationRepository.saveNotificationInDb(settings)
-                notificationAdapter.addItem(settings)
+                notificationAdapter?.addItem(settings)
             }
         } else {
             alarmEntity?.let { entity ->
@@ -173,7 +162,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
             innerAlarmEntity?.let {
                 NotificationWorkManager().createWorkForNotification(it)
                 App.notificationRepository.updateNotification(it)
-                notificationAdapter.updateItem(positionForAdapterAdapter, it)
+                notificationAdapter?.updateItem(positionForAdapterAdapter, it)
             }
             positionForAdapterAdapter = 0
             alarmEntity = null
@@ -194,5 +183,34 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         )
         App.notificationRepository.deleteNotification(alarmEntity)
         removeItem(alarmEntity, position)
+    }
+
+    override fun changeSwipeToggle(
+        isChecked: Boolean,
+        alarmEntity: AlarmEntity,
+        adapterPosition: Int
+    ) {
+        val changedStatueAlarm = when (isChecked) {
+            true -> {
+                val newEntity = alarmEntity.copy(
+                    alarmId = Random().nextInt(Int.MAX_VALUE),
+                    isEnabled = 1,
+                    oldId = alarmEntity.alarmId
+                )
+                NotificationWorkManager().createWorkForNotification(newEntity)
+                newEntity
+            }
+            else -> {
+                NotificationWorkManager().deleteWork(
+                    alarmEntity.alarmId.toString(),
+                    requireContext()
+                )
+                alarmEntity.copy(isEnabled = 0, oldId = alarmEntity.alarmId)
+            }
+        }
+        if (!notificationRecyclerView.isComputingLayout) {
+            updateAdapter(adapterPosition, changedStatueAlarm)
+        }
+        App.notificationRepository.updateNotification(changedStatueAlarm)
     }
 }

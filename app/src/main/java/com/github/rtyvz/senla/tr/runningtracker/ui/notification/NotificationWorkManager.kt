@@ -23,7 +23,7 @@ class NotificationWorkManager {
             putInt(EXTRA_ALARM_ID, alarmEntity.alarmId)
         }
         val duration = getGoalTime(alarmEntity).timeInMillis - Calendar.getInstance().timeInMillis
-        val dailyWorkerRequest = OneTimeWorkRequest.Builder(RunningWorker::class.java)
+        val workerRequest = OneTimeWorkRequest.Builder(RunningWorker::class.java)
             .setInitialDelay(duration, TimeUnit.MILLISECONDS)
             .setInputData(data.build())
             .build()
@@ -31,8 +31,8 @@ class NotificationWorkManager {
         WorkManager.getInstance(App.instance)
             .enqueueUniqueWork(
                 alarmEntity.alarmId.toString(),
-                ExistingWorkPolicy.KEEP,
-                dailyWorkerRequest
+                ExistingWorkPolicy.REPLACE,
+                workerRequest
             )
     }
 

@@ -11,7 +11,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
 
 class NotificationAdapter(
-    private val switchCheckingCallback: (Boolean, AlarmEntity) -> (Unit),
+    private val switchCheckingCallback: OnSwipeStateChanger,
     private val clickHandler: (AlarmEntity, Int) -> (Unit),
     private val longClickHandler: (AlarmEntity, Int) -> (Unit)
 ) :
@@ -46,7 +46,7 @@ class NotificationAdapter(
 
     class NotificationViewHolder(
         view: View,
-        private val switchCallback: (Boolean, AlarmEntity) -> (Unit)
+        private val switchCallback: OnSwipeStateChanger
     ) :
         RecyclerView.ViewHolder(view) {
 
@@ -80,7 +80,7 @@ class NotificationAdapter(
             }
 
             switch.setOnCheckedChangeListener { _, isChecked ->
-                switchCallback(isChecked, alarmEntity)
+                switchCallback.changeSwipeToggle(isChecked, alarmEntity, adapterPosition)
             }
         }
     }
@@ -102,6 +102,10 @@ class NotificationAdapter(
 
     fun updateItem(position: Int, alarmEntity: AlarmEntity) {
         dataList[position] = alarmEntity
-        notifyItemChanged(position)
+        notifyDataSetChanged()
+    }
+
+    interface OnSwipeStateChanger {
+        fun changeSwipeToggle(isChecked: Boolean, alarmEntity: AlarmEntity, adapterPosition: Int)
     }
 }

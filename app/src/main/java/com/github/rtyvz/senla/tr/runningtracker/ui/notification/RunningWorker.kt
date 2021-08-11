@@ -24,6 +24,8 @@ class RunningWorker(private val context: Context, private val params: WorkerPara
     companion object {
         private const val ALARM_SERVICE_CHANEL_ID = "ALARM_SERVICE_CHANEL_ID"
         private const val ALARM_SERVICE_CHANEL_NAME = "ALARM_SERVICE_CHANEL_NAME"
+        private const val EMPTY_STRING = ""
+        private const val EXTRA_TITLE = "TITLE"
     }
 
     override fun doWork(): Result {
@@ -33,7 +35,7 @@ class RunningWorker(private val context: Context, private val params: WorkerPara
         val notificationId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(notifyManager)
         } else {
-            ""
+            EMPTY_STRING
         }
         val pendingIntent = PendingIntent.getActivity(
             context,
@@ -43,7 +45,7 @@ class RunningWorker(private val context: Context, private val params: WorkerPara
         )
         val notification =
             NotificationCompat.Builder(context, notificationId)
-                .setContentTitle(inputData.getString("TITLE"))
+                .setContentTitle(inputData.getString(EXTRA_TITLE))
                 .setSmallIcon(R.drawable.notifications)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
