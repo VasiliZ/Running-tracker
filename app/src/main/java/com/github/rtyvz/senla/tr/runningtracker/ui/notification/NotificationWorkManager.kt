@@ -1,6 +1,5 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.notification
 
-import android.content.Context
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
@@ -23,7 +22,7 @@ class NotificationWorkManager {
             putInt(EXTRA_ALARM_ID, alarmEntity.alarmId)
         }
         val duration = getGoalTime(alarmEntity).timeInMillis - Calendar.getInstance().timeInMillis
-        val workerRequest = OneTimeWorkRequest.Builder(RunningWorker::class.java)
+        val workerRequest = OneTimeWorkRequest.Builder(NotificationRunningWorker::class.java)
             .setInitialDelay(duration, TimeUnit.MILLISECONDS)
             .setInputData(data.build())
             .build()
@@ -42,7 +41,7 @@ class NotificationWorkManager {
         set(Calendar.MINUTE, alarmEntity.minute)
     }
 
-    fun deleteWork(workName: String, context: Context) {
-        WorkManager.getInstance(context).cancelUniqueWork(workName)
+    fun deleteWork(workName: String) {
+        WorkManager.getInstance(App.instance).cancelAllWorkByTag(workName)
     }
 }

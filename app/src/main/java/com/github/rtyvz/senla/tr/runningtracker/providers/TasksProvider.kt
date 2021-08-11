@@ -98,4 +98,8 @@ object TasksProvider {
     fun getDeleteTrackPointsTask(startRunningTime: Long) {
         DeleteTrackPointsTask().deletePoints(startRunningTime)
     }
+
+    fun getUpdateStateNotificationTask(alarmId: Int, stateFlag: Int) {
+        UpdateStateNotificationTask().updateNotificationState(alarmId, stateFlag)
+    }
 }

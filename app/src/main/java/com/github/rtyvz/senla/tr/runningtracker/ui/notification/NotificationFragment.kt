@@ -36,6 +36,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
     private var minute: Int = 0
     private var positionForAdapterAdapter: Int = 0
     private var alarmEntity: AlarmEntity? = null
+    private var switchChecked: Boolean = false
     private var notificationAdapter: NotificationAdapter? = null
 
 
@@ -55,8 +56,9 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         createDatePicker()
         getNotificationsFromDb()
         notificationAdapter = NotificationAdapter(this,
-            { clickCallBack, position ->
+            { clickCallBack, position, isSwitchChecked ->
                 alarmEntity = clickCallBack
+                switchChecked = isSwitchChecked
                 positionForAdapterAdapter = position
                 timePicker?.show(childFragmentManager, TIME_PICKER_DIALOG)
             }, { longClickCallback, position ->
@@ -96,13 +98,12 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
             timePicker?.dismiss()
         }
 
-        timePicker?.addOnDismissListener {
+        timePicker?.addOnCancelListener {
             it.dismiss()
         }
     }
 
     private fun createDatePicker() {
-
         datePicker = MaterialDatePicker.Builder.datePicker()
             .setTitleText(getString(R.string.notification_fragment_select_day_for_run))
             .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
@@ -127,7 +128,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
     }
 
     private fun createNotificationWork(dateLong: Long) {
-        var innerAlarmEntity: AlarmEntity? = null
+        var innerAlarmEntity: AlarmEntity
 
         if (alarmEntity == null) {
             innerAlarmEntity = AlarmEntity(
@@ -147,8 +148,10 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         } else {
             alarmEntity?.let { entity ->
                 //remove old settings for current notify
-                NotificationWorkManager().deleteWork(entity.alarmId.toString(), requireContext())
+                //because task does't trigger if was been cancel
+                NotificationWorkManager().deleteWork(entity.alarmId.toString())
                 App.notificationRepository.deleteNotification(entity)
+
                 innerAlarmEntity = AlarmEntity(
                     Random().nextInt(Int.MAX_VALUE),
                     hour,
@@ -157,13 +160,16 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
                     dateLong,
                     IS_ENABLE_NOTIFICATION_FLAG
                 )
+                innerAlarmEntity.let {
+                    if (entity.isEnabled == 1) {
+                        NotificationWorkManager().createWorkForNotification(it)
+                    }
+                    App.notificationRepository.saveNotificationInDb(it)
+                    notificationAdapter?.updateItem(positionForAdapterAdapter, it)
+                }
             }
             //create new notification
-            innerAlarmEntity?.let {
-                NotificationWorkManager().createWorkForNotification(it)
-                App.notificationRepository.updateNotification(it)
-                notificationAdapter?.updateItem(positionForAdapterAdapter, it)
-            }
+            switchChecked = false
             positionForAdapterAdapter = 0
             alarmEntity = null
         }
@@ -177,10 +183,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
     }
 
     override fun removeNotification(alarmEntity: AlarmEntity, position: Int) {
-        NotificationWorkManager().deleteWork(
-            alarmEntity.alarmId.toString(),
-            requireContext()
-        )
+        NotificationWorkManager().deleteWork(alarmEntity.alarmId.toString())
         App.notificationRepository.deleteNotification(alarmEntity)
         removeItem(alarmEntity, position)
     }
@@ -190,27 +193,36 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         alarmEntity: AlarmEntity,
         adapterPosition: Int
     ) {
-        val changedStatueAlarm = when (isChecked) {
+        when (isChecked) {
             true -> {
                 val newEntity = alarmEntity.copy(
                     alarmId = Random().nextInt(Int.MAX_VALUE),
+                    hour = hour,
+                    minute = minute,
                     isEnabled = 1,
                     oldId = alarmEntity.alarmId
                 )
+                if (!notificationRecyclerView.isComputingLayout) {
+                    updateAdapter(adapterPosition, newEntity)
+                }
                 NotificationWorkManager().createWorkForNotification(newEntity)
-                newEntity
+                App.notificationRepository.updateNotification(newEntity)
             }
             else -> {
-                NotificationWorkManager().deleteWork(
-                    alarmEntity.alarmId.toString(),
-                    requireContext()
-                )
-                alarmEntity.copy(isEnabled = 0, oldId = alarmEntity.alarmId)
+                val newAlarm = alarmEntity.copy(isEnabled = 0, oldId = alarmEntity.alarmId)
+                if (!notificationRecyclerView.isComputingLayout) {
+                    updateAdapter(
+                        adapterPosition,
+                        newAlarm
+                    )
+                }
+                if (!notificationRecyclerView.isComputingLayout) {
+                    updateAdapter(adapterPosition, newAlarm)
+                }
+                App.notificationRepository.updateNotification(newAlarm)
+                NotificationWorkManager().deleteWork(alarmEntity.alarmId.toString())
             }
+
         }
-        if (!notificationRecyclerView.isComputingLayout) {
-            updateAdapter(adapterPosition, changedStatueAlarm)
-        }
-        App.notificationRepository.updateNotification(changedStatueAlarm)
     }
 }

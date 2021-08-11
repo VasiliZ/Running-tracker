@@ -14,11 +14,15 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.ui.notification.NotificationWorkManager.Companion.EXTRA_ALARM_ID
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 
-class RunningWorker(private val context: Context, private val params: WorkerParameters) :
+class NotificationRunningWorker(
+    private val context: Context,
+    params: WorkerParameters
+) :
     Worker(context, params) {
 
     companion object {
@@ -26,6 +30,7 @@ class RunningWorker(private val context: Context, private val params: WorkerPara
         private const val ALARM_SERVICE_CHANEL_NAME = "ALARM_SERVICE_CHANEL_NAME"
         private const val EMPTY_STRING = ""
         private const val EXTRA_TITLE = "TITLE"
+        private const val DISABLE_NOTIFICATION_FLAG = 0
     }
 
     override fun doWork(): Result {
@@ -55,6 +60,10 @@ class RunningWorker(private val context: Context, private val params: WorkerPara
                 .build()
 
         NotificationManagerCompat.from(context).notify(alarmId, notification)
+        App.notificationRepository.updateNotificationEnabledStateById(
+            alarmId,
+            DISABLE_NOTIFICATION_FLAG
+        )
         return Result.success()
     }
 

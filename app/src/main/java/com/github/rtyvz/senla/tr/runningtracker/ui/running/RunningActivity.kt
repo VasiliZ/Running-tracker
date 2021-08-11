@@ -66,7 +66,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         private const val DEFAULT_INT_VALUE = 0
         private const val FIRST_ARRAY_INDEX = 0
         private const val NANO_TIME_DIVIDER = 1000000
-
     }
 
     private var locationPermissionGranted: Boolean = false

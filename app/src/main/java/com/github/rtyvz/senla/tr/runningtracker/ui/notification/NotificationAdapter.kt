@@ -12,7 +12,7 @@ import com.google.android.material.textview.MaterialTextView
 
 class NotificationAdapter(
     private val switchCheckingCallback: OnSwipeStateChanger,
-    private val clickHandler: (AlarmEntity, Int) -> (Unit),
+    private val clickHandler: (AlarmEntity, Int, Boolean) -> (Unit),
     private val longClickHandler: (AlarmEntity, Int) -> (Unit)
 ) :
     RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {
@@ -21,15 +21,7 @@ class NotificationAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.item_notification, parent, false)
-        return NotificationViewHolder(view, switchCheckingCallback)
-            .apply {
-                view.setOnClickListener {
-                    clickHandler(
-                        dataList[adapterPosition],
-                        adapterPosition
-                    )
-                }
-            }
+        return NotificationViewHolder(view, switchCheckingCallback, clickHandler)
             .apply {
                 view.setOnLongClickListener {
                     longClickHandler(dataList[adapterPosition], adapterPosition)
@@ -45,8 +37,9 @@ class NotificationAdapter(
     override fun getItemCount() = dataList.size
 
     class NotificationViewHolder(
-        view: View,
-        private val switchCallback: OnSwipeStateChanger
+        private val view: View,
+        private val switchCallback: OnSwipeStateChanger,
+        private val clickHandler: (AlarmEntity, Int, Boolean) -> Unit
     ) :
         RecyclerView.ViewHolder(view) {
 
@@ -59,6 +52,10 @@ class NotificationAdapter(
         private val switch: SwitchMaterial = view.findViewById(R.id.switchNotification)
 
         fun bind(alarmEntity: AlarmEntity) {
+
+            view.setOnClickListener {
+                clickHandler(alarmEntity, adapterPosition, switch.isChecked)
+            }
             timeTextView.text = String.format(
                 itemView.context.getString(
                     R.string.notification_adapter_time_pattern,

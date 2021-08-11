@@ -35,7 +35,7 @@ object DBHelper {
 
     fun insertPointsIntoTheTable(pointsList: List<PointEntity>) {
         pointsList.forEach { pointEntity ->
-            InsertDataTableBuilder(AppDb.POINTS_TABLE_NAME)
+            InsertDataTableBuilder(POINTS_TABLE_NAME)
                 .setFieldsWithDataForReplace(AppDb.BEGIN_AT_FIELD_NAME, pointEntity.beginAt)
                 .setFieldsWithDataForReplace(AppDb.LNG_FIELD_NAME, pointEntity.lng)
                 .setFieldsWithDataForReplace(AppDb.LAT_FIELD_NAME, pointEntity.lat)
@@ -44,7 +44,7 @@ object DBHelper {
     }
 
     fun insertPoint(point: PointEntity) {
-        InsertDataBuilder(AppDb.POINTS_TABLE_NAME)
+        InsertDataBuilder(POINTS_TABLE_NAME)
             .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, point.beginAt)
             .setFieldsWithData(AppDb.LNG_FIELD_NAME, point.lng)
             .setFieldsWithData(AppDb.LAT_FIELD_NAME, point.lat)
@@ -129,8 +129,8 @@ object DBHelper {
     }
 
     private fun selectPointsFromDb(beginsAt: Long): Cursor? {
-        return SelectDataBuilder(listOf(AppDb.POINTS_TABLE_NAME))
-            .fieldFromSelect("${AppDb.POINTS_TABLE_NAME}.*")
+        return SelectDataBuilder(listOf(POINTS_TABLE_NAME))
+            .fieldFromSelect("${POINTS_TABLE_NAME}.*")
             .orderByAsc(AppDb.ID_FIELD_NAME)
             .where("${AppDb.BEGIN_AT_FIELD_NAME} = $beginsAt")
             .build(App.db)
@@ -161,7 +161,7 @@ object DBHelper {
     }
 
     fun deleteDataFromPointTable() {
-        DeleteDataBuilder(AppDb.POINTS_TABLE_NAME)
+        DeleteDataBuilder(POINTS_TABLE_NAME)
             .build(App.db)
     }
 
@@ -226,6 +226,13 @@ object DBHelper {
     fun deleteTrackPoints(startRunningTime: Long) {
         DeleteDataBuilder(POINTS_TABLE_NAME)
             .where("${AppDb.BEGIN_AT_FIELD_NAME} = $startRunningTime")
+            .build(App.db)
+    }
+
+    fun updateNotificationStateById(alarmId: Int, stateFlag: Int) {
+        UpdateTableBuilder(ALARM_TABLE_NAME)
+            .setFieldsWithData(IS_ENABLED_NOTIFICATION, stateFlag)
+            .whereCondition("$ALARM_ID_FIELD_NAME = $alarmId")
             .build(App.db)
     }
 }
