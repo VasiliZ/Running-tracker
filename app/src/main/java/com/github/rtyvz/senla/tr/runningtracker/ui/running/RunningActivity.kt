@@ -473,7 +473,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
     override fun tryToRunningAgain() {
-        //todo rewrite activity state for restart run action
         startTimerRunningTime = 0L
         startRunMillis = 0L
         handler = null
