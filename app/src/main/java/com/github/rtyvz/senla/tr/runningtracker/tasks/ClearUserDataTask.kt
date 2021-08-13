@@ -11,6 +11,7 @@ class ClearUserDataTask {
             App.instance.getSharedPreference().edit().clear().apply()
             DBHelper.deleteDataFromPointTable()
             DBHelper.deleteDataFromTrackTable()
+            DBHelper.deleteDataFromAlarmsTable()
         }
     }
 }

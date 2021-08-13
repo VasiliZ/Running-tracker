@@ -165,6 +165,11 @@ object DBHelper {
             .build(App.db)
     }
 
+    fun deleteDataFromAlarmsTable() {
+        DeleteDataBuilder(ALARM_TABLE_NAME)
+            .build(App.db)
+    }
+
     fun insertNotificationToDb(alarmEntity: AlarmEntity) {
         InsertDataBuilder(ALARM_TABLE_NAME)
             .setFieldsWithData(ALARM_ID_FIELD_NAME, alarmEntity.alarmId)

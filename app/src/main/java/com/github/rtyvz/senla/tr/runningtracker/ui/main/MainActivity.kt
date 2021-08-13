@@ -14,6 +14,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.work.WorkManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.State
@@ -270,6 +271,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun logout() {
         App.mainRunningRepository.clearCache()
+        WorkManager.getInstance(this).cancelAllWork()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
