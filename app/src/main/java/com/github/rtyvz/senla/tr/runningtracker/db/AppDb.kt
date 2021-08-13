@@ -36,7 +36,7 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
-        CreateTableBuilder(TRACK_TABLE_NAME)
+        CreateTableHelper(TRACK_TABLE_NAME)
             .setTableField(ID_FIELD_NAME, PRIMARY_FIELD_TYPE)
             .setTableField(BEGIN_AT_FIELD_NAME, INT_NOT_NULL_TYPE)
             .setTableField(TIME_FIELD_NAME, INT_NOT_NULL_TYPE)
@@ -46,7 +46,7 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             .setUniqueFields(listOf(BEGIN_AT_FIELD_NAME))
             .build(db)
 
-        CreateTableBuilder(POINTS_TABLE_NAME)
+        CreateTableHelper(POINTS_TABLE_NAME)
             .setTableField(BEGIN_AT_FIELD_NAME, INT_NOT_NULL_TYPE)
             .setTableField(LNG_FIELD_NAME, REAL_NOT_NULL_TYPE)
             .setTableField(LAT_FIELD_NAME, REAL_NOT_NULL_TYPE)
@@ -54,7 +54,7 @@ class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             .setUniqueFields(listOf(BEGIN_AT_FIELD_NAME, LNG_FIELD_NAME, LAT_FIELD_NAME))
             .build(db)
 
-        CreateTableBuilder(ALARM_TABLE_NAME)
+        CreateTableHelper(ALARM_TABLE_NAME)
             .setTableField(ID_FIELD_NAME, PRIMARY_FIELD_TYPE)
             .setTableField(ALARM_ID_FIELD_NAME, INT_NOT_NULL_TYPE)
             .setTableField(HOUR_FIELD_NAME, INT_NOT_NULL_TYPE)

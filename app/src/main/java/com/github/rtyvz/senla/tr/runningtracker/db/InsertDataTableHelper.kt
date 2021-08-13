@@ -2,7 +2,7 @@ package com.github.rtyvz.senla.tr.runningtracker.db
 
 import android.database.sqlite.SQLiteDatabase
 
-class InsertDataTableBuilder(private val tableName: String) {
+class InsertDataTableHelper(private val tableName: String) {
 
     companion object {
         private const val SEPARATOR = ","
@@ -14,7 +14,7 @@ class InsertDataTableBuilder(private val tableName: String) {
 
     private val mapWithData = mutableMapOf<String, Any>()
 
-    fun setFieldsWithDataForReplace(fieldName: String, data: Any): InsertDataTableBuilder {
+    fun setFieldsWithDataForReplace(fieldName: String, data: Any): InsertDataTableHelper {
         mapWithData[fieldName] = data
         return this
     }

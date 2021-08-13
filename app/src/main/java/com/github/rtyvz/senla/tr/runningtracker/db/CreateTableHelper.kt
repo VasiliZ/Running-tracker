@@ -2,7 +2,7 @@ package com.github.rtyvz.senla.tr.runningtracker.db
 
 import android.database.sqlite.SQLiteDatabase
 
-class CreateTableBuilder(private val tableName: String) {
+class CreateTableHelper(private val tableName: String) {
 
     companion object {
         private const val CREATE_KEY_WORD = "CREATE TABLE IF NOT EXISTS"
@@ -13,12 +13,12 @@ class CreateTableBuilder(private val tableName: String) {
     private val fields = mutableMapOf<String, String>()
     private val uniqueFields = mutableListOf<String>()
 
-    fun setTableField(fieldName: String, fieldType: String): CreateTableBuilder {
+    fun setTableField(fieldName: String, fieldType: String): CreateTableHelper {
         fields[fieldName] = fieldType
         return this
     }
 
-    fun setUniqueFields(listUniqueField: List<String>): CreateTableBuilder {
+    fun setUniqueFields(listUniqueField: List<String>): CreateTableHelper {
         uniqueFields.addAll(listUniqueField)
         return this
     }
