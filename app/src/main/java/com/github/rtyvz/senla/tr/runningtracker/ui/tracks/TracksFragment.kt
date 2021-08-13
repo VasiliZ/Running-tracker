@@ -156,6 +156,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
 
     private fun getTracksFromDb(isViewUpdateOnly: Boolean) {
         App.mainRunningRepository.getTracksFromDb(isViewUpdateOnly) {
+            informationTextView.isVisible = false
             when (it) {
                 is Result.Success -> {
                     App.state?.isDataLoadedYet = true
@@ -168,6 +169,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
                             (activity as LogOutFromApp).logout()
                         }
                         EMPTY_DATA_RESULT -> {
+                            informationTextView.isVisible = true
                             informationTextView.text =
                                 getString(R.string.tracks_fragment_havent_got_data_for_display)
                         }

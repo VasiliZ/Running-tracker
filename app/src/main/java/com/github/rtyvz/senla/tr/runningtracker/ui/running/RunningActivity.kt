@@ -151,6 +151,8 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                 } else {
                     startService(intentRunningService)
                 }
+            } else {
+                EnableGpsDialog.newInstance().show(supportFragmentManager, EnableGpsDialog.TAG)
             }
         }
 
