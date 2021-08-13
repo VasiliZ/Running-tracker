@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
@@ -16,6 +17,7 @@ import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
 import com.github.rtyvz.senla.tr.runningtracker.ui.track.CurrentTrackFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorResponseFirstRunDialog
+import com.google.android.material.textview.MaterialTextView
 
 class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
     TracksFragment.LogOutFromApp, ErrorResponseFirstRunDialog.ErrorResponseDialogCallBack {
@@ -30,6 +32,7 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
     }
 
     private var currentTrackContainer: FragmentContainerView? = null
+    private var selectTrackTextView: MaterialTextView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,6 +46,7 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
         super.onViewCreated(view, savedInstanceState)
 
         currentTrackContainer = view.findViewById(R.id.currentTrackContainer)
+        selectTrackTextView = view.findViewById(R.id.selectTrackTextView)
 
         openMainFragment(isFirstTimeLaunchApp(requireActivity().getSharedPreference()))
         App.state?.lastOpenedUserTrack?.let { lastTrack ->
@@ -73,6 +77,7 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
                 childFragmentManager.popBackStack()
                 (activity as ChangeNavigationInToolbar).enableHomeButton(false)
                 (activity as ChangeNavigationInToolbar).enableToggle()
+                selectTrackTextView?.isVisible = true
                 App.state?.lastOpenedUserTrack = null
                 false
             }
@@ -80,6 +85,7 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
     }
 
     private fun openMainFragment(isFirstTimeRunFlag: Boolean) {
+        selectTrackTextView?.isVisible = false
         showFragment(
             fragment = TracksFragment.newInstance(isFirstTimeRunFlag),
             fragmentTag = TracksFragment.TAG,
@@ -94,6 +100,9 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
                 )
             }
             (activity as ChangeNavigationInToolbar).enableHomeButton(true)
+        }
+        if (isTrackContainerAvailable() && App.state?.lastOpenedUserTrack == null) {
+            selectTrackTextView?.isVisible = true
         }
     }
 
@@ -123,6 +132,7 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
     override fun onTrackItemClick(trackEntity: TrackEntity) {
         App.state?.lastOpenedUserTrack = trackEntity
         if (isTrackContainerAvailable()) {
+            selectTrackTextView?.isVisible = false
             val fragment = childFragmentManager.findFragmentByTag(CurrentTrackFragment.TAG)
             if (fragment is CurrentTrackFragment) {
                 fragment.setTrack(trackEntity)

@@ -135,6 +135,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                 startAnimation(exitLayout, R.animator.flip_in)
                 exitLayout.isVisible = true
                 startRunningButton.isClickable = false
+                finishRunningButton.isClickable = true
 
                 startTimer()
                 val intentRunningService = Intent(this, RunningService::class.java).apply {
@@ -423,14 +424,17 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                                 )
                             )
                         } else {
-                            Log.e(TAG, "Exception: %s", location.exception)
                             googleMap?.uiSettings?.isMyLocationButtonEnabled = false
                         }
                     }
                 }
             }
         } catch (e: SecurityException) {
-            Log.e("Exception: %s", e.message, e)
+            Toast.makeText(
+                this,
+                R.string.running_activity_havent_got_gps_permitions,
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -468,7 +472,12 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
 
     override fun tryToRunningAgain() {
         //todo rewrite activity state for restart run action
-        recreate()
+        startTimerRunningTime = 0L
+        startRunMillis = 0L
+        handler = null
+        startRunningButton.isClickable = true
+        startAnimation(resultLayout, R.animator.flip_out)
+        startAnimation(startLayout, R.animator.flip_in)
     }
 
     override fun onBackPressed() {
