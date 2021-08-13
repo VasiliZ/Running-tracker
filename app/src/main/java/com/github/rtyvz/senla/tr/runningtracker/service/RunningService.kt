@@ -63,7 +63,7 @@ class RunningService : Service(), LocationListener {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_RUNNING_SERVICE_STOP) {
             val distance = calculateDistance()
-            if (pointsList.size > 1 && distance > 0) {
+            if (pointsList.size > 1 && distance <= 0) {
                 App.mainRunningRepository.saveTrack(
                     TrackEntity(
                         beginsAt = startRunningTime,
