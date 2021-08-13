@@ -9,13 +9,13 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserSuccessfulResponse
 import com.github.rtyvz.senla.tr.runningtracker.extension.toUserData
 import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
 
-class LoginFlowRepository {
-    private val cancellationToken = CancellationTokenSource()
+object LoginFlowRepository {
 
     fun authUser(
         userDataRequest: UserDataRequest,
         callBack: (Result<UserSuccessfulResponse>) -> (Unit)
     ) {
+        val cancellationToken = CancellationTokenSource()
         TasksProvider.getRegisterUserTask(userDataRequest, cancellationToken.token)
             .continueWith({
                 if (it.isFaulted) {
@@ -45,6 +45,7 @@ class LoginFlowRepository {
         userEmail: String,
         callBack: (Result<UserSuccessfulResponse>) -> Unit
     ) {
+        val cancellationToken = CancellationTokenSource()
         TasksProvider.getLoginUserTask(userDataRequest, cancellationToken.token).continueWith({
             if (it.isFaulted) {
                 callBack(Result.Error(it.error.toString()))

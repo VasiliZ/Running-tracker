@@ -19,22 +19,19 @@ import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
 
-class MainRunningRepository {
+object MainRunningRepository {
 
-    companion object {
-        private const val INVALID_TOKEN = "INVALID_TOKEN"
-        private const val NO_POINTS = "NO_POINTS"
-        private const val IS_DATA_SENT_FLAG = 1
-        private const val USER_TOKEN = "USER_TOKEN"
-        private const val EMPTY_STRING = ""
-    }
-
-    private val listTask = mutableMapOf<Long, Task<PointResponse>>()
+    private const val INVALID_TOKEN = "INVALID_TOKEN"
+    private const val NO_POINTS = "NO_POINTS"
+    private const val IS_DATA_SENT_FLAG = 1
+    private const val USER_TOKEN = "USER_TOKEN"
+    private const val EMPTY_STRING = ""
 
     fun getTracks(
         tracksRequest: TracksRequest,
         callback: (Result<UserTracks>) -> (Unit)
     ) {
+        val listTask = mutableMapOf<Long, Task<PointResponse>>()
         val cancellationToken = CancellationTokenSource()
         //get tacks from network
         val insertPointsTasks = mutableMapOf<Long, Task<Unit>>()
