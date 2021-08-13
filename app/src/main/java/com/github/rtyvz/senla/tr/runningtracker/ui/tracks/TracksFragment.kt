@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.github.rtyvz.senla.tr.runningtracker.App
@@ -36,7 +35,6 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         private const val USER_TOKEN = "USER_TOKEN"
         private const val INVALID_TOKEN = "INVALID_TOKEN"
         private const val EXTRA_IS_FIRST_TIME_RUN_APP = "IS_FIRST_TIME_RUN_APP"
-        private const val FIRST_ITEM_FOR_SCROLL = 0
 
         fun newInstance(isFirstTimeRunAppFlag: Boolean): TracksFragment {
             return TracksFragment().apply {
@@ -52,9 +50,6 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
     private lateinit var fab: FloatingActionButton
     private var listTrackRecycler: RecyclerView? = null
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
-    private val linearLayoutManager by lazy {
-        LinearLayoutManager(requireContext())
-    }
 
     private val runningAdapter by lazy {
         TracksAdapter {
@@ -86,7 +81,6 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
                 getTrackFromServer(token)
             }
         }
-        listTrackRecycler?.layoutManager = LinearLayoutManager(requireContext())
         listTrackRecycler?.adapter = runningAdapter
 
     }
@@ -100,13 +94,12 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
             getTrackFromServer(token)
         } else {
             getTracksFromDb(
-                when (App.state?.listTracks?.isNotEmpty()) {
+                when (App.state?.isDataLoadedYet) {
                     true -> true
                     else -> false
                 }
             )
         }
-
     }
 
     private fun findViews(view: View) {
@@ -165,12 +158,9 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         App.mainRunningRepository.getTracksFromDb(isViewUpdateOnly) {
             when (it) {
                 is Result.Success -> {
-                    App.state?.listTracks = it.data.tracksList
+                    App.state?.isDataLoadedYet = true
                     informationTextView.isVisible = false
                     runningAdapter.submitList(it.data.tracksList)
-                    listTrackRecycler?.layoutManager?.scrollToPosition(
-                        App.state?.firstVisibleItemPosition ?: FIRST_ITEM_FOR_SCROLL
-                    )
                 }
                 is Result.Error -> {
                     when (it.error) {

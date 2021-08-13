@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             logout()
         }
 
-        if (App.state?.listTracks?.isNotEmpty() == true) {
+        if (App.state?.isDataLoadedYet == true) {
             openFragmentAfterRotate()
         } else {
             openTracksListFragment()
@@ -152,9 +152,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val fragment = supportFragmentManager.findFragmentByTag(MainRunningFragment.TAG)
         if (fragment is MainRunningFragment && fragment.isVisible) {
             if (fragment.onBackPressed()) {
+                App.state = null
                 finish()
             }
         } else {
+            App.state = null
             finish()
         }
     }

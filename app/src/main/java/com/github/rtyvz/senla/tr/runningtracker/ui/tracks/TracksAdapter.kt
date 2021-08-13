@@ -61,6 +61,6 @@ class TracksAdapter(private val handleItemClick: (TrackEntity) -> (Unit)) :
             oldItem.beginsAt == newItem.beginsAt
 
         override fun areContentsTheSame(oldItem: TrackEntity, newItem: TrackEntity) =
-            oldItem.beginsAt == newItem.beginsAt
+            oldItem == newItem
     }
 }
