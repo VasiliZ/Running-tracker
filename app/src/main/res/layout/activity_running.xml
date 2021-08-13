@@ -86,15 +86,16 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/stopTimerButton"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="150dp"
             android:layout_height="@dimen/large_button_height"
             android:layout_gravity="start"
             android:insetLeft="0dp"
-            app:cornerRadius="@dimen/middle_corner_radius"
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            android:text="@string/running_activity_finish_label" />
+            android:text="@string/running_activity_finish_label"
+            app:cornerRadius="@dimen/middle_corner_radius" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/timerTextView"
