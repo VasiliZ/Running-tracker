@@ -28,7 +28,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    HandleClosingActivityContract, LogoutFromApp {
+    HandleClosingActivityContract, LogoutFromApp, MainRunningFragment.ChangeNavigationInToolbar {
 
     companion object {
         private const val USER_TOKEN = "USER_TOKEN"
@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var headerNavView: View
     private lateinit var exitFromAppLayout: ConstraintLayout
     private lateinit var drawerLayout: DrawerLayout
+    private var isToolBarNavigationListenerIsRegistered = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -144,7 +145,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             drawerLayout.closeDrawer(GravityCompat.START)
             return
         }
+        setInnerFragmentBackPressedBehavior()
+    }
 
+    private fun setInnerFragmentBackPressedBehavior() {
         val fragment = supportFragmentManager.findFragmentByTag(MainRunningFragment.TAG)
         if (fragment is MainRunningFragment && fragment.isVisible) {
             if (fragment.onBackPressed()) {
@@ -169,6 +173,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.mainItem -> {
+                navigationView.setCheckedItem(item.itemId)
                 val fragmentTag = MainRunningFragment.TAG
                 val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
                 drawerLayout.closeDrawer(GravityCompat.START)
@@ -181,7 +186,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         NotificationFragment.TAG
                     )
                 }
-                navigationView.setCheckedItem(item.itemId)
                 return true
             }
             R.id.notificationsItem -> {
@@ -240,9 +244,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         finish()
     }
 
-    private fun enableHomeButton(isEnable: Boolean) {
+    override fun enableHomeButton(isEnable: Boolean) {
+        drawerToggle?.isDrawerIndicatorEnabled = false
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         supportActionBar?.setDisplayHomeAsUpEnabled(isEnable)
         supportActionBar?.setHomeButtonEnabled(isEnable)
+
+        if (!isToolBarNavigationListenerIsRegistered) {
+            drawerToggle?.setToolbarNavigationClickListener {
+                onBackPressed()
+            }
+        }
+        isToolBarNavigationListenerIsRegistered = true;
+    }
+
+
+    override fun enableToggle() {
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        drawerToggle?.isDrawerIndicatorEnabled = true
+        drawerToggle?.syncState()
+        isToolBarNavigationListenerIsRegistered = false
     }
 
     override fun logout() {

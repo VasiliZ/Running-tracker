@@ -63,12 +63,16 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
                 if (fragment is CurrentTrackFragment && fragment.isVisible) {
                     childFragmentManager.popBackStack()
                     App.state?.lastOpenedUserTrack = null
+                    (activity as ChangeNavigationInToolbar).enableHomeButton(false)
+                    (activity as ChangeNavigationInToolbar).enableToggle()
                     return false
                 }
                 return true
             }
             else -> {
                 childFragmentManager.popBackStack()
+                (activity as ChangeNavigationInToolbar).enableHomeButton(false)
+                (activity as ChangeNavigationInToolbar).enableToggle()
                 App.state?.lastOpenedUserTrack = null
                 false
             }
@@ -89,6 +93,7 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
                     containerId = R.id.listTrackContainer
                 )
             }
+            (activity as ChangeNavigationInToolbar).enableHomeButton(true)
         }
     }
 
@@ -129,6 +134,7 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
                 )
             }
         } else {
+            (activity as ChangeNavigationInToolbar).enableHomeButton(true)
             showFragment(
                 CurrentTrackFragment.newInstance(trackEntity),
                 CurrentTrackFragment.TAG,
@@ -149,10 +155,14 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
                 clearToTag,
                 if (clearInclusive) FragmentManager.POP_BACK_STACK_INCLUSIVE else 0
             )
-
         childFragmentManager.beginTransaction()
             .replace(containerId, fragment, fragmentTag)
             .addToBackStack(fragmentTag)
             .commit()
+    }
+
+    interface ChangeNavigationInToolbar {
+        fun enableHomeButton(isEnable: Boolean)
+        fun enableToggle()
     }
 }
