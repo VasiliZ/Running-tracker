@@ -50,8 +50,11 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
     private lateinit var informationTextView: MaterialTextView
     private lateinit var progressBar: ProgressBar
     private lateinit var fab: FloatingActionButton
-    private lateinit var listTrackRecycler: RecyclerView
+    private var listTrackRecycler: RecyclerView? = null
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private val linearLayoutManager by lazy {
+        LinearLayoutManager(requireContext())
+    }
 
     private val runningAdapter by lazy {
         TracksAdapter {
@@ -73,17 +76,6 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         findViews(view)
 
         val token = requireActivity().getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
-/*
-        if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
-            getTrackFromServer(token)
-        } else {
-            getTracksFromDb(
-                when (App.state?.listTracks?.isNotEmpty()) {
-                    true -> false
-                    else -> true
-                }
-            )
-        }*/
 
         fab.setOnClickListener {
             startActivity(Intent(requireContext(), RunningActivity::class.java))
@@ -94,7 +86,8 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
                 getTrackFromServer(token)
             }
         }
-        listTrackRecycler.adapter = runningAdapter
+        listTrackRecycler?.layoutManager = LinearLayoutManager(requireContext())
+        listTrackRecycler?.adapter = runningAdapter
 
     }
 
@@ -113,6 +106,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
                 }
             )
         }
+
     }
 
     private fun findViews(view: View) {
@@ -174,7 +168,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
                     App.state?.listTracks = it.data.tracksList
                     informationTextView.isVisible = false
                     runningAdapter.submitList(it.data.tracksList)
-                    listTrackRecycler.layoutManager?.scrollToPosition(
+                    listTrackRecycler?.layoutManager?.scrollToPosition(
                         App.state?.firstVisibleItemPosition ?: FIRST_ITEM_FOR_SCROLL
                     )
                 }
@@ -209,12 +203,6 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         if (token != null && token.isNotBlank()) {
             getTrackFromServer(token)
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        App.state?.firstVisibleItemPosition =
-            (listTrackRecycler.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-        super.onSaveInstanceState(outState)
     }
 
     override fun retryRequestTracksDataFromDb() {

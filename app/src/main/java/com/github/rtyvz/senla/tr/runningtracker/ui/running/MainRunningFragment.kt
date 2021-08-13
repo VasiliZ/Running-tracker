@@ -48,9 +48,8 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
         App.state?.lastOpenedUserTrack?.let { lastTrack ->
             if (isTrackContainerAvailable()) {
                 showFragment(
-                    CurrentTrackFragment.newInstance(lastTrack),
-                    CurrentTrackFragment.TAG,
-                    clearInclusive = false,
+                    fragment = CurrentTrackFragment.newInstance(lastTrack),
+                    fragmentTag = CurrentTrackFragment.TAG,
                     containerId = R.id.currentTrackContainer
                 )
             }
@@ -59,7 +58,15 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
 
     fun onBackPressed(): Boolean {
         return when {
-            (childFragmentManager.backStackEntryCount == 1) -> true
+            (childFragmentManager.backStackEntryCount == 1) -> {
+                val fragment = childFragmentManager.findFragmentByTag(CurrentTrackFragment.TAG)
+                if (fragment is CurrentTrackFragment && fragment.isVisible) {
+                    childFragmentManager.popBackStack()
+                    App.state?.lastOpenedUserTrack = null
+                    return false
+                }
+                return true
+            }
             else -> {
                 childFragmentManager.popBackStack()
                 App.state?.lastOpenedUserTrack = null
@@ -69,24 +76,19 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
     }
 
     private fun openMainFragment(isFirstTimeRunFlag: Boolean) {
+        showFragment(
+            fragment = TracksFragment.newInstance(isFirstTimeRunFlag),
+            fragmentTag = TracksFragment.TAG,
+            containerId = R.id.listTrackContainer
+        )
         if (!isTrackContainerAvailable() && App.state?.lastOpenedUserTrack != null) {
             App.state?.lastOpenedUserTrack?.let {
                 showFragment(
                     fragment = CurrentTrackFragment.newInstance(it),
                     fragmentTag = CurrentTrackFragment.TAG,
-                    clearToTag = CurrentTrackFragment.TAG,
-                    clearInclusive = false,
                     containerId = R.id.listTrackContainer
                 )
             }
-        } else {
-            showFragment(
-                fragment = TracksFragment.newInstance(isFirstTimeRunFlag),
-                fragmentTag = TracksFragment.TAG,
-                clearToTag = TracksFragment.TAG,
-                clearInclusive = true,
-                containerId = R.id.listTrackContainer
-            )
         }
     }
 
@@ -142,7 +144,6 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
         clearInclusive: Boolean = false,
         containerId: Int
     ) {
-
         if (clearToTag != null)
             childFragmentManager.popBackStack(
                 clearToTag,

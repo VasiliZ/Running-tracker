@@ -38,16 +38,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private const val EMPTY_STRING = ""
     }
 
-    private lateinit var userData: UserData
     private var toolBar: Toolbar? = null
+    private var drawerToggle: ActionBarDrawerToggle? = null
+    private lateinit var userData: UserData
     private lateinit var navHeaderUserNameTextView: MaterialTextView
     private lateinit var navHeaderUserEmailTextView: MaterialTextView
     private lateinit var navigationView: NavigationView
     private lateinit var headerNavView: View
     private lateinit var exitFromAppLayout: ConstraintLayout
     private lateinit var drawerLayout: DrawerLayout
-
-    private var drawerToggle: ActionBarDrawerToggle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,7 +94,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             showFragment(
                 MainRunningFragment.newInstance(),
                 MainRunningFragment.TAG,
-                MainRunningFragment.TAG,
             )
             navigationView.setCheckedItem(R.id.mainItem)
         }
@@ -106,6 +104,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 NotificationFragment.newInstance(),
                 NotificationFragment.TAG,
                 NotificationFragment.TAG,
+                false
             )
             navigationView.setCheckedItem(R.id.notificationsItem)
         }
@@ -146,15 +145,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return
         }
 
-        if (supportFragmentManager.backStackEntryCount == 1) {
-            val fragment = supportFragmentManager.findFragmentByTag(MainRunningFragment.TAG)
-            if (fragment is MainRunningFragment && fragment.isVisible) {
-                if (fragment.onBackPressed()) {
-                    finish()
-                }
-            } else {
+        val fragment = supportFragmentManager.findFragmentByTag(MainRunningFragment.TAG)
+        if (fragment is MainRunningFragment && fragment.isVisible) {
+            if (fragment.onBackPressed()) {
                 finish()
             }
+        } else {
+            finish()
         }
     }
 
@@ -224,12 +221,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun showFragment(
         fragment: Fragment,
         fragmentTag: String,
-        clearToTag: String? = null
+        clearToTag: String? = null,
+        isInclusive: Boolean = true
     ) {
         if (clearToTag != null)
             supportFragmentManager.popBackStack(
                 clearToTag,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE
+                if (isInclusive) FragmentManager.POP_BACK_STACK_INCLUSIVE else 0
             )
 
         supportFragmentManager.beginTransaction()
