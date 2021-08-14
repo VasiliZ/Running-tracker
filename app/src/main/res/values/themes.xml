@@ -10,10 +10,6 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="ShapeAppearance.Overlay.CircleImageView" parent="">
-        <item name="cornerSize">50%</item>
-    </style>
-
     <style name="SwitchTheme" parent="Theme.RunningTracker">
         <item name="colorControlActivated">@color/main_app_color</item>
     </style>

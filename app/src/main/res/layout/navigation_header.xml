@@ -16,8 +16,7 @@
         android:layout_margin="@dimen/middle_margin"
         android:src="@drawable/ic_running"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.Overlay.CircleImageView" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/userNameTextView"
