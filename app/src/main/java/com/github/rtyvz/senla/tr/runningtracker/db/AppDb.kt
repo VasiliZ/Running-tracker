@@ -3,6 +3,7 @@ package com.github.rtyvz.senla.tr.runningtracker.db
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.github.rtyvz.senla.tr.runningtracker.db.helpers.CreateTableHelper
 
 class AppDb(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 

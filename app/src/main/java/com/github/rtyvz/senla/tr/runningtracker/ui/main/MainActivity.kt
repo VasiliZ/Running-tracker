@@ -207,7 +207,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 return true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> false
         }
     }
 

@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.db
+package com.github.rtyvz.senla.tr.runningtracker.db.helpers
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase

@@ -1,7 +1,8 @@
-package com.github.rtyvz.senla.tr.runningtracker.db
+package com.github.rtyvz.senla.tr.runningtracker.db.helpers
 
 import android.database.Cursor
 import com.github.rtyvz.senla.tr.runningtracker.App
+import com.github.rtyvz.senla.tr.runningtracker.db.AppDb
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.ALARM_ID_FIELD_NAME
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.ALARM_TABLE_NAME
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.DAY_FIELD_NAME

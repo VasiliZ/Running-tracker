@@ -6,7 +6,7 @@ import bolts.CancellationTokenSource
 import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.db.DBHelper
+import com.github.rtyvz.senla.tr.runningtracker.db.helpers.DBHelper
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.*
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.ERROR
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.OK
