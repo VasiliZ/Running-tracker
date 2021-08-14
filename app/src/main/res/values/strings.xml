@@ -86,4 +86,5 @@
     <string name="track_fragment_dialog_cancel_button">Нет</string>
     <string name="running_activity_havent_got_gps_permitions">Включите разрешение на запись GPS</string>
     <string name="main_fragment_select_track_for_show">Выберите трек для просмотра</string>
+    <string name="running_service_distance_pattern">Дистанция %d м.</string>
 </resources>

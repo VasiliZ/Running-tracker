@@ -15,6 +15,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
@@ -22,6 +23,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.SimpleLocation
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.toPointEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
+import java.util.*
 
 class RunningService : Service(), LocationListener {
 
@@ -50,6 +52,7 @@ class RunningService : Service(), LocationListener {
 
     private val pointsList = mutableListOf<Location>()
     private var startRunningTime = 0L
+    private lateinit var notificationBuilder: NotificationCompat.Builder
 
     override fun onCreate() {
         super.onCreate()
@@ -122,14 +125,23 @@ class RunningService : Service(), LocationListener {
             EMPTY_STRING
         }
 
-        val notificationBuilder = NotificationCompat.Builder(this, chanelNotificationId)
-        val notification = notificationBuilder
-            .setOngoing(true)
-            .setSmallIcon(R.drawable.ic_running)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(Notification.CATEGORY_SERVICE)
-            .build()
-        startForeground(NOTIFICATION_ID, notification)
+        notificationBuilder = NotificationCompat.Builder(this, chanelNotificationId)
+        notificationBuilder.let {
+            val notification = it
+                .setOngoing(true)
+                .setSmallIcon(R.drawable.ic_running)
+                .setContentText(
+                    String.format(
+                        Locale.getDefault(),
+                        getString(R.string.running_service_distance_pattern),
+                        0
+                    )
+                )
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build()
+            startForeground(NOTIFICATION_ID, notification)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -159,6 +171,7 @@ class RunningService : Service(), LocationListener {
 
     override fun onLocationChanged(location: Location) {
         saveCurrentPoint(location)
+        updateBodyNotification()
     }
 
     override fun onProviderEnabled(provider: String) {
@@ -187,6 +200,21 @@ class RunningService : Service(), LocationListener {
             location.toPointEntity(
                 startRunningTime
             )
+        )
+    }
+
+    private fun updateBodyNotification() {
+        NotificationManagerCompat.from(this).notify(
+            NOTIFICATION_ID,
+            notificationBuilder
+                .setSilent(true)
+                .setContentText(
+                    String.format(
+                        Locale.getDefault(),
+                        getString(R.string.running_service_distance_pattern),
+                        calculateDistance()
+                    )
+                ).build()
         )
     }
 }
