@@ -113,6 +113,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
     }
 
     private fun getTrackFromServer(token: String) {
+        informationTextView.isVisible = false
         progressBar.isVisible = true
         App.mainRunningRepository.getTracks(TracksRequest(token)) {
             progressBar.isVisible = false
@@ -145,6 +146,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
                 }
                 is Result.Success -> {
                     if (it.data.tracksList.isEmpty()) {
+                        informationTextView.isVisible = true
                         informationTextView.text =
                             getString(R.string.tracks_fragment_havent_got_data_for_display)
                     } else {
