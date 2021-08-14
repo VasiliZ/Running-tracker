@@ -15,8 +15,8 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
-import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
-import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
+import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
+import com.github.rtyvz.senla.tr.runningtracker.ui.OnCloseActivityContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorFetchingPointsDialog
@@ -70,7 +70,8 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
 
         findViews(view)
 
-        val token = requireActivity().getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
+        val token =
+            requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
 
         fab.setOnClickListener {
             startActivity(Intent(requireContext(), RunningActivity::class.java))
@@ -88,7 +89,8 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
     override fun onResume() {
         super.onResume()
 
-        val token = requireActivity().getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
+        val token =
+            requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
 
         if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
             getTrackFromServer(token)
@@ -119,9 +121,9 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
                 is Result.Error -> {
                     when (it.error) {
                         INVALID_TOKEN -> {
-                            requireContext().getSharedPreference().edit().clear().apply()
+                            requireContext().getRunningSharedPreference().edit().clear().apply()
                             startActivity(Intent(requireContext(), LoginActivity::class.java))
-                            (activity as HandleClosingActivityContract).closeActivity()
+                            (activity as OnCloseActivityContract).closeActivity()
                         }
                         else -> {
                             when (it.error) {
@@ -191,7 +193,8 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
     }
 
     fun retryRequest() {
-        val token = requireActivity().getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
+        val token =
+            requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
         if (token != null && token.isNotBlank()) {
             getTrackFromServer(token)
         }

@@ -121,14 +121,13 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
 
     private fun drawPath(googleMap: GoogleMap?, listPoints: List<PointEntity>) {
         googleMap?.let {
-            val lineOptions = PolylineOptions()
-            with(lineOptions) {
+            with(PolylineOptions()) {
                 addAll(listPoints.map { point ->
                     point.toLatLng()
                 })
                 width(10f)
                 color(ContextCompat.getColor(requireContext(), R.color.main_app_color))
-                it.addPolyline(lineOptions)
+                it.addPolyline(this)
             }
         }
     }

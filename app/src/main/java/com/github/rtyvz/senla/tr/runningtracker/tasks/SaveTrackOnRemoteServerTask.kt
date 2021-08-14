@@ -7,7 +7,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.network.Point
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.SaveTrackRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.SaveTrackResponse
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
-import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
+import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
 
 class SaveTrackOnRemoteServerTask {
     companion object {
@@ -23,7 +23,8 @@ class SaveTrackOnRemoteServerTask {
         return Task.callInBackground({
             App.api.saveTrack(
                 SaveTrackRequest(
-                    token = App.instance.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
+                    token = App.instance.getRunningSharedPreference()
+                        .getString(USER_TOKEN, EMPTY_STRING)
                         ?: EMPTY_STRING,
                     beginAt = trackEntity.beginsAt,
                     time = trackEntity.time,

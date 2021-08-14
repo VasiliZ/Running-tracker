@@ -1,5 +1,5 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui
 
-interface HandleClosingActivityContract {
+interface OnCloseActivityContract {
     fun closeActivity()
 }

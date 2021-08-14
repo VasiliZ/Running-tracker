@@ -65,7 +65,8 @@ object MainRunningRepository {
                 //get all points for all tracks
                 if (!it.isFaulted && it.result.tracks.isNotEmpty()) {
                     val userToken =
-                        App.instance.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
+                        App.instance.getRunningSharedPreference()
+                            .getString(USER_TOKEN, EMPTY_STRING)
                     if (userToken != null && userToken.isNotBlank()) {
                         it.result.tracks.forEach { getTrack ->
                             listTask[
@@ -105,7 +106,7 @@ object MainRunningRepository {
         callback: (Result<CurrentTrackPoints>) -> Unit
     ) {
         val cancellationToken = CancellationTokenSource()
-        val userToken = App.instance.getSharedPreference().getString(
+        val userToken = App.instance.getRunningSharedPreference().getString(
             USER_TOKEN, EMPTY_STRING
         )
         if (userToken != null && userToken.isNotBlank()) {
@@ -239,7 +240,8 @@ object MainRunningRepository {
                 } else {
                     return@continueWithTask TasksProvider.getFetchingTrackFromNetworkTask(
                         TracksRequest(
-                            App.instance.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
+                            App.instance.getRunningSharedPreference()
+                                .getString(USER_TOKEN, EMPTY_STRING)
                         ),
                         cancellationToken.token
                     )
@@ -265,7 +267,7 @@ object MainRunningRepository {
             .continueWith({
                 //send request for all points for all tracks
                 val userToken =
-                    App.instance.getSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
+                    App.instance.getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
                 if (userToken != null && userToken.isNotBlank()) {
                     it.result?.result?.tracks?.forEach { track ->
                         mapPointTask[track.beginsAt] = TasksProvider.getPointsFromServerTask(

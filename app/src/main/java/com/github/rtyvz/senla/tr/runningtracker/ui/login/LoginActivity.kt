@@ -4,10 +4,10 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.OnCloseActivityContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.registration.RegistrationFragment
 
-class LoginActivity : AppCompatActivity(), LoginFlowContract, HandleClosingActivityContract {
+class LoginActivity : AppCompatActivity(), LoginFlowContract, OnCloseActivityContract {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)

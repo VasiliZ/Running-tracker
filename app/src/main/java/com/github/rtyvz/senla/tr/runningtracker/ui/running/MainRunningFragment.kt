@@ -12,7 +12,7 @@ import androidx.fragment.app.FragmentManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
-import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
+import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
 import com.github.rtyvz.senla.tr.runningtracker.ui.track.CurrentTrackFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
@@ -48,7 +48,7 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
         currentTrackContainer = view.findViewById(R.id.currentTrackContainer)
         selectTrackTextView = view.findViewById(R.id.selectTrackTextView)
 
-        openMainFragment(isFirstTimeLaunchApp(requireActivity().getSharedPreference()))
+        openMainFragment(isFirstTimeLaunchApp(requireActivity().getRunningSharedPreference()))
         App.state?.lastOpenedUserTrack?.let { lastTrack ->
             if (isTrackContainerAvailable()) {
                 showFragment(
@@ -91,6 +91,7 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
             fragmentTag = TracksFragment.TAG,
             containerId = R.id.listTrackContainer
         )
+
         if (!isTrackContainerAvailable() && App.state?.lastOpenedUserTrack != null) {
             App.state?.lastOpenedUserTrack?.let {
                 showFragment(
@@ -101,6 +102,7 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
             }
             (activity as ChangeNavigationInToolbar).enableHomeButton(true)
         }
+
         if (isTrackContainerAvailable() && App.state?.lastOpenedUserTrack == null) {
             selectTrackTextView?.isVisible = true
         }
@@ -131,6 +133,7 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
 
     override fun onTrackItemClick(trackEntity: TrackEntity) {
         App.state?.lastOpenedUserTrack = trackEntity
+
         if (isTrackContainerAvailable()) {
             selectTrackTextView?.isVisible = false
             val fragment = childFragmentManager.findFragmentByTag(CurrentTrackFragment.TAG)

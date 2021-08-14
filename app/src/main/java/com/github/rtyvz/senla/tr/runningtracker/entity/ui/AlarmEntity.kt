@@ -9,7 +9,7 @@ data class AlarmEntity(
     val hour: Int = 0,
     val minute: Int = 0,
     val title: String,
-    val day: Long = 5000L,
+    val day: Long = 0L,
     var isEnabled: Int,
     var oldId: Int = 0
 ) : Parcelable

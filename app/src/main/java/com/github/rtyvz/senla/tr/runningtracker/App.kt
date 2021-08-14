@@ -14,15 +14,15 @@ import retrofit2.converter.gson.GsonConverterFactory
 class App : Application() {
 
     companion object {
-        var state: State? = null
+        private const val BASE_URL = "https://pub.zame-dev.org/senla-training-addition/"
         lateinit var instance: App
         lateinit var api: RunningAppApi
         lateinit var db: SQLiteDatabase
         lateinit var loggingInterceptor: HttpLoggingInterceptor
+        var state: State? = null
         val mainRunningRepository = RepositoryProvider.provideMainRepository()
         val notificationRepository = RepositoryProvider.provideNotificationRepository()
         val loginFlowRepository = RepositoryProvider.provideLoginFlowRepository()
-        private const val BASE_URL = "https://pub.zame-dev.org/senla-training-addition/"
     }
 
     override fun onCreate() {

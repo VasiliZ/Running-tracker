@@ -31,10 +31,12 @@ class NotificationRunningWorker(
         private const val EMPTY_STRING = ""
         private const val EXTRA_TITLE = "TITLE"
         private const val DISABLE_NOTIFICATION_FLAG = 0
+        private const val DEFAULT_EXTRA_VALUE = 0
+        private const val REQUEST_CODE_0 = 0
     }
 
     override fun doWork(): Result {
-        val alarmId = inputData.getInt(EXTRA_ALARM_ID, 0)
+        val alarmId = inputData.getInt(EXTRA_ALARM_ID, DEFAULT_EXTRA_VALUE)
         val notifyManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -44,7 +46,7 @@ class NotificationRunningWorker(
         }
         val pendingIntent = PendingIntent.getActivity(
             context,
-            0,
+            REQUEST_CODE_0,
             Intent(context, RunningActivity::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT
         )

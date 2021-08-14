@@ -114,6 +114,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
 
         localBroadcastManager = LocalBroadcastManager.getInstance(this)
         locationProvider = LocationServices.getFusedLocationProviderClient(this)
+
         val permission =
             ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
 
@@ -138,6 +139,9 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                 finishRunningButton.isClickable = true
 
                 startTimer()
+                getDeviceLocation()
+                updateLocationUi()
+
                 val intentRunningService = Intent(this, RunningService::class.java).apply {
                     putExtra(
                         RunningService.EXTRA_CURRENT_TIME,

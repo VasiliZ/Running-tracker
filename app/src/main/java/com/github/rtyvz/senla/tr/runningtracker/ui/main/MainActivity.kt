@@ -19,9 +19,9 @@ import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.State
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
-import com.github.rtyvz.senla.tr.runningtracker.extension.getSharedPreference
-import com.github.rtyvz.senla.tr.runningtracker.ui.HandleClosingActivityContract
+import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
+import com.github.rtyvz.senla.tr.runningtracker.ui.OnCloseActivityContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.notification.NotificationFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.MainRunningFragment
@@ -29,7 +29,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    HandleClosingActivityContract, LogoutFromApp, MainRunningFragment.ChangeNavigationInToolbar {
+    OnCloseActivityContract, LogoutFromApp, MainRunningFragment.ChangeNavigationInToolbar {
 
     companion object {
         private const val USER_TOKEN = "USER_TOKEN"
@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         findViews()
-        getUserDataFromPrefs(getSharedPreference())
+        getUserDataFromPrefs(getRunningSharedPreference())
         setDataToNavHeader()
 
         drawerToggle?.let {
@@ -176,38 +176,46 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.mainItem -> {
-                navigationView.setCheckedItem(item.itemId)
-                val fragmentTag = MainRunningFragment.TAG
-                val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
-                drawerLayout.closeDrawer(GravityCompat.START)
-                if (foundFragment != null && fragmentTag == foundFragment.tag) {
-                    return true
-                } else {
-                    showFragment(
-                        MainRunningFragment.newInstance(),
-                        fragmentTag,
-                        NotificationFragment.TAG
-                    )
-                }
+                openRunningFragment(item)
                 return true
             }
             R.id.notificationsItem -> {
-                navigationView.setCheckedItem(item.itemId)
-                val fragmentTag = NotificationFragment.TAG
-                val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
-                drawerLayout.closeDrawer(GravityCompat.START)
-                if (foundFragment != null && fragmentTag == foundFragment.tag) {
-                    return true
-                } else {
-                    showFragment(
-                        NotificationFragment.newInstance(),
-                        fragmentTag,
-                        MainRunningFragment.TAG
-                    )
-                }
+                openNotificationFragment(item)
                 return true
             }
             else -> false
+        }
+    }
+
+    private fun openRunningFragment(item: MenuItem) {
+        navigationView.setCheckedItem(item.itemId)
+        val fragmentTag = MainRunningFragment.TAG
+        val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
+        drawerLayout.closeDrawer(GravityCompat.START)
+        if (foundFragment != null && fragmentTag == foundFragment.tag) {
+            return
+        } else {
+            showFragment(
+                MainRunningFragment.newInstance(),
+                fragmentTag,
+                NotificationFragment.TAG
+            )
+        }
+    }
+
+    private fun openNotificationFragment(item: MenuItem) {
+        navigationView.setCheckedItem(item.itemId)
+        val fragmentTag = NotificationFragment.TAG
+        val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
+        drawerLayout.closeDrawer(GravityCompat.START)
+        if (foundFragment != null && fragmentTag == foundFragment.tag) {
+            return
+        } else {
+            showFragment(
+                NotificationFragment.newInstance(),
+                fragmentTag,
+                MainRunningFragment.TAG
+            )
         }
     }
 
@@ -270,6 +278,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun logout() {
+        App.state = null
         App.mainRunningRepository.clearCache()
         WorkManager.getInstance(this).cancelAllWork()
         startActivity(Intent(this, LoginActivity::class.java))

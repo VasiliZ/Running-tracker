@@ -12,6 +12,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.tasks.*
 
 object TasksProvider {
+
     fun getRegisterUserTask(
         userDataRequest: UserDataRequest,
         cancellationToken: CancellationToken
@@ -82,9 +83,7 @@ object TasksProvider {
     fun getUpdateTrackTask(track: TrackEntity, cancellationToken: CancellationToken) =
         UpdateTrackTask().updateTrack(track, cancellationToken)
 
-    fun getClearUserDataTask() =
-        ClearUserDataTask().clearUserData()
-
+    fun getClearUserDataTask() = ClearUserDataTask().clearUserData()
     fun getInsertAlarmTask(alarmEntity: AlarmEntity) =
         SaveNotificationToDbTask().saveNotificationToDb(alarmEntity)
 
@@ -95,11 +94,9 @@ object TasksProvider {
     fun getDeleteNotificationByIdTask(alarmId: Int) =
         DeleteNotificationByIdTask().deleteNotificationById(alarmId)
 
-    fun getDeleteTrackPointsTask(startRunningTime: Long) {
+    fun getDeleteTrackPointsTask(startRunningTime: Long) =
         DeleteTrackPointsTask().deletePoints(startRunningTime)
-    }
 
-    fun getUpdateStateNotificationTask(alarmId: Int, stateFlag: Int) {
+    fun getUpdateStateNotificationTask(alarmId: Int, stateFlag: Int) =
         UpdateStateNotificationTask().updateNotificationState(alarmId, stateFlag)
-    }
 }

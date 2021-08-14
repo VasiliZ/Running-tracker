@@ -43,6 +43,8 @@ class RunningService : Service(), LocationListener {
         private const val UNSENT_TRACK_FLAG = 0
         private const val NOTIFICATION_ID = 1
         private const val INITIAL_TIME = 0L
+        private const val EMPTY_DISTANCE = 0
+        private const val NOT_EMPTY_LIST_SIZE = 1
         private const val INITIAL_DISTANCE = 0
     }
 
@@ -63,7 +65,7 @@ class RunningService : Service(), LocationListener {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_RUNNING_SERVICE_STOP) {
             val distance = calculateDistance()
-            if (pointsList.size > 1 && distance <= 0) {
+            if (pointsList.size > NOT_EMPTY_LIST_SIZE && distance <= EMPTY_DISTANCE) {
                 App.mainRunningRepository.saveTrack(
                     TrackEntity(
                         beginsAt = startRunningTime,

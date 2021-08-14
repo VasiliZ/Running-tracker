@@ -23,6 +23,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         private const val TIME_PICKER_DIALOG = "TIME_PICKER_DIALOG"
         private const val DATE_PICKER_DIALOG = "DATE_PICKER_DIALOG"
         private const val IS_ENABLE_NOTIFICATION_FLAG = 1
+
         fun newInstance(): NotificationFragment {
             return NotificationFragment()
         }
@@ -34,7 +35,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
     private var datePicker: MaterialDatePicker<Long>? = null
     private var hour: Int = 0
     private var minute: Int = 0
-    private var positionForAdapterAdapter: Int = 0
+    private var positionForAdapter: Int = 0
     private var alarmEntity: AlarmEntity? = null
     private var switchChecked: Boolean = false
     private var notificationAdapter: NotificationAdapter? = null
@@ -59,7 +60,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
             { clickCallBack, position, isSwitchChecked ->
                 alarmEntity = clickCallBack
                 switchChecked = isSwitchChecked
-                positionForAdapterAdapter = position
+                positionForAdapter = position
                 timePicker?.show(childFragmentManager, TIME_PICKER_DIALOG)
             }, { longClickCallback, position ->
                 DeleteNotificationDialog.newInstance(longClickCallback, position).show(
@@ -161,16 +162,16 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
                     IS_ENABLE_NOTIFICATION_FLAG
                 )
                 innerAlarmEntity.let {
-                    if (entity.isEnabled == 1) {
+                    if (entity.isEnabled == IS_ENABLE_NOTIFICATION_FLAG) {
                         NotificationWorkManager().createWorkForNotification(it)
                     }
                     App.notificationRepository.saveNotificationInDb(it)
-                    notificationAdapter?.updateItem(positionForAdapterAdapter, it)
+                    notificationAdapter?.updateItem(positionForAdapter, it)
                 }
             }
             //create new notification
             switchChecked = false
-            positionForAdapterAdapter = 0
+            positionForAdapter = 0
             alarmEntity = null
         }
     }
@@ -202,27 +203,23 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
                     isEnabled = 1,
                     oldId = alarmEntity.alarmId
                 )
+
                 if (!notificationRecyclerView.isComputingLayout) {
                     updateAdapter(adapterPosition, newEntity)
                 }
+
                 NotificationWorkManager().createWorkForNotification(newEntity)
                 App.notificationRepository.updateNotification(newEntity)
             }
             else -> {
                 val newAlarm = alarmEntity.copy(isEnabled = 0, oldId = alarmEntity.alarmId)
-                if (!notificationRecyclerView.isComputingLayout) {
-                    updateAdapter(
-                        adapterPosition,
-                        newAlarm
-                    )
-                }
+
                 if (!notificationRecyclerView.isComputingLayout) {
                     updateAdapter(adapterPosition, newAlarm)
                 }
                 App.notificationRepository.updateNotification(newAlarm)
                 NotificationWorkManager().deleteWork(alarmEntity.alarmId.toString())
             }
-
         }
     }
 }
