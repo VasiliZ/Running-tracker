@@ -44,5 +44,4 @@
         app:layout_constraintTop_toBottomOf="@id/userNameTextView"
         tools:text="userEmail" />
 
-
 </androidx.constraintlayout.widget.ConstraintLayout>
