@@ -25,7 +25,6 @@ import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.ui.SimpleLocation
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
 import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithZeroUTC
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService
@@ -90,7 +89,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private lateinit var gpsStateChangeReceiver: BroadcastReceiver
     private lateinit var toolbar: MaterialToolbar
     private lateinit var gpsStatus: MaterialTextView
-    private var currentLocationPoint: SimpleLocation? = null
     private var startTimerRunningTime: Long = 0L
     private var startRunMillis: Long = 0L
     private var handler: Handler? = null
@@ -147,7 +145,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                         RunningService.EXTRA_CURRENT_TIME,
                         startRunMillis
                     )
-                    putExtra(RunningService.EXTRA_CURRENT_LOCATION, currentLocationPoint)
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -418,14 +415,11 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                 locationProvider.lastLocation.addOnCompleteListener { location ->
                     if (location.isSuccessful) {
                         if (location.result != null) {
-                            val simpleLocation =
-                                SimpleLocation(location.result.latitude, location.result.longitude)
-                            currentLocationPoint = simpleLocation
                             googleMap?.moveCamera(
                                 CameraUpdateFactory.newLatLngZoom(
                                     LatLng(
-                                        simpleLocation.lat,
-                                        simpleLocation.lng
+                                        location.result.latitude,
+                                        location.result.longitude
                                     ), DEFAULT_ZOOM.toFloat()
                                 )
                             )

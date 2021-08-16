@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.github.rtyvz.senla.tr.runningtracker.App
@@ -35,6 +36,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         private const val USER_TOKEN = "USER_TOKEN"
         private const val INVALID_TOKEN = "INVALID_TOKEN"
         private const val EXTRA_IS_FIRST_TIME_RUN_APP = "IS_FIRST_TIME_RUN_APP"
+        private const val FIRST_ITEM_LIST = 0
 
         fun newInstance(isFirstTimeRunAppFlag: Boolean): TracksFragment {
             return TracksFragment().apply {
@@ -83,7 +85,14 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
             }
         }
         listTrackRecycler?.adapter = runningAdapter
-
+        runningAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                (listTrackRecycler?.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                    positionStart,
+                    FIRST_ITEM_LIST
+                )
+            }
+        })
     }
 
     override fun onResume() {

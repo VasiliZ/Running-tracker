@@ -19,7 +19,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.ui.SimpleLocation
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.toPointEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
@@ -31,9 +30,7 @@ class RunningService : Service(), LocationListener {
         const val ACTION_RUNNING_SERVICE_STOP = "RUNNING_SERVICE_STOP"
         const val EXTRA_CURRENT_TIME = "CURRENT_TIME"
         const val EXTRA_FINISH_RUNNING_TIME = "FINISH_RUNNING_TIME"
-        const val EXTRA_CURRENT_LOCATION = "CURRENT_LOCATION"
         private const val EMPTY_STRING = ""
-        private const val EMPTY_LOCATION_PROVIDER = ""
         private const val RUNNING_SERVICE_CHANNEL_ID = "RUNNING_SERVICE_CHANNEL_ID"
         private const val RUNNING_SERVICE_CHANNEL_NAME = "RUNNING_SERVICE_CHANNEL_NAME"
         private const val DEFAULT_LONG_VALUE = 0L
@@ -50,6 +47,7 @@ class RunningService : Service(), LocationListener {
         private const val INITIAL_DISTANCE = 0
     }
 
+    private var isServiceStoped: Boolean = false
     private val pointsList = mutableListOf<Location>()
     private var startRunningTime = 0L
     private lateinit var notificationBuilder: NotificationCompat.Builder
@@ -89,20 +87,12 @@ class RunningService : Service(), LocationListener {
                 .sendBroadcastSync(Intent(RunningActivity.BROADCAST_RUN_DISTANCE).apply {
                     putExtra(RunningActivity.EXTRA_RUN_DISTANCE, distance)
                 })
-
+            isServiceStoped = true
             stopForeground(true)
             stopSelf()
         } else {
             startRunningTime =
                 intent?.getLongExtra(EXTRA_CURRENT_TIME, DEFAULT_LONG_VALUE) ?: DEFAULT_LONG_VALUE
-            val startPoint = intent?.getParcelableExtra<SimpleLocation>(EXTRA_CURRENT_LOCATION)
-
-            if (startPoint != null) {
-                saveCurrentPoint(Location(EMPTY_LOCATION_PROVIDER).apply {
-                    latitude = startPoint.lat
-                    longitude = startPoint.lng
-                })
-            }
 
             App.mainRunningRepository.insertTracksIntoDB(
                 TrackEntity(
@@ -170,8 +160,10 @@ class RunningService : Service(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location) {
-        saveCurrentPoint(location)
-        updateBodyNotification()
+        if (!isServiceStoped) {
+            saveCurrentPoint(location)
+            updateBodyNotification()
+        }
     }
 
     override fun onProviderEnabled(provider: String) {
@@ -216,5 +208,11 @@ class RunningService : Service(), LocationListener {
                     )
                 ).build()
         )
+    }
+
+    override fun onDestroy() {
+        (getSystemService(Context.LOCATION_SERVICE) as LocationManager).removeUpdates(this)
+
+        super.onDestroy()
     }
 }
