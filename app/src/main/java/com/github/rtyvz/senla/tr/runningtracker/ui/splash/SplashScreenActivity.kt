@@ -11,7 +11,6 @@ import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPrefer
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
 import com.google.android.material.imageview.ShapeableImageView
-import com.google.android.material.textview.MaterialTextView
 
 class SplashScreenActivity : AppCompatActivity() {
 
@@ -21,8 +20,7 @@ class SplashScreenActivity : AppCompatActivity() {
         private const val DELAY_DURATION = 3000L
     }
 
-    private lateinit var appLogoImageView: ShapeableImageView
-    private lateinit var appNameTextView: MaterialTextView
+    private var appLogoImageView: ShapeableImageView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,12 +33,11 @@ class SplashScreenActivity : AppCompatActivity() {
 
     private fun findViews() {
         appLogoImageView = findViewById(R.id.appLogoImageView)
-        appNameTextView = findViewById(R.id.appNameTextView)
     }
 
     private fun rotateLogo() {
         val rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate)
-        appLogoImageView.startAnimation(rotateAnimation)
+        appLogoImageView?.startAnimation(rotateAnimation)
     }
 
     private fun openNextActivityWithDelay() {

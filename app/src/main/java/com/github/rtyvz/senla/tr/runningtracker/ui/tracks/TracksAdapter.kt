@@ -10,7 +10,7 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
 import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTime
-import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithZeroUTC
+import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithoutUTCOffset
 import com.google.android.material.textview.MaterialTextView
 
 class TracksAdapter(private val handleItemClick: (TrackEntity) -> (Unit)) :
@@ -35,25 +35,37 @@ class TracksAdapter(private val handleItemClick: (TrackEntity) -> (Unit)) :
     }
 
     class RunningViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
-        private lateinit var dateOfRunning: MaterialTextView
-        private lateinit var distanceTextView: MaterialTextView
-        private lateinit var timeRunning: MaterialTextView
+        private var dateOfRunning: MaterialTextView? = null
+        private var distanceTextView: MaterialTextView? = null
+        private var timeRunning: MaterialTextView? = null
 
         fun bind(data: TrackEntity) {
             dateOfRunning = view.findViewById(R.id.dateOdRunTextView)
             distanceTextView = view.findViewById(R.id.runDistanceTextView)
             timeRunning = view.findViewById(R.id.timeRunningTextView)
 
-            dateOfRunning.text = data.beginsAt.toDateTime(DATE_START_PATTERN)
-            distanceTextView.text = String.format(
+            dateOfRunning?.text = data.beginsAt.toDateTime(DATE_START_PATTERN)
+            distanceTextView?.text = String.format(
                 view.context.getString(
                     R.string.running_activity_run_distance_pattern,
                     data.distance.toString(),
                     data.distance.humanizeDistance().trim()
                 )
             )
-            timeRunning.text = data.time.toDateTimeWithZeroUTC(RUNNING_TIME_PATTERN)
+            timeRunning?.text = data.time.toDateTimeWithoutUTCOffset(RUNNING_TIME_PATTERN)
         }
+
+        fun unBind() {
+            dateOfRunning = null
+            distanceTextView = null
+            timeRunning = null
+        }
+    }
+
+    override fun onViewRecycled(holder: RunningViewHolder) {
+        holder.unBind()
+
+        super.onViewRecycled(holder)
     }
 
     class DiffUtilCallback : DiffUtil.ItemCallback<TrackEntity>() {

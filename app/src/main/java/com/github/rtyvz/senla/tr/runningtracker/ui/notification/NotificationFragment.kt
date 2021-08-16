@@ -23,14 +23,16 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         private const val TIME_PICKER_DIALOG = "TIME_PICKER_DIALOG"
         private const val DATE_PICKER_DIALOG = "DATE_PICKER_DIALOG"
         private const val IS_ENABLE_NOTIFICATION_FLAG = 1
+        private const val DEFAULT_HOUR = 0
+        private const val DEFAULT_MINUTES = 0
 
         fun newInstance(): NotificationFragment {
             return NotificationFragment()
         }
     }
 
-    private lateinit var fab: FloatingActionButton
-    private lateinit var notificationRecyclerView: RecyclerView
+    private var fab: FloatingActionButton? = null
+    private var notificationRecyclerView: RecyclerView? = null
     private var timePicker: MaterialTimePicker? = null
     private var datePicker: MaterialDatePicker<Long>? = null
     private var hour: Int = 0
@@ -58,18 +60,20 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         getNotificationsFromDb()
         notificationAdapter = NotificationAdapter(this,
             { clickCallBack, position, isSwitchChecked ->
-                alarmEntity = clickCallBack
-                switchChecked = isSwitchChecked
-                positionForAdapter = position
-                timePicker?.show(childFragmentManager, TIME_PICKER_DIALOG)
+                isSwitchChecked?.let {
+                    alarmEntity = clickCallBack
+                    switchChecked = it
+                    positionForAdapter = position
+                    timePicker?.show(childFragmentManager, TIME_PICKER_DIALOG)
+                }
             }, { longClickCallback, position ->
                 DeleteNotificationDialog.newInstance(longClickCallback, position).show(
                     childFragmentManager, DeleteNotificationDialog.TAG
                 )
             })
 
-        notificationRecyclerView.adapter = notificationAdapter
-        fab.setOnClickListener {
+        notificationRecyclerView?.adapter = notificationAdapter
+        fab?.setOnClickListener {
             timePicker?.show(childFragmentManager, TIME_PICKER_DIALOG)
         }
     }
@@ -93,8 +97,8 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
             .build()
 
         timePicker?.addOnPositiveButtonClickListener {
-            hour = timePicker?.hour ?: 0
-            minute = timePicker?.minute ?: 0
+            hour = timePicker?.hour ?: DEFAULT_HOUR
+            minute = timePicker?.minute ?: DEFAULT_MINUTES
             datePicker?.show(childFragmentManager, DATE_PICKER_DIALOG)
             timePicker?.dismiss()
         }
@@ -204,7 +208,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
                     oldId = alarmEntity.alarmId
                 )
 
-                if (!notificationRecyclerView.isComputingLayout) {
+                if (notificationRecyclerView?.isComputingLayout == false) {
                     updateAdapter(adapterPosition, newEntity)
                 }
 
@@ -214,12 +218,21 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
             else -> {
                 val newAlarm = alarmEntity.copy(isEnabled = 0, oldId = alarmEntity.alarmId)
 
-                if (!notificationRecyclerView.isComputingLayout) {
+                if (notificationRecyclerView?.isComputingLayout == false) {
                     updateAdapter(adapterPosition, newAlarm)
                 }
                 App.notificationRepository.updateNotification(newAlarm)
                 NotificationWorkManager().deleteWork(alarmEntity.alarmId.toString())
             }
         }
+    }
+
+    override fun onDestroyView() {
+        fab = null
+        notificationRecyclerView = null
+        timePicker = null
+        datePicker = null
+
+        super.onDestroyView()
     }
 }

@@ -41,13 +41,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private var toolBar: Toolbar? = null
     private var drawerToggle: ActionBarDrawerToggle? = null
+    private var navHeaderUserNameTextView: MaterialTextView? = null
+    private var navHeaderUserEmailTextView: MaterialTextView? = null
+    private var navigationView: NavigationView? = null
+    private var headerNavView: View? = null
+    private var exitFromAppLayout: ConstraintLayout? = null
+    private var drawerLayout: DrawerLayout? = null
     private lateinit var userData: UserData
-    private lateinit var navHeaderUserNameTextView: MaterialTextView
-    private lateinit var navHeaderUserEmailTextView: MaterialTextView
-    private lateinit var navigationView: NavigationView
-    private lateinit var headerNavView: View
-    private lateinit var exitFromAppLayout: ConstraintLayout
-    private lateinit var drawerLayout: DrawerLayout
     private var isToolBarNavigationListenerIsRegistered = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setDataToNavHeader()
 
         drawerToggle?.let {
-            drawerLayout.addDrawerListener(it)
+            drawerLayout?.addDrawerListener(it)
         }
 
         setSupportActionBar(toolBar)
@@ -77,9 +77,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.string.main_activity_drawer_close
         )
 
-        navigationView.setNavigationItemSelectedListener(this)
+        navigationView?.setNavigationItemSelectedListener(this)
 
-        exitFromAppLayout.setOnClickListener {
+        exitFromAppLayout?.setOnClickListener {
             logout()
         }
 
@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 MainRunningFragment.newInstance(),
                 MainRunningFragment.TAG,
             )
-            navigationView.setCheckedItem(R.id.mainItem)
+            navigationView?.setCheckedItem(R.id.mainItem)
         }
         val fragmentNotification =
             supportFragmentManager.findFragmentByTag(NotificationFragment.TAG)
@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 NotificationFragment.TAG,
                 false
             )
-            navigationView.setCheckedItem(R.id.notificationsItem)
+            navigationView?.setCheckedItem(R.id.notificationsItem)
         }
     }
 
@@ -118,7 +118,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             MainRunningFragment.TAG,
             MainRunningFragment.TAG,
         )
-        navigationView.setCheckedItem(R.id.mainItem)
+        navigationView?.setCheckedItem(R.id.mainItem)
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -142,8 +142,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onBackPressed() {
-        if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
+        if (drawerLayout?.isDrawerVisible(GravityCompat.START) == true) {
+            drawerLayout?.closeDrawer(GravityCompat.START)
             return
         }
         setInnerFragmentBackPressedBehavior()
@@ -165,10 +165,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun findViews() {
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.navigationView)
-        headerNavView = navigationView.getHeaderView(0)
+        headerNavView = navigationView?.getHeaderView(0)
         toolBar = findViewById(R.id.toolBar)
-        navHeaderUserEmailTextView = headerNavView.findViewById(R.id.userEmailTextView)
-        navHeaderUserNameTextView = headerNavView.findViewById(R.id.userNameTextView)
+        navHeaderUserEmailTextView = headerNavView?.findViewById(R.id.userEmailTextView)
+        navHeaderUserNameTextView = headerNavView?.findViewById(R.id.userNameTextView)
         exitFromAppLayout = findViewById(R.id.exitFromAppLayout)
 
     }
@@ -188,10 +188,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun openRunningFragment(item: MenuItem) {
-        navigationView.setCheckedItem(item.itemId)
+        navigationView?.setCheckedItem(item.itemId)
         val fragmentTag = MainRunningFragment.TAG
         val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
-        drawerLayout.closeDrawer(GravityCompat.START)
+        drawerLayout?.closeDrawer(GravityCompat.START)
         if (foundFragment != null && fragmentTag == foundFragment.tag) {
             return
         } else {
@@ -204,10 +204,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun openNotificationFragment(item: MenuItem) {
-        navigationView.setCheckedItem(item.itemId)
+        navigationView?.setCheckedItem(item.itemId)
         val fragmentTag = NotificationFragment.TAG
         val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
-        drawerLayout.closeDrawer(GravityCompat.START)
+        drawerLayout?.closeDrawer(GravityCompat.START)
         if (foundFragment != null && fragmentTag == foundFragment.tag) {
             return
         } else {
@@ -229,8 +229,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setDataToNavHeader() {
-        navHeaderUserEmailTextView.text = userData.email
-        navHeaderUserNameTextView.text = userData.name
+        navHeaderUserEmailTextView?.text = userData.email
+        navHeaderUserNameTextView?.text = userData.name
     }
 
     private fun showFragment(
@@ -257,7 +257,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun enableHomeButton(isEnable: Boolean) {
         drawerToggle?.isDrawerIndicatorEnabled = false
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        drawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         supportActionBar?.setDisplayHomeAsUpEnabled(isEnable)
         supportActionBar?.setHomeButtonEnabled(isEnable)
 
@@ -266,12 +266,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 onBackPressed()
             }
         }
-        isToolBarNavigationListenerIsRegistered = true;
+        isToolBarNavigationListenerIsRegistered = true
     }
 
 
     override fun enableToggle() {
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        drawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         drawerToggle?.isDrawerIndicatorEnabled = true
         drawerToggle?.syncState()
         isToolBarNavigationListenerIsRegistered = false

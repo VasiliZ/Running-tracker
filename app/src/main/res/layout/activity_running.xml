@@ -21,7 +21,6 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolBar" />
 
@@ -87,7 +86,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/stopTimerButton"
             style="?android:attr/borderlessButtonStyle"
-            android:layout_width="150dp"
+            android:layout_width="@dimen/middle_width"
             android:layout_height="@dimen/large_button_height"
             android:layout_gravity="start"
             android:insetLeft="0dp"
@@ -99,7 +98,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/timerTextView"
-            android:layout_width="150dp"
+            android:layout_width="@dimen/middle_width"
             android:layout_height="@dimen/large_button_height"
             android:layout_gravity="end"
             android:gravity="center"
@@ -123,7 +122,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/runDistanceTextView"
-            android:layout_width="150dp"
+            android:layout_width="@dimen/middle_width"
             android:layout_height="@dimen/large_button_height"
             android:layout_gravity="start"
             android:gravity="center"
@@ -133,7 +132,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/stoppedTimerTextView"
-            android:layout_width="150dp"
+            android:layout_width="@dimen/middle_width"
             android:layout_height="@dimen/large_button_height"
             android:layout_gravity="end"
             android:gravity="center"

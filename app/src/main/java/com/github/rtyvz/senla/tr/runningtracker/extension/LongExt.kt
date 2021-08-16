@@ -9,7 +9,7 @@ fun Long.toDateTime(pattern: String): String {
     return SimpleDateFormat(pattern, Locale.getDefault()).format(this)
 }
 
-fun Long.toDateTimeWithZeroUTC(pattern: String): String {
+fun Long.toDateTimeWithoutUTCOffset(pattern: String): String {
     return SimpleDateFormat(pattern, Locale.getDefault()).apply {
         timeZone = TimeZone.getTimeZone(UTC)
     }.format(this)

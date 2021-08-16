@@ -45,11 +45,11 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         }
     }
 
-    private lateinit var informationTextView: MaterialTextView
-    private lateinit var progressBar: ProgressBar
-    private lateinit var fab: FloatingActionButton
+    private var informationTextView: MaterialTextView? = null
+    private var progressBar: ProgressBar? = null
+    private var fab: FloatingActionButton? = null
     private var listTrackRecycler: RecyclerView? = null
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private var swipeRefreshLayout: SwipeRefreshLayout? = null
 
     private val runningAdapter by lazy {
         TracksAdapter {
@@ -73,11 +73,11 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         val token =
             requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
 
-        fab.setOnClickListener {
+        fab?.setOnClickListener {
             startActivity(Intent(requireContext(), RunningActivity::class.java))
         }
 
-        swipeRefreshLayout.setOnRefreshListener {
+        swipeRefreshLayout?.setOnRefreshListener {
             if (token != null && token.isNotBlank()) {
                 getTrackFromServer(token)
             }
@@ -113,11 +113,11 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
     }
 
     private fun getTrackFromServer(token: String) {
-        informationTextView.isVisible = false
-        progressBar.isVisible = true
+        informationTextView?.isVisible = false
+        progressBar?.isVisible = true
         App.mainRunningRepository.getTracks(TracksRequest(token)) {
-            progressBar.isVisible = false
-            swipeRefreshLayout.isRefreshing = false
+            progressBar?.isVisible = false
+            swipeRefreshLayout?.isRefreshing = false
             when (it) {
                 is Result.Error -> {
                     when (it.error) {
@@ -146,11 +146,11 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
                 }
                 is Result.Success -> {
                     if (it.data.tracksList.isEmpty()) {
-                        informationTextView.isVisible = true
-                        informationTextView.text =
+                        informationTextView?.isVisible = true
+                        informationTextView?.text =
                             getString(R.string.tracks_fragment_havent_got_data_for_display)
                     } else {
-                        informationTextView.isVisible = false
+                        informationTextView?.isVisible = false
                         runningAdapter.submitList(it.data.tracksList)
                     }
                 }
@@ -160,11 +160,11 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
 
     private fun getTracksFromDb(isViewUpdateOnly: Boolean) {
         App.mainRunningRepository.getTracksFromDb(isViewUpdateOnly) {
-            informationTextView.isVisible = false
+            informationTextView?.isVisible = false
             when (it) {
                 is Result.Success -> {
                     App.state?.isDataLoadedYet = true
-                    informationTextView.isVisible = false
+                    informationTextView?.isVisible = false
                     runningAdapter.submitList(it.data.tracksList)
                 }
                 is Result.Error -> {
@@ -173,8 +173,8 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
                             (activity as LogOutFromApp).logout()
                         }
                         EMPTY_DATA_RESULT -> {
-                            informationTextView.isVisible = true
-                            informationTextView.text =
+                            informationTextView?.isVisible = true
+                            informationTextView?.text =
                                 getString(R.string.tracks_fragment_havent_got_data_for_display)
                         }
                         else ->
@@ -186,12 +186,14 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         }
     }
 
-    interface OnItemClickListListener {
-        fun onTrackItemClick(trackEntity: TrackEntity)
-    }
+    override fun onDestroyView() {
+        informationTextView = null
+        progressBar = null
+        fab = null
+        listTrackRecycler = null
+        swipeRefreshLayout = null
 
-    interface LogOutFromApp {
-        fun logout()
+        super.onDestroyView()
     }
 
     fun retryRequest() {
@@ -204,5 +206,13 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
 
     override fun retryRequestTracksDataFromDb() {
         getTracksFromDb(false)
+    }
+
+    interface OnItemClickListListener {
+        fun onTrackItemClick(trackEntity: TrackEntity)
+    }
+
+    interface LogOutFromApp {
+        fun logout()
     }
 }

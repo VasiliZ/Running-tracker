@@ -174,6 +174,13 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
             .commit()
     }
 
+    override fun onDestroyView() {
+        currentTrackContainer = null
+        selectTrackTextView = null
+
+        super.onDestroyView()
+    }
+
     interface ChangeNavigationInToolbar {
         fun enableHomeButton(isEnable: Boolean)
         fun enableToggle()

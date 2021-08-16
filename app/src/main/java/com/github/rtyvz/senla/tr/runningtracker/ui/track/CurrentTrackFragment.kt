@@ -13,7 +13,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
-import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithZeroUTC
+import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithoutUTCOffset
 import com.github.rtyvz.senla.tr.runningtracker.extension.toLatLng
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -44,8 +44,8 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
 
     private var mapView: MapView? = null
     private var map: GoogleMap? = null
-    private lateinit var distanceTextView: MaterialTextView
-    private lateinit var timeActionTextView: MaterialTextView
+    private var distanceTextView: MaterialTextView? = null
+    private var timeActionTextView: MaterialTextView? = null
     private var trackPoints: List<PointEntity> = emptyList()
 
     override fun onCreateView(
@@ -111,12 +111,12 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
     }
 
     private fun setDataOnUI(trackEntity: TrackEntity) {
-        distanceTextView.text = String.format(
+        distanceTextView?.text = String.format(
             getString(R.string.current_fragment_run_distance_pattern),
             trackEntity.distance,
             trackEntity.distance.humanizeDistance()
         )
-        timeActionTextView.text = trackEntity.time.toDateTimeWithZeroUTC(DATE_TIME_PATTERN)
+        timeActionTextView?.text = trackEntity.time.toDateTimeWithoutUTCOffset(DATE_TIME_PATTERN)
     }
 
     private fun drawPath(googleMap: GoogleMap?, listPoints: List<PointEntity>) {
@@ -177,6 +177,14 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
         mapView?.onPause()
 
         super.onPause()
+    }
+
+    override fun onDestroyView() {
+        map = null
+        distanceTextView = null
+        timeActionTextView = null
+
+        super.onDestroyView()
     }
 
     override fun onDestroy() {
