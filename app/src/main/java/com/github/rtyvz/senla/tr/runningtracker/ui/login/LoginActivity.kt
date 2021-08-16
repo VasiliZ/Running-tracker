@@ -4,10 +4,16 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.ui.OnCloseActivityContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.ClosableActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.registration.RegistrationFragment
 
-class LoginActivity : AppCompatActivity(), LoginFlowContract, OnCloseActivityContract {
+class LoginActivity : AppCompatActivity(), LoginFlowContract, ClosableActivity {
+
+    companion object {
+        private const val BACK_STACK_SIZE_1 = 1
+        private const val BACK_STACK_SIZE_2 = 2
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -62,7 +68,7 @@ class LoginActivity : AppCompatActivity(), LoginFlowContract, OnCloseActivityCon
 
     override fun onBackPressed() {
         when (supportFragmentManager.backStackEntryCount) {
-            1, 2 -> {
+            BACK_STACK_SIZE_1, BACK_STACK_SIZE_2 -> {
                 finish()
             }
             else -> {

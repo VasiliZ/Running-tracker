@@ -1,7 +1,6 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.track
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,11 +8,11 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
+import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
-import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithZeroUTC
+import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithoutUTCOffset
 import com.github.rtyvz.senla.tr.runningtracker.extension.toLatLng
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -44,8 +43,8 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
 
     private var mapView: MapView? = null
     private var map: GoogleMap? = null
-    private lateinit var distanceTextView: MaterialTextView
-    private lateinit var timeActionTextView: MaterialTextView
+    private var distanceTextView: MaterialTextView? = null
+    private var timeActionTextView: MaterialTextView? = null
     private var trackPoints: List<PointEntity> = emptyList()
 
     override fun onCreateView(
@@ -60,15 +59,10 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
         super.onViewCreated(view, savedInstanceState)
 
         findViews(view)
+
+        MapsInitializer.initialize(requireContext().applicationContext)
         mapView?.onCreate(savedInstanceState)
         mapView?.onResume()
-
-        try {
-            MapsInitializer.initialize(requireContext().applicationContext)
-        } catch (e: Exception) {
-            Log.d(TAG, "onViewCreated: map init error")
-        }
-
         mapView?.getMapAsync { googleMap ->
             val track = arguments?.getParcelable<TrackEntity>(EXTRA_TRACK_ENTITY)
             getPoints(track)
@@ -111,12 +105,12 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
     }
 
     private fun setDataOnUI(trackEntity: TrackEntity) {
-        distanceTextView.text = String.format(
+        distanceTextView?.text = String.format(
             getString(R.string.current_fragment_run_distance_pattern),
             trackEntity.distance,
             trackEntity.distance.humanizeDistance()
         )
-        timeActionTextView.text = trackEntity.time.toDateTimeWithZeroUTC(DATE_TIME_PATTERN)
+        timeActionTextView?.text = trackEntity.time.toDateTimeWithoutUTCOffset(DATE_TIME_PATTERN)
     }
 
     private fun drawPath(googleMap: GoogleMap?, listPoints: List<PointEntity>) {
@@ -179,9 +173,17 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
         super.onPause()
     }
 
+    override fun onDestroyView() {
+        map = null
+        mapView?.removeAllViews()
+        distanceTextView = null
+        timeActionTextView = null
+
+        super.onDestroyView()
+    }
+
     override fun onDestroy() {
         mapView?.onDestroy()
-
         super.onDestroy()
     }
 

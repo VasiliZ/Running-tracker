@@ -12,11 +12,9 @@ fun Int.humanizeDistance(): String {
                 postfix = "а"
                 true
             }
-
             else -> {
                 true
             }
-
         }
     }
     return postfix

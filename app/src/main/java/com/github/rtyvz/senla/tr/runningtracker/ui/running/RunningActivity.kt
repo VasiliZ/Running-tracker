@@ -25,8 +25,9 @@ import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.SimpleLocation
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
-import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithZeroUTC
+import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithoutUTCOffset
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
@@ -67,28 +68,29 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         private const val NANO_TIME_DIVIDER = 1000000
     }
 
-    private var locationPermissionGranted: Boolean = false
-    private var googleMap: GoogleMap? = null
     private lateinit var locationProvider: FusedLocationProviderClient
-    private lateinit var startRunningButton: MaterialButton
-    private lateinit var exitLayout: CardView
-    private lateinit var startLayout: CardView
-    private lateinit var finishRunningButton: MaterialButton
-    private lateinit var resultLayout: CardView
-    private lateinit var timerTextView: MaterialTextView
-    private lateinit var resultRunningTimeTextView: MaterialTextView
     private lateinit var localBroadcastManager: LocalBroadcastManager
     private lateinit var runningDistanceReceiver: BroadcastReceiver
     private lateinit var wrongUserTokenReceiver: BroadcastReceiver
     private lateinit var gpsProviderDisabledReceiver: BroadcastReceiver
     private lateinit var gpsProviderEnabledReceiver: BroadcastReceiver
-    private lateinit var runDistanceTextView: MaterialTextView
     private lateinit var errorSavingTrackIntoDbReceiver: BroadcastReceiver
     private lateinit var networkErrorReceiver: BroadcastReceiver
     private lateinit var areYouRunReceiver: BroadcastReceiver
     private lateinit var gpsStateChangeReceiver: BroadcastReceiver
-    private lateinit var toolbar: MaterialToolbar
-    private lateinit var gpsStatus: MaterialTextView
+    private var locationPermissionGranted: Boolean = false
+    private var googleMap: GoogleMap? = null
+    private var startRunningButton: MaterialButton? = null
+    private var exitLayout: CardView? = null
+    private var startLayout: CardView? = null
+    private var finishRunningButton: MaterialButton? = null
+    private var resultLayout: CardView? = null
+    private var timerTextView: MaterialTextView? = null
+    private var resultRunningTimeTextView: MaterialTextView? = null
+    private var gpsStatus: MaterialTextView? = null
+    private var runDistanceTextView: MaterialTextView? = null
+    private var toolbar: MaterialToolbar? = null
+    private var currentLocationPoint: SimpleLocation? = null
     private var startTimerRunningTime: Long = 0L
     private var startRunMillis: Long = 0L
     private var handler: Handler? = null
@@ -125,16 +127,16 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        startRunningButton.setOnClickListener {
+        startRunningButton?.setOnClickListener {
             if (isGpsEnabled()) {
                 startTimerRunningTime = System.nanoTime()
                 startRunMillis = System.currentTimeMillis()
                 isStartButtonClicked = true
-                startAnimation(startLayout, R.animator.flip_out)
-                startAnimation(exitLayout, R.animator.flip_in)
-                exitLayout.isVisible = true
-                startRunningButton.isClickable = false
-                finishRunningButton.isClickable = true
+                startAnimation(startLayout as CardView, R.animator.flip_out)
+                startAnimation(exitLayout as CardView, R.animator.flip_in)
+                exitLayout?.isVisible = true
+                startRunningButton?.isClickable = false
+                finishRunningButton?.isClickable = true
 
                 startTimer()
                 getDeviceLocation()
@@ -157,13 +159,13 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
             }
         }
 
-        finishRunningButton.setOnClickListener {
+        finishRunningButton?.setOnClickListener {
             isFinishButtonClicked = true
             isStartButtonClicked = false
-            startAnimation(exitLayout, R.animator.flip_out)
-            startAnimation(resultLayout, R.animator.flip_in)
-            finishRunningButton.isClickable = false
-            startRunningButton.isClickable = false
+            startAnimation(exitLayout as CardView, R.animator.flip_out)
+            startAnimation(resultLayout as CardView, R.animator.flip_in)
+            finishRunningButton?.isClickable = false
+            startRunningButton?.isClickable = false
             val stopActionRunningServiceIntent = Intent(this, RunningService::class.java)
                 .apply {
                     action = ACTION_RUNNING_SERVICE_STOP
@@ -173,7 +175,8 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
             stopTimer()
             startService(stopActionRunningServiceIntent)
 
-            resultRunningTimeTextView.text = timeMillis.toDateTimeWithZeroUTC(STOP_WATCH_PATTERN)
+            resultRunningTimeTextView?.text =
+                timeMillis.toDateTimeWithoutUTCOffset(STOP_WATCH_PATTERN)
         }
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -320,7 +323,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         runningDistanceReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val distance = intent?.getIntExtra(EXTRA_RUN_DISTANCE, DEFAULT_INT_VALUE)
-                runDistanceTextView.text = String.format(
+                runDistanceTextView?.text = String.format(
                     resources.getString(R.string.running_activity_run_distance_pattern),
                     distance,
                     distance?.humanizeDistance()
@@ -376,7 +379,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private fun initGpsDisabledReceiver() {
         gpsProviderDisabledReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                gpsStatus.isVisible = true
+                gpsStatus?.isVisible = true
             }
         }
     }
@@ -384,7 +387,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private fun initGpsEnabledReceiver() {
         gpsProviderEnabledReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                gpsStatus.isVisible = false
+                gpsStatus?.isVisible = false
             }
         }
     }
@@ -439,8 +442,8 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
     private fun updateWatch(timeInHundredthOfASecond: Long) {
-        timerTextView.text =
-            timeInHundredthOfASecond.toDateTimeWithZeroUTC(STOP_WATCH_PATTERN)
+        timerTextView?.text =
+            timeInHundredthOfASecond.toDateTimeWithoutUTCOffset(STOP_WATCH_PATTERN)
     }
 
     private fun startTimer() {
@@ -474,9 +477,9 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         startTimerRunningTime = 0L
         startRunMillis = 0L
         handler = null
-        startRunningButton.isClickable = true
-        startAnimation(resultLayout, R.animator.flip_out)
-        startAnimation(startLayout, R.animator.flip_in)
+        startRunningButton?.isClickable = true
+        startAnimation(resultLayout as CardView, R.animator.flip_out)
+        startAnimation(startLayout as CardView, R.animator.flip_in)
     }
 
     override fun onBackPressed() {

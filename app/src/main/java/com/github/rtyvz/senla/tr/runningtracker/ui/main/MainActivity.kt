@@ -20,15 +20,15 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.State
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
+import com.github.rtyvz.senla.tr.runningtracker.ui.ClosableActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
-import com.github.rtyvz.senla.tr.runningtracker.ui.OnCloseActivityContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.notification.NotificationFragment
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    OnCloseActivityContract, LogoutFromApp, MainRunningFragment.ChangeNavigationInToolbar {
+    ClosableActivity, LogoutFromApp, MainRunningFragment.ChangeNavigationInToolbar {
 
     companion object {
         private const val USER_TOKEN = "USER_TOKEN"
@@ -36,17 +36,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private const val USER_LAST_NAME = "USER_LAST_NAME"
         private const val USER_EMAIL = "USER_EMAIL"
         private const val EMPTY_STRING = ""
+        private const val FIRST_NAVIGATION_HEADER_ITEM = 0
+        private const val DIFFERENT_FLAG_FOR_BACK_STACK = 0
     }
 
     private var toolBar: Toolbar? = null
     private var drawerToggle: ActionBarDrawerToggle? = null
+    private var navHeaderUserNameTextView: MaterialTextView? = null
+    private var navHeaderUserEmailTextView: MaterialTextView? = null
+    private var navigationView: NavigationView? = null
+    private var headerNavView: View? = null
+    private var exitFromAppLayout: ConstraintLayout? = null
+    private var drawerLayout: DrawerLayout? = null
     private lateinit var userData: UserData
-    private lateinit var navHeaderUserNameTextView: MaterialTextView
-    private lateinit var navHeaderUserEmailTextView: MaterialTextView
-    private lateinit var navigationView: NavigationView
-    private lateinit var headerNavView: View
-    private lateinit var exitFromAppLayout: ConstraintLayout
-    private lateinit var drawerLayout: DrawerLayout
     private var isToolBarNavigationListenerIsRegistered = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,7 +65,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setDataToNavHeader()
 
         drawerToggle?.let {
-            drawerLayout.addDrawerListener(it)
+            drawerLayout?.addDrawerListener(it)
         }
 
         setSupportActionBar(toolBar)
@@ -76,9 +78,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.string.main_activity_drawer_close
         )
 
-        navigationView.setNavigationItemSelectedListener(this)
+        navigationView?.setNavigationItemSelectedListener(this)
 
-        exitFromAppLayout.setOnClickListener {
+        exitFromAppLayout?.setOnClickListener {
             logout()
         }
 
@@ -96,7 +98,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 MainRunningFragment.newInstance(),
                 MainRunningFragment.TAG,
             )
-            navigationView.setCheckedItem(R.id.mainItem)
+            navigationView?.setCheckedItem(R.id.mainItem)
         }
         val fragmentNotification =
             supportFragmentManager.findFragmentByTag(NotificationFragment.TAG)
@@ -107,7 +109,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 NotificationFragment.TAG,
                 false
             )
-            navigationView.setCheckedItem(R.id.notificationsItem)
+            navigationView?.setCheckedItem(R.id.notificationsItem)
         }
     }
 
@@ -117,7 +119,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             MainRunningFragment.TAG,
             MainRunningFragment.TAG,
         )
-        navigationView.setCheckedItem(R.id.mainItem)
+        navigationView?.setCheckedItem(R.id.mainItem)
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -141,8 +143,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onBackPressed() {
-        if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
+        if (drawerLayout?.isDrawerVisible(GravityCompat.START) == true) {
+            drawerLayout?.closeDrawer(GravityCompat.START)
             return
         }
         setInnerFragmentBackPressedBehavior()
@@ -164,12 +166,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun findViews() {
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.navigationView)
-        headerNavView = navigationView.getHeaderView(0)
+        headerNavView = navigationView?.getHeaderView(FIRST_NAVIGATION_HEADER_ITEM)
         toolBar = findViewById(R.id.toolBar)
-        navHeaderUserEmailTextView = headerNavView.findViewById(R.id.userEmailTextView)
-        navHeaderUserNameTextView = headerNavView.findViewById(R.id.userNameTextView)
+        navHeaderUserEmailTextView = headerNavView?.findViewById(R.id.userEmailTextView)
+        navHeaderUserNameTextView = headerNavView?.findViewById(R.id.userNameTextView)
         exitFromAppLayout = findViewById(R.id.exitFromAppLayout)
-
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -187,10 +188,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun openRunningFragment(item: MenuItem) {
-        navigationView.setCheckedItem(item.itemId)
+        navigationView?.setCheckedItem(item.itemId)
         val fragmentTag = MainRunningFragment.TAG
         val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
-        drawerLayout.closeDrawer(GravityCompat.START)
+        drawerLayout?.closeDrawer(GravityCompat.START)
         if (foundFragment != null && fragmentTag == foundFragment.tag) {
             return
         } else {
@@ -203,10 +204,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun openNotificationFragment(item: MenuItem) {
-        navigationView.setCheckedItem(item.itemId)
+        navigationView?.setCheckedItem(item.itemId)
         val fragmentTag = NotificationFragment.TAG
         val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
-        drawerLayout.closeDrawer(GravityCompat.START)
+        drawerLayout?.closeDrawer(GravityCompat.START)
         if (foundFragment != null && fragmentTag == foundFragment.tag) {
             return
         } else {
@@ -228,8 +229,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setDataToNavHeader() {
-        navHeaderUserEmailTextView.text = userData.email
-        navHeaderUserNameTextView.text = userData.name
+        navHeaderUserEmailTextView?.text = userData.email
+        navHeaderUserNameTextView?.text = userData.name
     }
 
     private fun showFragment(
@@ -241,7 +242,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (clearToTag != null)
             supportFragmentManager.popBackStack(
                 clearToTag,
-                if (isInclusive) FragmentManager.POP_BACK_STACK_INCLUSIVE else 0
+                if (isInclusive) FragmentManager.POP_BACK_STACK_INCLUSIVE else DIFFERENT_FLAG_FOR_BACK_STACK
             )
 
         supportFragmentManager.beginTransaction()
@@ -256,7 +257,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun enableHomeButton(isEnable: Boolean) {
         drawerToggle?.isDrawerIndicatorEnabled = false
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        drawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         supportActionBar?.setDisplayHomeAsUpEnabled(isEnable)
         supportActionBar?.setHomeButtonEnabled(isEnable)
 
@@ -265,22 +266,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 onBackPressed()
             }
         }
-        isToolBarNavigationListenerIsRegistered = true;
+        isToolBarNavigationListenerIsRegistered = true
     }
 
 
     override fun enableToggle() {
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        drawerToggle?.isDrawerIndicatorEnabled = true
-        drawerToggle?.syncState()
         isToolBarNavigationListenerIsRegistered = false
+        drawerToggle?.isDrawerIndicatorEnabled = true
+        drawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        drawerToggle?.syncState()
     }
 
     override fun logout() {
         App.state = null
         App.mainRunningRepository.clearCache()
+        getRunningSharedPreference().edit().clear().apply()
         WorkManager.getInstance(this).cancelAllWork()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
+    }
+
+    override fun onDestroy() {
+        drawerToggle = null
+
+        super.onDestroy()
     }
 }

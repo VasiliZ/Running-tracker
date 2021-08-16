@@ -1,7 +1,7 @@
 package com.github.rtyvz.senla.tr.runningtracker.providers
 
 import bolts.CancellationToken
-import com.github.rtyvz.senla.tr.runningtracker.entity.network.Point
+import com.github.rtyvz.senla.tr.runningtracker.entity.Point
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.PointsRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest

@@ -11,6 +11,7 @@ class InsertDataHelper(private val tableName: String) {
         private const val OPEN_BRACKET = "("
         private const val CLOSE_BRACKET = ")"
         private const val VALUES = " VALUES "
+        private const val NEXT_STATEMENT_INDEX = 1
     }
 
     private val fieldsWithDataMap = mutableMapOf<String, Any>()
@@ -42,12 +43,21 @@ class InsertDataHelper(private val tableName: String) {
         fieldsWithDataMap.values.forEachIndexed { index, mutableEntry ->
             when (mutableEntry) {
                 //index +1 because statement starts with 1 but index in loop starts with 0
-                is String -> statement?.bindString(index + 1, mutableEntry.toString())
-                is Int -> statement?.bindLong(index + 1, mutableEntry.toLong())
-                is Long -> statement?.bindLong(index + 1, mutableEntry.toLong())
-                is Double -> statement?.bindDouble(index + 1, mutableEntry.toDouble())
-                is Float -> statement?.bindDouble(index + 1, mutableEntry.toDouble())
-                else -> statement?.bindNull(index + 1)
+                is String -> statement?.bindString(
+                    index + NEXT_STATEMENT_INDEX,
+                    mutableEntry.toString()
+                )
+                is Int -> statement?.bindLong(index + NEXT_STATEMENT_INDEX, mutableEntry.toLong())
+                is Long -> statement?.bindLong(index + NEXT_STATEMENT_INDEX, mutableEntry.toLong())
+                is Double -> statement?.bindDouble(
+                    index + NEXT_STATEMENT_INDEX,
+                    mutableEntry.toDouble()
+                )
+                is Float -> statement?.bindDouble(
+                    index + NEXT_STATEMENT_INDEX,
+                    mutableEntry.toDouble()
+                )
+                else -> error("wrong type of data")
             }
         }
         statement?.executeInsert()

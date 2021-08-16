@@ -10,9 +10,9 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
+import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
-import com.github.rtyvz.senla.tr.runningtracker.ui.OnCloseActivityContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.ClosableActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -31,12 +31,12 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private lateinit var emailEditText: TextInputEditText
-    private lateinit var passwordEditText: TextInputEditText
-    private lateinit var loginButton: MaterialButton
-    private lateinit var registrationActionTextView: MaterialTextView
-    private lateinit var errorTextView: MaterialTextView
-    private lateinit var progressBar: ProgressBar
+    private var emailEditText: TextInputEditText? = null
+    private var passwordEditText: TextInputEditText? = null
+    private var loginButton: MaterialButton? = null
+    private var registrationActionTextView: MaterialTextView? = null
+    private var errorTextView: MaterialTextView? = null
+    private var progressBar: ProgressBar? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,15 +52,15 @@ class LoginFragment : Fragment() {
         findViews(view)
         moveToRegistration()
 
-        loginButton.setOnClickListener {
+        loginButton?.setOnClickListener {
             checkEnteredValues()
         }
-        registrationActionTextView.paint.isUnderlineText = true
+        registrationActionTextView?.paint?.isUnderlineText = true
     }
 
     private fun moveToRegistration() {
-        registrationActionTextView.setOnClickListener {
-            errorTextView.text = EMPTY_STRING
+        registrationActionTextView?.setOnClickListener {
+            errorTextView?.text = EMPTY_STRING
             (activity as LoginFlowContract).openRegistrationFragment()
         }
     }
@@ -80,18 +80,18 @@ class LoginFragment : Fragment() {
 
     private fun checkEnteredValues() {
         when {
-            emailEditText.text.isNullOrBlank()
-                    or passwordEditText.text.isNullOrBlank() -> errorTextView.text =
+            emailEditText?.text.isNullOrBlank()
+                    or passwordEditText?.text.isNullOrBlank() -> errorTextView?.text =
                 getString(R.string.login_fragment_empty_fields_error)
-            isEmailInvalid(emailEditText.text.toString()) -> errorTextView.text =
+            isEmailInvalid(emailEditText?.text.toString()) -> errorTextView?.text =
                 getString(R.string.login_fragment_match_email_error)
             else -> {
-                registrationActionTextView.isEnabled = false
-                errorTextView.text = EMPTY_STRING
+                registrationActionTextView?.isEnabled = false
+                errorTextView?.text = EMPTY_STRING
                 sendLoginRequest(
                     UserDataRequest(
-                        email = emailEditText.text.toString(),
-                        password = passwordEditText.text.toString()
+                        email = emailEditText?.text.toString(),
+                        password = passwordEditText?.text.toString()
                     )
                 )
             }
@@ -99,27 +99,38 @@ class LoginFragment : Fragment() {
     }
 
     private fun sendLoginRequest(userDataRequest: UserDataRequest) {
-        progressBar.isVisible = true
-        App.loginFlowRepository.loginUser(userDataRequest, emailEditText.text.toString()) {
-            progressBar.isVisible = false
+        progressBar?.isVisible = true
+        App.loginFlowRepository.loginUser(userDataRequest, emailEditText?.text.toString()) {
+            progressBar?.isVisible = false
 
             when (it) {
                 is Result.Success -> {
                     startActivity(Intent(requireContext(), MainActivity::class.java))
-                    (activity as OnCloseActivityContract).closeActivity()
+                    (activity as ClosableActivity).closeActivity()
                 }
                 is Result.Error -> {
-                    registrationActionTextView.isEnabled = true
+                    registrationActionTextView?.isEnabled = true
                     when (it.error) {
                         INVALID_CREDENTIALS -> {
-                            errorTextView.text =
+                            errorTextView?.text =
                                 getString(R.string.login_fragment_invalid_credentials)
                         }
-                        else -> errorTextView.text =
+                        else -> errorTextView?.text =
                             getString(R.string.login_fragment_unknown_network_error)
                     }
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        emailEditText = null
+        passwordEditText = null
+        loginButton = null
+        registrationActionTextView = null
+        errorTextView = null
+        progressBar = null
+
+        super.onDestroyView()
     }
 }

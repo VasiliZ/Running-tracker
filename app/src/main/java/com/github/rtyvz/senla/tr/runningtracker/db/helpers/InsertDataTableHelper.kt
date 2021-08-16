@@ -10,6 +10,7 @@ class InsertDataTableHelper(private val tableName: String) {
         private const val CLOSE_BRACKET = ")"
         private const val VALUES = "VALUES"
         private const val QUESTION_MARK = "?"
+        private const val NEXT_STATEMENT_INDEX = 1
     }
 
     private val mapWithData = mutableMapOf<String, Any>()
@@ -44,11 +45,12 @@ class InsertDataTableHelper(private val tableName: String) {
         )
         mapWithData.values.forEachIndexed { index, data ->
             when (data) {
-                is String -> statement?.bindString(index + 1, data.toString())
-                is Int -> statement?.bindLong(index + 1, data.toLong())
-                is Long -> statement?.bindLong(index + 1, data.toLong())
-                is Double -> statement?.bindDouble(index + 1, data.toDouble())
-                else -> statement?.bindNull(index + 1)
+                //statement index starts with 1
+                is String -> statement?.bindString(index + NEXT_STATEMENT_INDEX, data.toString())
+                is Int -> statement?.bindLong(index + NEXT_STATEMENT_INDEX, data.toLong())
+                is Long -> statement?.bindLong(index + NEXT_STATEMENT_INDEX, data.toLong())
+                is Double -> statement?.bindDouble(index + NEXT_STATEMENT_INDEX, data.toDouble())
+                else -> error("wrong type of data")
             }
         }
         statement?.executeInsert()

@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.entity.network
+package com.github.rtyvz.senla.tr.runningtracker.entity
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
