@@ -42,6 +42,6 @@ class NotificationWorkManager {
     }
 
     fun deleteWork(workName: String) {
-        WorkManager.getInstance(App.instance).cancelAllWorkByTag(workName)
+        WorkManager.getInstance(App.instance).cancelUniqueWork(workName)
     }
 }

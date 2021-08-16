@@ -202,8 +202,8 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
             true -> {
                 val newEntity = alarmEntity.copy(
                     alarmId = Random().nextInt(Int.MAX_VALUE),
-                    hour = alarmEntity.hour,
-                    minute = alarmEntity.minute,
+                    hour = hour,
+                    minute = minute,
                     isEnabled = 1,
                     oldId = alarmEntity.alarmId
                 )
