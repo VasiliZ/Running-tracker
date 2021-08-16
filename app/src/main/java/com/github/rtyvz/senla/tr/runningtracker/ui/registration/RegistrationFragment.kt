@@ -12,7 +12,7 @@ import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
-import com.github.rtyvz.senla.tr.runningtracker.ui.OnCloseActivity
+import com.github.rtyvz.senla.tr.runningtracker.ui.ClosableActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginFlowContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
 import com.google.android.material.button.MaterialButton
@@ -127,7 +127,7 @@ class RegistrationFragment : Fragment() {
             when (it) {
                 is Result.Success -> {
                     startActivity(Intent(requireContext(), MainActivity::class.java))
-                    (activity as OnCloseActivity).closeActivity()
+                    (activity as ClosableActivity).closeActivity()
                 }
                 is Result.Error -> {
                     loginActionTextView?.isEnabled = true

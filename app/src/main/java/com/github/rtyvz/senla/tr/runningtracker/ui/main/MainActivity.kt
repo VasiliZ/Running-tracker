@@ -20,8 +20,8 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.State
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
+import com.github.rtyvz.senla.tr.runningtracker.ui.ClosableActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
-import com.github.rtyvz.senla.tr.runningtracker.ui.OnCloseActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.notification.NotificationFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.MainRunningFragment
@@ -29,7 +29,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    OnCloseActivity, LogoutFromApp, MainRunningFragment.ChangeNavigationInToolbar {
+    ClosableActivity, LogoutFromApp, MainRunningFragment.ChangeNavigationInToolbar {
 
     companion object {
         private const val USER_TOKEN = "USER_TOKEN"
