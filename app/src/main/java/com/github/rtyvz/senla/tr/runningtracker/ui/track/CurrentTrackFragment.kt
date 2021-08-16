@@ -1,7 +1,6 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.track
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
+import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
@@ -60,15 +59,10 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
         super.onViewCreated(view, savedInstanceState)
 
         findViews(view)
+
+        MapsInitializer.initialize(requireContext().applicationContext)
         mapView?.onCreate(savedInstanceState)
         mapView?.onResume()
-
-        try {
-            MapsInitializer.initialize(requireContext().applicationContext)
-        } catch (e: Exception) {
-            Log.d(TAG, "onViewCreated: map init error")
-        }
-
         mapView?.getMapAsync { googleMap ->
             val track = arguments?.getParcelable<TrackEntity>(EXTRA_TRACK_ENTITY)
             getPoints(track)

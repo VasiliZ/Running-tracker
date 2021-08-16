@@ -21,7 +21,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.State
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
-import com.github.rtyvz.senla.tr.runningtracker.ui.OnCloseActivityContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.OnCloseActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.notification.NotificationFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.MainRunningFragment
@@ -29,7 +29,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    OnCloseActivityContract, LogoutFromApp, MainRunningFragment.ChangeNavigationInToolbar {
+    OnCloseActivity, LogoutFromApp, MainRunningFragment.ChangeNavigationInToolbar {
 
     companion object {
         private const val USER_TOKEN = "USER_TOKEN"
@@ -37,6 +37,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private const val USER_LAST_NAME = "USER_LAST_NAME"
         private const val USER_EMAIL = "USER_EMAIL"
         private const val EMPTY_STRING = ""
+        private const val FIRST_NAVIGATION_HEADER_ITEM = 0
+        private const val DIFFERENT_FLAG_FOR_BACK_STACK = 0
     }
 
     private var toolBar: Toolbar? = null
@@ -165,12 +167,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun findViews() {
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.navigationView)
-        headerNavView = navigationView?.getHeaderView(0)
+        headerNavView = navigationView?.getHeaderView(FIRST_NAVIGATION_HEADER_ITEM)
         toolBar = findViewById(R.id.toolBar)
         navHeaderUserEmailTextView = headerNavView?.findViewById(R.id.userEmailTextView)
         navHeaderUserNameTextView = headerNavView?.findViewById(R.id.userNameTextView)
         exitFromAppLayout = findViewById(R.id.exitFromAppLayout)
-
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -242,7 +243,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (clearToTag != null)
             supportFragmentManager.popBackStack(
                 clearToTag,
-                if (isInclusive) FragmentManager.POP_BACK_STACK_INCLUSIVE else 0
+                if (isInclusive) FragmentManager.POP_BACK_STACK_INCLUSIVE else DIFFERENT_FLAG_FOR_BACK_STACK
             )
 
         supportFragmentManager.beginTransaction()
@@ -271,15 +272,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     override fun enableToggle() {
-        drawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        drawerToggle?.isDrawerIndicatorEnabled = true
-        drawerToggle?.syncState()
         isToolBarNavigationListenerIsRegistered = false
+        drawerToggle?.isDrawerIndicatorEnabled = true
+        drawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        drawerToggle?.syncState()
     }
 
     override fun logout() {
         App.state = null
         App.mainRunningRepository.clearCache()
+        getRunningSharedPreference().edit().clear().apply()
         WorkManager.getInstance(this).cancelAllWork()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()

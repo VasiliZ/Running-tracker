@@ -7,18 +7,18 @@ import retrofit2.http.POST
 
 interface RunningAppApi {
 
-    @POST("lesson-26.php?method=register")
+    @POST(Endpoint.REGISTER_USER)
     fun registerUser(@Body data: UserDataRequest): Call<UserRegisterResponse>
 
-    @POST("lesson-26.php?method=login")
+    @POST(Endpoint.LOGIN_USER)
     fun loginUser(@Body data: UserDataRequest): Call<UserLoginResponse>
 
-    @POST("lesson-26.php?method=tracks")
+    @POST(Endpoint.GET_USER_TRACKS)
     fun getUserTracks(@Body tracksRequest: TracksRequest): Call<TrackResponse>
 
-    @POST("lesson-26.php?method=save")
+    @POST(Endpoint.SAVE_USER_TRACK)
     fun saveTrack(@Body track: SaveTrackRequest): Call<SaveTrackResponse>
 
-    @POST("lesson-26.php?method=points")
-    fun getPoints(@Body pointsRequest:PointsRequest):Call<PointResponse>
+    @POST(Endpoint.GET_TRACK_POINTS)
+    fun getPoints(@Body pointsRequest: PointsRequest): Call<PointResponse>
 }

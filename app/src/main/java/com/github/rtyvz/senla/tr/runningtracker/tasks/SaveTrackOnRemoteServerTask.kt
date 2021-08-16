@@ -3,7 +3,7 @@ package com.github.rtyvz.senla.tr.runningtracker.tasks
 import bolts.CancellationToken
 import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.App
-import com.github.rtyvz.senla.tr.runningtracker.entity.network.Point
+import com.github.rtyvz.senla.tr.runningtracker.entity.Point
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.SaveTrackRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.SaveTrackResponse
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity

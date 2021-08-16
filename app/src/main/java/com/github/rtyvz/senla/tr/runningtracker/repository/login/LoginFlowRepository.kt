@@ -2,8 +2,8 @@ package com.github.rtyvz.senla.tr.runningtracker.repository.login
 
 import bolts.CancellationTokenSource
 import bolts.Task
+import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus
-import com.github.rtyvz.senla.tr.runningtracker.entity.network.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserSuccessfulResponse
 import com.github.rtyvz.senla.tr.runningtracker.extension.toUserData

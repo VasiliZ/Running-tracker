@@ -9,6 +9,7 @@ class UpdateTableHelper(private val tableName: String) {
         private const val SEPARATOR = ","
         private const val QUESTION_MARK = "?"
         private const val WHERE = " WHERE "
+        private const val NEXT_STATEMENT_INDEX = 1
     }
 
     private val fieldsAndDataMap = mutableMapOf<String, Any>()
@@ -33,12 +34,22 @@ class UpdateTableHelper(private val tableName: String) {
 
         fieldsAndDataMap.values.forEachIndexed { index, mutableEntry ->
             when (mutableEntry) {
-                is String -> statement?.bindString(index + 1, mutableEntry.toString())
-                is Int -> statement?.bindLong(index + 1, mutableEntry.toLong())
-                is Long -> statement?.bindLong(index + 1, mutableEntry.toLong())
-                is Double -> statement?.bindDouble(index + 1, mutableEntry.toDouble())
-                is Float -> statement?.bindDouble(index + 1, mutableEntry.toDouble())
-                else -> statement?.bindNull(index + 1)
+                //statement index starts with 1
+                is String -> statement?.bindString(
+                    index + NEXT_STATEMENT_INDEX,
+                    mutableEntry.toString()
+                )
+                is Int -> statement?.bindLong(index + NEXT_STATEMENT_INDEX, mutableEntry.toLong())
+                is Long -> statement?.bindLong(index + NEXT_STATEMENT_INDEX, mutableEntry.toLong())
+                is Double -> statement?.bindDouble(
+                    index + NEXT_STATEMENT_INDEX,
+                    mutableEntry.toDouble()
+                )
+                is Float -> statement?.bindDouble(
+                    index + NEXT_STATEMENT_INDEX,
+                    mutableEntry.toDouble()
+                )
+                else -> error("wrong type of data")
             }
         }
         statement?.executeInsert()
