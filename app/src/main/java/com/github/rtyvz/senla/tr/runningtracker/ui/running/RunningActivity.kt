@@ -406,7 +406,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                 googleMap?.uiSettings?.isMyLocationButtonEnabled = true
             }
         } catch (e: SecurityException) {
-            Log.e("Exception: %s", e.message, e)
+            showEnableGpsToast()
         }
     }
 
@@ -431,12 +431,16 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                 }
             }
         } catch (e: SecurityException) {
-            Toast.makeText(
-                this,
-                R.string.running_activity_havent_got_gps_permitions,
-                Toast.LENGTH_LONG
-            ).show()
+            showEnableGpsToast()
         }
+    }
+
+    private fun showEnableGpsToast() {
+        Toast.makeText(
+            this,
+            R.string.running_activity_havent_got_gps_permitions,
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     private fun updateWatch(timeInHundredthOfASecond: Long) {
