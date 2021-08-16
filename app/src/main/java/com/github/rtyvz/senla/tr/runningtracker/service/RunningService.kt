@@ -23,6 +23,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.toPointEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 import java.util.*
+import kotlin.collections.ArrayList
 
 class RunningService : Service(), LocationListener {
 
@@ -86,6 +87,9 @@ class RunningService : Service(), LocationListener {
             LocalBroadcastManager.getInstance(this)
                 .sendBroadcastSync(Intent(RunningActivity.BROADCAST_RUN_DISTANCE).apply {
                     putExtra(RunningActivity.EXTRA_RUN_DISTANCE, distance)
+                    putExtra(RunningActivity.EXTRA_TRACK_POINTS, ArrayList(pointsList.map {
+                        it.toPointEntity(startRunningTime)
+                    }))
                 })
             isServiceStopped = true
             stopForeground(true)

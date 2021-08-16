@@ -25,8 +25,10 @@ import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
 import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithoutUTCOffset
+import com.github.rtyvz.senla.tr.runningtracker.extension.toLatLng
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
@@ -36,7 +38,7 @@ import com.github.rtyvz.senla.tr.runningtracker.ui.running.dialogs.EnableGpsDial
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
-import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.*
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
@@ -61,8 +63,12 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
             "local:BROADCAST_NETWORK_ERROR"
         const val BROADCAST_GPS_ENABLED = "local:BROADCAST_GPS_ENABLED"
         const val BROADCAST_GPS_DISABLED = "local:BROADCAST_GPS_DISABLED"
+        const val EXTRA_TRACK_POINTS = "TRACK_POINTS"
         private const val STOP_WATCH_PATTERN = "mm:ss,SS"
         private const val DEFAULT_INT_VALUE = 0
+        private const val CAMERA_PADDING = 300
+        private const val START_MARKER_TITLE = "Старт"
+        private const val FINISH_MARKER_TITLE = "Финиш"
         private const val FIRST_ARRAY_INDEX = 0
         private const val NANO_TIME_DIVIDER = 1000000
     }
@@ -321,6 +327,11 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         runningDistanceReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val distance = intent?.getIntExtra(EXTRA_RUN_DISTANCE, DEFAULT_INT_VALUE)
+                intent?.getParcelableArrayListExtra<PointEntity>(EXTRA_TRACK_POINTS)?.toList()
+                    ?.let {
+                        drawRunningPath(it)
+                        setupMapData(it)
+                    }
                 runDistanceTextView?.text = String.format(
                     resources.getString(R.string.running_activity_run_distance_pattern),
                     distance,
@@ -410,6 +421,54 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         }
     }
 
+    private fun drawRunningPath(points: List<PointEntity>) {
+        googleMap?.let {
+            with(PolylineOptions()) {
+                addAll(points.map { point ->
+                    point.toLatLng()
+                })
+                width(10f)
+                color(ContextCompat.getColor(this@RunningActivity, R.color.main_app_color))
+                it.addPolyline(this)
+            }
+        }
+    }
+
+    private fun setupMapData(pointsList: List<PointEntity>) {
+        googleMap?.let { it ->
+            val startPoint = pointsList.first()
+            val finishPoint = pointsList.last()
+            val startMarker = MarkerOptions().position(
+                LatLng(
+                    startPoint.lat,
+                    startPoint.lng
+                )
+            )
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                .title(START_MARKER_TITLE)
+            val finishMarker = MarkerOptions()
+                .position(LatLng(finishPoint.lat, finishPoint.lng))
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                .title(FINISH_MARKER_TITLE)
+            it.addMarker(startMarker)
+            it.addMarker(finishMarker)
+            val cameraUpdate =
+                CameraUpdateFactory.newLatLngBounds(
+                    getMiddlePoint(pointsList),
+                    CAMERA_PADDING
+                )
+            it.animateCamera(cameraUpdate)
+        }
+    }
+
+    private fun getMiddlePoint(pointsList: List<PointEntity>): LatLngBounds {
+        val bounds = LatLngBounds.builder()
+        pointsList.forEach {
+            bounds.include(LatLng(it.lat, it.lng))
+        }
+        return bounds.build()
+    }
+
     private fun getDeviceLocation() {
         try {
             if (locationPermissionGranted) {
@@ -469,12 +528,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         super.onPause()
     }
 
-    override fun onDestroy() {
-        stopTimer()
-
-        super.onDestroy()
-    }
-
     override fun tryToRunningAgain() {
         startTimerRunningTime = 0L
         startRunMillis = 0L
@@ -512,5 +565,13 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private fun showClickFinishDialog() {
         ClickFinishButtonDialog.newInstance()
             .show(supportFragmentManager, ClickFinishButtonDialog.TAG)
+    }
+
+    override fun onDestroy() {
+        stopTimer()
+        googleMap?.clear()
+        googleMap = null
+
+        super.onDestroy()
     }
 }
