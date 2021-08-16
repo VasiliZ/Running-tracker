@@ -286,4 +286,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
+
+    override fun onDestroy() {
+        drawerToggle = null
+
+        super.onDestroy()
+    }
 }

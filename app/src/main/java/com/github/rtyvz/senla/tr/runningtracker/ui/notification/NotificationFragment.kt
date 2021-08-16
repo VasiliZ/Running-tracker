@@ -202,8 +202,8 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
             true -> {
                 val newEntity = alarmEntity.copy(
                     alarmId = Random().nextInt(Int.MAX_VALUE),
-                    hour = hour,
-                    minute = minute,
+                    hour = alarmEntity.hour,
+                    minute = alarmEntity.minute,
                     isEnabled = 1,
                     oldId = alarmEntity.alarmId
                 )
@@ -229,9 +229,13 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
 
     override fun onDestroyView() {
         fab = null
-        notificationRecyclerView = null
         timePicker = null
+        timePicker?.clearOnPositiveButtonClickListeners()
+        timePicker?.clearOnNegativeButtonClickListeners()
         datePicker = null
+        datePicker?.clearOnPositiveButtonClickListeners()
+        datePicker?.clearOnNegativeButtonClickListeners()
+        notificationRecyclerView = null
 
         super.onDestroyView()
     }

@@ -175,6 +175,7 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
 
     override fun onDestroyView() {
         map = null
+        mapView?.removeAllViews()
         distanceTextView = null
         timeActionTextView = null
 
@@ -183,7 +184,6 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
 
     override fun onDestroy() {
         mapView?.onDestroy()
-
         super.onDestroy()
     }
 

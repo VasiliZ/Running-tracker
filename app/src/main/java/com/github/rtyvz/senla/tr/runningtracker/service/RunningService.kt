@@ -13,6 +13,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -68,6 +69,9 @@ class RunningService : Service(), LocationListener {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_RUNNING_SERVICE_STOP) {
             val distance = calculateDistance()
+            (this.getSystemService(Context.LOCATION_SERVICE) as LocationManager).removeUpdates(
+                this
+            )
             if (pointsList.size > NOT_EMPTY_LIST_SIZE && distance >= EMPTY_DISTANCE) {
                 App.mainRunningRepository.saveTrack(
                     TrackEntity(
@@ -216,5 +220,10 @@ class RunningService : Service(), LocationListener {
                     )
                 ).build()
         )
+    }
+
+    override fun onDestroy() {
+        Log.d("dest", "service destroyed")
+        super.onDestroy()
     }
 }

@@ -85,6 +85,8 @@ class NotificationAdapter(
         }
 
         fun unbind() {
+            itemView.setOnClickListener(null)
+            switch?.setOnCheckedChangeListener(null)
             timeTextView = null
             daysTextView = null
             switch = null
@@ -109,6 +111,12 @@ class NotificationAdapter(
     fun updateItem(position: Int, alarmEntity: AlarmEntity) {
         dataList[position] = alarmEntity
         notifyDataSetChanged()
+    }
+
+    override fun onViewRecycled(holder: NotificationViewHolder) {
+        holder.unbind()
+
+        super.onViewRecycled(holder)
     }
 
     interface OnSwipeStateChanger {

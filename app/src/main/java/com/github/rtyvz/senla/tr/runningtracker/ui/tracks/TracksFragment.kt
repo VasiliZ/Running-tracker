@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
@@ -50,6 +51,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
     private var fab: FloatingActionButton? = null
     private var listTrackRecycler: RecyclerView? = null
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
+    private var coordinateLayout: CoordinatorLayout? = null
 
     private val runningAdapter by lazy {
         TracksAdapter {
@@ -105,6 +107,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
     }
 
     private fun findViews(view: View) {
+        coordinateLayout = view.findViewById(R.id.coordinatorLayout)
         informationTextView = view.findViewById(R.id.informationTextView)
         progressBar = view.findViewById(R.id.progressBar)
         fab = view.findViewById(R.id.fab)
@@ -187,9 +190,11 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
     }
 
     override fun onDestroyView() {
+        coordinateLayout = null
         informationTextView = null
         progressBar = null
         fab = null
+        swipeRefreshLayout?.setOnRefreshListener(null)
         listTrackRecycler = null
         swipeRefreshLayout = null
 
