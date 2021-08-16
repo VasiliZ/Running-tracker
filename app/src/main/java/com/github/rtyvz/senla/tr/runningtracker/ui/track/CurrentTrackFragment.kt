@@ -37,6 +37,7 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
         private const val START_MARKER_TITLE = "Старт"
         private const val FINISH_MARKER_TITLE = "Финиш"
         private const val DATE_TIME_PATTERN = "HH:mm:ss,SS"
+        private const val WIDTH_PATH_LINE = 10f
         private const val CAMERA_PADDING = 300
         val TAG = CurrentTrackFragment::class.java.simpleName.toString()
     }
@@ -119,7 +120,7 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
                 addAll(listPoints.map { point ->
                     point.toLatLng()
                 })
-                width(10f)
+                width(WIDTH_PATH_LINE)
                 color(ContextCompat.getColor(requireContext(), R.color.main_app_color))
                 it.addPolyline(this)
             }

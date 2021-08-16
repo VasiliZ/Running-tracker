@@ -67,6 +67,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         private const val STOP_WATCH_PATTERN = "mm:ss,SS"
         private const val DEFAULT_INT_VALUE = 0
         private const val CAMERA_PADDING = 300
+        private const val WIDTH_PATH_LINE = 10f
         private const val START_MARKER_TITLE = "Старт"
         private const val FINISH_MARKER_TITLE = "Финиш"
         private const val FIRST_ARRAY_INDEX = 0
@@ -427,7 +428,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                 addAll(points.map { point ->
                     point.toLatLng()
                 })
-                width(10f)
+                width(WIDTH_PATH_LINE)
                 color(ContextCompat.getColor(this@RunningActivity, R.color.main_app_color))
                 it.addPolyline(this)
             }
