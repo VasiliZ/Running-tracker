@@ -25,7 +25,6 @@ import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.ui.SimpleLocation
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
 import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithoutUTCOffset
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService
@@ -90,7 +89,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private var gpsStatus: MaterialTextView? = null
     private var runDistanceTextView: MaterialTextView? = null
     private var toolbar: MaterialToolbar? = null
-    private var currentLocationPoint: SimpleLocation? = null
     private var startTimerRunningTime: Long = 0L
     private var startRunMillis: Long = 0L
     private var handler: Handler? = null

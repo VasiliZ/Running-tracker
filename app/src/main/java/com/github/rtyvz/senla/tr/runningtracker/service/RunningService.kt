@@ -19,7 +19,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.ui.SimpleLocation
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.toPointEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
@@ -48,7 +47,7 @@ class RunningService : Service(), LocationListener {
         private const val INITIAL_DISTANCE = 0
     }
 
-    private var isServiceStoped: Boolean = false
+    private var isServiceStopped: Boolean = false
     private val pointsList = mutableListOf<Location>()
     private var startRunningTime = 0L
     private lateinit var notificationBuilder: NotificationCompat.Builder
@@ -88,7 +87,7 @@ class RunningService : Service(), LocationListener {
                 .sendBroadcastSync(Intent(RunningActivity.BROADCAST_RUN_DISTANCE).apply {
                     putExtra(RunningActivity.EXTRA_RUN_DISTANCE, distance)
                 })
-            isServiceStoped = true
+            isServiceStopped = true
             stopForeground(true)
             stopSelf()
         } else {
@@ -161,7 +160,7 @@ class RunningService : Service(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location) {
-        if (!isServiceStoped) {
+        if (!isServiceStopped) {
             saveCurrentPoint(location)
             updateBodyNotification()
         }
