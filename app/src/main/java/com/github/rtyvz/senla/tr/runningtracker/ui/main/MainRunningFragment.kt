@@ -16,11 +16,10 @@ import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPrefer
 import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
 import com.github.rtyvz.senla.tr.runningtracker.ui.track.CurrentTrackFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
-import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorResponseFirstRunDialog
 import com.google.android.material.textview.MaterialTextView
 
 class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
-    TracksFragment.LogOutFromApp, ErrorResponseFirstRunDialog.ErrorResponseDialogCallBack {
+    TracksFragment.LogOutFromApp {
 
     companion object {
         val TAG = MainRunningFragment::class.java.simpleName.toString()
@@ -122,13 +121,6 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
     override fun logout() {
         App.mainRunningRepository.clearCache()
         (activity as LogoutFromApp).logout()
-    }
-
-    override fun retryRequestTracksDataFromServer() {
-        val fragment = childFragmentManager.findFragmentByTag(TracksFragment.TAG)
-        if (fragment is TracksFragment) {
-            fragment.retryRequest()
-        }
     }
 
     override fun onTrackItemClick(trackEntity: TrackEntity) {

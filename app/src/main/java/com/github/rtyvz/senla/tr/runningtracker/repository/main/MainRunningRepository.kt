@@ -248,7 +248,7 @@ object MainRunningRepository {
                     )
                 }
             }, Task.BACKGROUND_EXECUTOR, cancellationToken.token)
-            .continueWith({
+            .continueWithTask({
                 //save all tracks into database
                 val data = it.result
                 if (data != null && !it.isFaulted) {
@@ -263,21 +263,21 @@ object MainRunningRepository {
                         callback(Result.Error(it.result?.errorCode.toString()))
                     }
                 }
-                return@continueWith it
+                return@continueWithTask it
             }, Task.BACKGROUND_EXECUTOR)
-            .continueWith({
+            .continueWithTask({
                 //send request for all points for all tracks
                 val userToken =
                     App.instance.getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
                 if (userToken != null && userToken.isNotBlank()) {
-                    it.result?.result?.tracks?.forEach { track ->
+                    it.result?.tracks?.forEach { track ->
                         mapPointTask[track.beginsAt] = TasksProvider.getPointsFromServerTask(
                             cancellationToken.token,
                             PointsRequest(userToken, track.id)
                         )
                     }
                 }
-                return@continueWith Task.whenAll(mapPointTask.values)
+                return@continueWithTask Task.whenAll(mapPointTask.values)
             }, Task.BACKGROUND_EXECUTOR, cancellationToken.token)
             .onSuccess({
                 //insert all points into the table

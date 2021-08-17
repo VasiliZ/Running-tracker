@@ -27,7 +27,8 @@ import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorResponseN
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textview.MaterialTextView
 
-class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialogCallBack {
+class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialogCallBack,
+    ErrorResponseFirstRunDialog.ErrorResponseDialogCallBack {
 
     companion object {
         val TAG: String = TracksFragment::class.java.simpleName.toString()
@@ -228,5 +229,11 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
 
     interface LogOutFromApp {
         fun logout()
+    }
+
+    override fun retryRequestTracksDataFromServer() {
+        requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)?.let {
+            getTrackFromServer(it)
+        }
     }
 }

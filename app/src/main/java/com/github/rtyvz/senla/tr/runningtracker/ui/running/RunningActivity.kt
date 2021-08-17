@@ -51,6 +51,14 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         private const val FINE_LOCATION_REQUEST_CODE = 1101
         private const val DEFAULT_ZOOM = 15
         private const val TIMER_INTERVAL = 10L
+        private const val STOP_WATCH_PATTERN = "mm:ss,SS"
+        private const val DEFAULT_INT_VALUE = 0
+        private const val CAMERA_PADDING = 300
+        private const val WIDTH_PATH_LINE = 10f
+        private const val START_MARKER_TITLE = "Старт"
+        private const val FINISH_MARKER_TITLE = "Финиш"
+        private const val FIRST_ARRAY_INDEX = 0
+        private const val NANO_TIME_DIVIDER = 1000000
         private val TAG = RunningActivity::class.java.simpleName.toString()
         const val EXTRA_RUN_DISTANCE = "RUN_DISTANCE"
         const val BROADCAST_RUN_DISTANCE = "local:BROADCAST_RUN_DISTANCE"
@@ -64,14 +72,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         const val BROADCAST_GPS_ENABLED = "local:BROADCAST_GPS_ENABLED"
         const val BROADCAST_GPS_DISABLED = "local:BROADCAST_GPS_DISABLED"
         const val EXTRA_TRACK_POINTS = "TRACK_POINTS"
-        private const val STOP_WATCH_PATTERN = "mm:ss,SS"
-        private const val DEFAULT_INT_VALUE = 0
-        private const val CAMERA_PADDING = 300
-        private const val WIDTH_PATH_LINE = 10f
-        private const val START_MARKER_TITLE = "Старт"
-        private const val FINISH_MARKER_TITLE = "Финиш"
-        private const val FIRST_ARRAY_INDEX = 0
-        private const val NANO_TIME_DIVIDER = 1000000
+
     }
 
     private lateinit var locationProvider: FusedLocationProviderClient
@@ -558,7 +559,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                 }
             }
             else -> {
-                super.onOptionsItemSelected(item)
+                false
             }
         }
     }
