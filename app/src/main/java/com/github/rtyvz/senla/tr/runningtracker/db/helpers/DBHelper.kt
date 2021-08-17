@@ -80,6 +80,7 @@ object DBHelper {
         val listTracks = mutableListOf<TrackEntity>()
         val cursor = SelectDataHelper(listOf(AppDb.TRACK_TABLE_NAME))
             .fieldFromSelect(SELECT_ALL)
+            .orderByDesc(AppDb.BEGIN_AT_FIELD_NAME)
             .build(App.db)
         cursor.use {
             if (cursor != null && cursor.moveToFirst()) {
@@ -132,7 +133,7 @@ object DBHelper {
     private fun selectPointsFromDb(beginsAt: Long): Cursor? {
         return SelectDataHelper(listOf(POINTS_TABLE_NAME))
             .fieldFromSelect("${POINTS_TABLE_NAME}.*")
-            .orderByAsc(AppDb.ID_FIELD_NAME)
+            .orderByDesc(AppDb.ID_FIELD_NAME)
             .where("${AppDb.BEGIN_AT_FIELD_NAME} = $beginsAt")
             .build(App.db)
     }
@@ -187,7 +188,7 @@ object DBHelper {
         val listNotification = mutableListOf<AlarmEntity>()
         val cursor = SelectDataHelper(listOf(ALARM_TABLE_NAME))
             .fieldFromSelect("${ALARM_TABLE_NAME}.*")
-            .orderByAsc(HOUR_FIELD_NAME)
+            .orderByDesc(HOUR_FIELD_NAME)
             .build(App.db)
 
         cursor?.use {

@@ -12,7 +12,7 @@ class SelectDataHelper(private val tableNames: List<String>) {
         private const val WHERE_KEYWORD = " WHERE "
         private const val EMPTY_STRING = ""
         private const val ORDER_BY = " ORDER BY "
-        private const val ASC = " ASC "
+        private const val DESC = " DESC "
     }
 
     private val selectedFields = mutableListOf<String>()
@@ -24,7 +24,7 @@ class SelectDataHelper(private val tableNames: List<String>) {
         return this
     }
 
-    fun orderByAsc(condition: String): SelectDataHelper {
+    fun orderByDesc(condition: String): SelectDataHelper {
         orderByCondition = condition
         return this
     }
@@ -47,7 +47,7 @@ class SelectDataHelper(private val tableNames: List<String>) {
                     } + when (orderByCondition) {
                 EMPTY_STRING -> EMPTY_STRING
                 else -> {
-                    "$ORDER_BY $orderByCondition $ASC"
+                    "$ORDER_BY $orderByCondition $DESC"
                 }
 
             },

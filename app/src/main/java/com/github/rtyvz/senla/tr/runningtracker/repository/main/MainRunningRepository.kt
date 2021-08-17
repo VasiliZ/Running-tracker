@@ -5,7 +5,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import bolts.CancellationTokenSource
 import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.App
-import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.DBHelper
 import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.*
@@ -218,7 +217,7 @@ object MainRunningRepository {
         TasksProvider.getDeleteTrackFromDbTask(beginsAt.toString())
     }
 
-    fun getTracksFromDb(isViewUpdateOnly: Boolean, callback: (Result<UserTracks>) -> Unit) {
+    fun getTracksFromDb(callback: (Result<UserTracks>) -> Unit) {
         val mapPointTask = mutableMapOf<Long, Task<PointResponse>>()
         val mapUnsentTask = mutableMapOf<Long, Task<SaveTrackResponse>>()
         val cancellationToken = CancellationTokenSource()
@@ -235,18 +234,14 @@ object MainRunningRepository {
         }, Task.UI_THREAD_EXECUTOR)
             .continueWithTask({
                 //send request for all tracks in network
-                if (isViewUpdateOnly) {
-                    cancellationToken.cancel()
-                    return@continueWithTask null
-                } else {
-                    return@continueWithTask TasksProvider.getFetchingTrackFromNetworkTask(
-                        TracksRequest(
-                            App.instance.getRunningSharedPreference()
-                                .getString(USER_TOKEN, EMPTY_STRING)
-                        ),
-                        cancellationToken.token
-                    )
-                }
+
+                return@continueWithTask TasksProvider.getFetchingTrackFromNetworkTask(
+                    TracksRequest(
+                        App.instance.getRunningSharedPreference()
+                            .getString(USER_TOKEN, EMPTY_STRING)
+                    ),
+                    cancellationToken.token
+                )
             }, Task.BACKGROUND_EXECUTOR, cancellationToken.token)
             .continueWithTask({
                 //save all tracks into database
@@ -258,10 +253,8 @@ object MainRunningRepository {
                             track.toSentTrackEntity()
                         })
                 } else {
-                    if (!isViewUpdateOnly) {
-                        cancellationToken.cancel()
-                        callback(Result.Error(it.result?.errorCode.toString()))
-                    }
+                    cancellationToken.cancel()
+                    callback(Result.Error(it.result?.errorCode.toString()))
                 }
                 return@continueWithTask it
             }, Task.BACKGROUND_EXECUTOR)
@@ -311,38 +304,38 @@ object MainRunningRepository {
                 }
                 return@continueWith Task.whenAll(mapUnsentTask.values)
             }, Task.BACKGROUND_EXECUTOR).onSuccess({
-                if (it.isFaulted && !isViewUpdateOnly) {
-                    callback(Result.Error(App.instance.getString(R.string.main_activity_cant_sent_data_to_server)))
-                } else {
-                    //save success request into database after save unsent points
-                    mapUnsentTask.forEach { map ->
-                        TasksProvider.getUpdateIdTrackTask(
-                            map.value.result.remoteTrackId,
-                            map.key,
-                            cancellationToken.token
-                        )
-                    }
+                //save success request into database after save unsent points
+                mapUnsentTask.forEach { map ->
+                    TasksProvider.getUpdateIdTrackTask(
+                        map.value.result.remoteTrackId,
+                        map.key,
+                        cancellationToken.token
+                    )
                 }
                 return@onSuccess it
             }, Task.BACKGROUND_EXECUTOR, cancellationToken.token)
-            .continueWith {
-                if (!isViewUpdateOnly) {
-                    return@continueWith null
-                }
-                if (it.isFaulted) {
-                    callback(Result.Error(App.instance.getString(R.string.main_activity_cant_sent_data_to_server)))
-                } else {
-                    //update ui data from new data in database
-                    TasksProvider.getTracksFromDb(cancellationToken.token)
-                        .continueWith({ listTrack ->
-                            if (listTrack.result.isNotEmpty()) {
-                                callback(Result.Success(UserTracks(listTrack.result.sortedByDescending { track ->
-                                    track.beginsAt
-                                })))
-                            }
-                        }, Task.UI_THREAD_EXECUTOR, cancellationToken.token)
-                }
+            .onSuccess {
+
+                //update ui data from new data in database
+                TasksProvider.getTracksFromDb(cancellationToken.token)
+                    .continueWith({ listTrack ->
+                        if (listTrack.result.isNotEmpty()) {
+                            callback(Result.Success(UserTracks(listTrack.result.sortedByDescending { track ->
+                                track.beginsAt
+                            })))
+                        }
+                    }, Task.UI_THREAD_EXECUTOR, cancellationToken.token)
             }
+    }
+
+    fun getTracksFromDb(isDataLoadedYet: Boolean, callback: (UserTracks) -> Unit) {
+        if (isDataLoadedYet) {
+            TasksProvider.getTracksFromDb(CancellationTokenSource().token).continueWith({
+                if (!it.isFaulted) {
+                    callback(UserTracks(it.result))
+                }
+            }, Task.UI_THREAD_EXECUTOR)
+        }
     }
 
     fun clearCache() {

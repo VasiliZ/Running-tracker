@@ -78,6 +78,14 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         val token =
             requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
 
+        if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
+            getTrackFromServer(token)
+        } else {
+            if (App.state?.isDataLoadedYet == false) {
+                getTracksFromDb()
+            }
+        }
+
         fab?.setOnClickListener {
             startActivity(Intent(requireContext(), RunningActivity::class.java))
         }
@@ -87,11 +95,11 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
                 getTrackFromServer(token)
             }
         }
+
         listTrackRecycler?.adapter = runningAdapter
         runningAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                (listTrackRecycler?.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
-                    positionStart,
+                (listTrackRecycler?.layoutManager as LinearLayoutManager).scrollToPosition(
                     FIRST_ITEM_LIST
                 )
             }
@@ -101,18 +109,10 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
     override fun onResume() {
         super.onResume()
 
-        val token =
-            requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
-
-        if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
-            getTrackFromServer(token)
-        } else {
-            getTracksFromDb(
-                when (App.state?.isDataLoadedYet) {
-                    true -> true
-                    else -> false
-                }
-            )
+        App.mainRunningRepository.getTracksFromDb(App.state?.isDataLoadedYet == true) {
+            runningAdapter.submitList(it.tracksList)
+            listTrackRecycler?.isVisible = true
+            informationTextView?.isVisible = false
         }
     }
 
@@ -131,6 +131,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         App.mainRunningRepository.getTracks(TracksRequest(token)) {
             progressBar?.isVisible = false
             swipeRefreshLayout?.isRefreshing = false
+            App.state?.isDataLoadedYet = true
             when (it) {
                 is Result.Error -> {
                     when (it.error) {
@@ -171,12 +172,12 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         }
     }
 
-    private fun getTracksFromDb(isViewUpdateOnly: Boolean) {
-        App.mainRunningRepository.getTracksFromDb(isViewUpdateOnly) {
+    private fun getTracksFromDb() {
+        App.mainRunningRepository.getTracksFromDb {
+            App.state?.isDataLoadedYet = true
             informationTextView?.isVisible = false
             when (it) {
                 is Result.Success -> {
-                    App.state?.isDataLoadedYet = true
                     informationTextView?.isVisible = false
                     runningAdapter.submitList(it.data.tracksList)
                 }
@@ -211,16 +212,8 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         super.onDestroyView()
     }
 
-    fun retryRequest() {
-        val token =
-            requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
-        if (token != null && token.isNotBlank()) {
-            getTrackFromServer(token)
-        }
-    }
-
     override fun retryRequestTracksDataFromDb() {
-        getTracksFromDb(false)
+        getTracksFromDb()
     }
 
     interface OnItemClickListListener {

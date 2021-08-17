@@ -17,7 +17,7 @@ class TracksAdapter(private val handleItemClick: (TrackEntity) -> (Unit)) :
     ListAdapter<TrackEntity, TracksAdapter.RunningViewHolder>(DiffUtilCallback()) {
 
     companion object {
-        private const val DATE_START_PATTERN = "dd MM yyyy"
+        private const val DATE_START_PATTERN = "dd MM yyyy HH:mm"
         private const val RUNNING_TIME_PATTERN = "HH:mm:ss,SS"
     }
 
