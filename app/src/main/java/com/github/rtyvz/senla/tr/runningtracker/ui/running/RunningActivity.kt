@@ -33,7 +33,6 @@ import com.github.rtyvz.senla.tr.runningtracker.service.RunningService
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.dialogs.AreYouRunDialog
-import com.github.rtyvz.senla.tr.runningtracker.ui.running.dialogs.ClickFinishButtonDialog
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.dialogs.EnableGpsDialog
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -72,7 +71,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         const val BROADCAST_GPS_ENABLED = "local:BROADCAST_GPS_ENABLED"
         const val BROADCAST_GPS_DISABLED = "local:BROADCAST_GPS_DISABLED"
         const val EXTRA_TRACK_POINTS = "TRACK_POINTS"
-
     }
 
     private lateinit var locationProvider: FusedLocationProviderClient
@@ -373,7 +371,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                     R.string.running_activity_network_error, Toast.LENGTH_LONG
                 )
                 toast.setGravity(Gravity.TOP, 0, 0)
-                toast.setText(R.string.running_activity_network_error)
                 toast.show()
             }
         }
@@ -541,7 +538,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
 
     override fun onBackPressed() {
         if (isStartButtonClicked && !isFinishButtonClicked) {
-            showClickFinishDialog()
+            showNeedsClickFinishToast()
         } else {
             finish()
         }
@@ -551,7 +548,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         return when (item.itemId) {
             android.R.id.home -> {
                 if (isStartButtonClicked && !isFinishButtonClicked) {
-                    showClickFinishDialog()
+                    showNeedsClickFinishToast()
                     false
                 } else {
                     finish()
@@ -564,9 +561,12 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         }
     }
 
-    private fun showClickFinishDialog() {
-        ClickFinishButtonDialog.newInstance()
-            .show(supportFragmentManager, ClickFinishButtonDialog.TAG)
+    private fun showNeedsClickFinishToast() {
+        Toast.makeText(
+            this,
+            getString(R.string.running_activity_dialog_finish_button_is_not_click_yet),
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     override fun onDestroy() {
