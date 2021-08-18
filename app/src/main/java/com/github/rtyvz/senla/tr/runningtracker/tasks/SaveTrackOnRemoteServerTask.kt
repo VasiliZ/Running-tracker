@@ -29,7 +29,7 @@ class SaveTrackOnRemoteServerTask {
                     beginAt = trackEntity.beginsAt,
                     time = trackEntity.time,
                     distance = trackEntity.distance,
-                    pointsList = listPoints
+                    pointList = listPoints
                 )
             ).execute().body()
         }, cancellationToken)

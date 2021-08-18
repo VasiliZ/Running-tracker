@@ -16,8 +16,7 @@ object TasksProvider {
     fun getRegisterUserTask(
         userDataRequest: UserDataRequest,
         cancellationToken: CancellationToken
-    ) =
-        RegisterUserTask().registerUser(userDataRequest, cancellationToken)
+    ) = RegisterUserTask().registerUser(userDataRequest, cancellationToken)
 
     fun getLoginUserTask(userDataRequest: UserDataRequest, cancellationToken: CancellationToken) =
         LoginUserTask().loginUser(userDataRequest, cancellationToken)
@@ -28,31 +27,27 @@ object TasksProvider {
     fun getFetchingTrackFromNetworkTask(
         tracksRequest: TracksRequest,
         cancellationToken: CancellationToken
-    ) =
-        GetTracksFromNetworkTask().fetchTracks(tracksRequest, cancellationToken)
+    ) = GetTracksFromNetworkTask().fetchTracks(tracksRequest, cancellationToken)
 
     fun getInsertTracksIntoDbkTask(
         cancellationToken: CancellationToken,
         listTrack: List<TrackEntity>
-    ) =
-        InsertTrackIntoDbTask().insertTracksIntiDb(listTrack, cancellationToken)
+    ) = InsertTrackIntoDbTask().insertTracksIntiDb(listTrack, cancellationToken)
 
     fun getInsertTrackPointsTask(
         cancellationToken: CancellationToken,
         pointsList: List<PointEntity>
-    ) =
-        InsertPointsIntoDbTask().insertTrackPoints(pointsList, cancellationToken)
+    ) = InsertPointsIntoDbTask().insertTrackPoints(pointsList, cancellationToken)
 
     fun getSaveTrackOnRemoteServerTask(
         track: TrackEntity,
         listPoints: List<Point>,
         cancellationToken: CancellationToken
-    ) =
-        SaveTrackOnRemoteServerTask().saveTrackOnRemoteServer(
-            track,
-            listPoints,
-            cancellationToken
-        )
+    ) = SaveTrackOnRemoteServerTask().saveTrackOnRemoteServer(
+        track,
+        listPoints,
+        cancellationToken
+    )
 
     fun getInsertTrackTask(track: TrackEntity) =
         InsertTackIntoDbTask().replaceTrackIntoDb(track)

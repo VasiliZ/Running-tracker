@@ -2,7 +2,7 @@ package com.github.rtyvz.senla.tr.runningtracker.db.helpers
 
 import android.database.sqlite.SQLiteDatabase
 
-class InsertDataHelper(private val tableName: String) {
+class InsertDataBuilder(private val tableName: String) {
 
     companion object {
         private const val QUESTION_MARK = "?"
@@ -16,7 +16,7 @@ class InsertDataHelper(private val tableName: String) {
 
     private val fieldsWithDataMap = mutableMapOf<String, Any>()
 
-    fun setFieldsWithData(fieldName: String, data: Any): InsertDataHelper {
+    fun setFieldsWithData(fieldName: String, data: Any): InsertDataBuilder {
         fieldsWithDataMap[fieldName] = data
         return this
     }

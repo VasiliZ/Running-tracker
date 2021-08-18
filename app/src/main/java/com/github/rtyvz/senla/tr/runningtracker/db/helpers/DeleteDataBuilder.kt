@@ -2,7 +2,7 @@ package com.github.rtyvz.senla.tr.runningtracker.db.helpers
 
 import android.database.sqlite.SQLiteDatabase
 
-class DeleteTableDataHelper(private val tableName: String) {
+class DeleteDataBuilder(private val tableName: String) {
 
     private var conditionForDelete: String? = null
 
@@ -12,7 +12,7 @@ class DeleteTableDataHelper(private val tableName: String) {
         private const val EMPTY_STRING = ""
     }
 
-    fun where(whereCondition: String): DeleteTableDataHelper {
+    fun where(whereCondition: String): DeleteDataBuilder {
         conditionForDelete = whereCondition
         return this
     }

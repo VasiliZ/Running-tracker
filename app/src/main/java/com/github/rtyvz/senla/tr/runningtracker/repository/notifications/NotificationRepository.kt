@@ -4,7 +4,7 @@ import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
 
-object NotificationRepository {
+class NotificationRepository {
     fun saveNotificationInDb(alarmEntity: AlarmEntity) {
         TasksProvider.getInsertAlarmTask(alarmEntity)
     }

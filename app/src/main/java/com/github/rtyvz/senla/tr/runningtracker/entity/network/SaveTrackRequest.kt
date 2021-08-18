@@ -20,5 +20,5 @@ data class SaveTrackRequest(
     val distance: Int,
 
     @SerializedName("points")
-    val pointsList: List<Point>
+    val pointList: List<Point>
 )

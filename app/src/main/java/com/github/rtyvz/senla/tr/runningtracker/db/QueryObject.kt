@@ -1,8 +1,7 @@
-package com.github.rtyvz.senla.tr.runningtracker.db.helpers
+package com.github.rtyvz.senla.tr.runningtracker.db
 
 import android.database.Cursor
 import com.github.rtyvz.senla.tr.runningtracker.App
-import com.github.rtyvz.senla.tr.runningtracker.db.AppDb
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.ALARM_ID_FIELD_NAME
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.ALARM_TABLE_NAME
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.DAY_FIELD_NAME
@@ -12,11 +11,12 @@ import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.MINUTE_FIELD_
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.OLD_ID_FIELD_NAME
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.POINTS_TABLE_NAME
 import com.github.rtyvz.senla.tr.runningtracker.db.AppDb.Companion.TITLE_FIELD_NAME
+import com.github.rtyvz.senla.tr.runningtracker.db.helpers.*
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 
-object DBHelper {
+object QueryObject {
     private const val BEGINS_AT_CONDITION = "beginAt "
     private const val SELECT_ALL = "*"
     private const val UNSENT_TRACKS_FLAG = 0
@@ -24,7 +24,7 @@ object DBHelper {
 
     fun insertTracksIntoTable(tracksList: List<TrackEntity>) {
         tracksList.forEach { trackEntity ->
-            InsertDataTableHelper(AppDb.TRACK_TABLE_NAME)
+            InsertDataTableBuilder(AppDb.TRACK_TABLE_NAME)
                 .setFieldsWithDataForReplace(AppDb.BEGIN_AT_FIELD_NAME, trackEntity.beginsAt)
                 .setFieldsWithDataForReplace(AppDb.TIME_FIELD_NAME, trackEntity.time)
                 .setFieldsWithDataForReplace(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
@@ -36,7 +36,7 @@ object DBHelper {
 
     fun insertPointsIntoTheTable(pointsList: List<PointEntity>) {
         pointsList.forEach { pointEntity ->
-            InsertDataTableHelper(POINTS_TABLE_NAME)
+            InsertDataTableBuilder(POINTS_TABLE_NAME)
                 .setFieldsWithDataForReplace(AppDb.BEGIN_AT_FIELD_NAME, pointEntity.beginAt)
                 .setFieldsWithDataForReplace(AppDb.LNG_FIELD_NAME, pointEntity.lng)
                 .setFieldsWithDataForReplace(AppDb.LAT_FIELD_NAME, pointEntity.lat)
@@ -45,7 +45,7 @@ object DBHelper {
     }
 
     fun insertPoint(point: PointEntity) {
-        InsertDataHelper(POINTS_TABLE_NAME)
+        InsertDataBuilder(POINTS_TABLE_NAME)
             .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, point.beginAt)
             .setFieldsWithData(AppDb.LNG_FIELD_NAME, point.lng)
             .setFieldsWithData(AppDb.LAT_FIELD_NAME, point.lat)
@@ -53,7 +53,7 @@ object DBHelper {
     }
 
     fun updateTrackIdFromBeginsAt(id: Long, beginsAt: Long) {
-        UpdateTableHelper(AppDb.TRACK_TABLE_NAME)
+        UpdateTableBuilder(AppDb.TRACK_TABLE_NAME)
             .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, id)
             .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, SENT_TRACK_FLAG)
             .whereCondition("$BEGINS_AT_CONDITION = $beginsAt")
@@ -61,13 +61,13 @@ object DBHelper {
     }
 
     fun deleteTrackFromDb(conditionForDelete: String) {
-        DeleteTableDataHelper(AppDb.TRACK_TABLE_NAME)
+        DeleteDataBuilder(AppDb.TRACK_TABLE_NAME)
             .where("${AppDb.BEGIN_AT_FIELD_NAME} = $conditionForDelete")
             .build(App.db)
     }
 
     fun updateTrack(trackEntity: TrackEntity) {
-        UpdateTableHelper(AppDb.TRACK_TABLE_NAME)
+        UpdateTableBuilder(AppDb.TRACK_TABLE_NAME)
             .setFieldsWithData(AppDb.TIME_FIELD_NAME, trackEntity.time)
             .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
             .setFieldsWithData(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
@@ -78,7 +78,7 @@ object DBHelper {
 
     fun getTracksFromDb(): List<TrackEntity> {
         val listTracks = mutableListOf<TrackEntity>()
-        val cursor = SelectDataHelper(listOf(AppDb.TRACK_TABLE_NAME))
+        val cursor = SelectDataBuilder(listOf(AppDb.TRACK_TABLE_NAME))
             .fieldFromSelect(SELECT_ALL)
             .orderByDesc(AppDb.BEGIN_AT_FIELD_NAME)
             .build(App.db)
@@ -101,7 +101,7 @@ object DBHelper {
 
     fun getUnsentTracksFromDb(): List<TrackEntity> {
         val listTracks = mutableListOf<TrackEntity>()
-        val trackCursor = SelectDataHelper(listOf(AppDb.TRACK_TABLE_NAME))
+        val trackCursor = SelectDataBuilder(listOf(AppDb.TRACK_TABLE_NAME))
             .fieldFromSelect(SELECT_ALL)
             .where("${AppDb.IS_SENT_FIELD_NAME} = $UNSENT_TRACKS_FLAG")
             .build(App.db)
@@ -131,7 +131,7 @@ object DBHelper {
     }
 
     private fun selectPointsFromDb(beginsAt: Long): Cursor? {
-        return SelectDataHelper(listOf(POINTS_TABLE_NAME))
+        return SelectDataBuilder(listOf(POINTS_TABLE_NAME))
             .fieldFromSelect("${POINTS_TABLE_NAME}.*")
             .orderByDesc(AppDb.ID_FIELD_NAME)
             .where("${AppDb.BEGIN_AT_FIELD_NAME} = $beginsAt")
@@ -158,22 +158,22 @@ object DBHelper {
     }
 
     fun deleteDataFromTrackTable() {
-        DeleteTableDataHelper(AppDb.TRACK_TABLE_NAME)
+        DeleteDataBuilder(AppDb.TRACK_TABLE_NAME)
             .build(App.db)
     }
 
     fun deleteDataFromPointTable() {
-        DeleteTableDataHelper(POINTS_TABLE_NAME)
+        DeleteDataBuilder(POINTS_TABLE_NAME)
             .build(App.db)
     }
 
     fun deleteDataFromAlarmsTable() {
-        DeleteTableDataHelper(ALARM_TABLE_NAME)
+        DeleteDataBuilder(ALARM_TABLE_NAME)
             .build(App.db)
     }
 
     fun insertNotificationToDb(alarmEntity: AlarmEntity) {
-        InsertDataHelper(ALARM_TABLE_NAME)
+        InsertDataBuilder(ALARM_TABLE_NAME)
             .setFieldsWithData(ALARM_ID_FIELD_NAME, alarmEntity.alarmId)
             .setFieldsWithData(HOUR_FIELD_NAME, alarmEntity.hour)
             .setFieldsWithData(MINUTE_FIELD_NAME, alarmEntity.minute)
@@ -186,7 +186,7 @@ object DBHelper {
 
     fun getNotifications(): List<AlarmEntity> {
         val listNotification = mutableListOf<AlarmEntity>()
-        val cursor = SelectDataHelper(listOf(ALARM_TABLE_NAME))
+        val cursor = SelectDataBuilder(listOf(ALARM_TABLE_NAME))
             .fieldFromSelect("${ALARM_TABLE_NAME}.*")
             .orderByDesc(HOUR_FIELD_NAME)
             .build(App.db)
@@ -212,7 +212,7 @@ object DBHelper {
     }
 
     fun updateNotification(alarmEntity: AlarmEntity) {
-        UpdateTableHelper(ALARM_TABLE_NAME)
+        UpdateTableBuilder(ALARM_TABLE_NAME)
             .setFieldsWithData(ALARM_ID_FIELD_NAME, alarmEntity.alarmId)
             .setFieldsWithData(HOUR_FIELD_NAME, alarmEntity.hour)
             .setFieldsWithData(MINUTE_FIELD_NAME, alarmEntity.minute)
@@ -225,19 +225,19 @@ object DBHelper {
     }
 
     fun deleteNotificationById(alarmId: Int) {
-        DeleteTableDataHelper(ALARM_TABLE_NAME)
+        DeleteDataBuilder(ALARM_TABLE_NAME)
             .where("$ALARM_ID_FIELD_NAME = $alarmId")
             .build(App.db)
     }
 
     fun deleteTrackPoints(startRunningTime: Long) {
-        DeleteTableDataHelper(POINTS_TABLE_NAME)
+        DeleteDataBuilder(POINTS_TABLE_NAME)
             .where("${AppDb.BEGIN_AT_FIELD_NAME} = $startRunningTime")
             .build(App.db)
     }
 
     fun updateNotificationStateById(alarmId: Int, stateFlag: Int) {
-        UpdateTableHelper(ALARM_TABLE_NAME)
+        UpdateTableBuilder(ALARM_TABLE_NAME)
             .setFieldsWithData(IS_ENABLED_NOTIFICATION, stateFlag)
             .whereCondition("$ALARM_ID_FIELD_NAME = $alarmId")
             .build(App.db)

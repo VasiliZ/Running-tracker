@@ -5,7 +5,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import bolts.CancellationTokenSource
 import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.App
-import com.github.rtyvz.senla.tr.runningtracker.db.helpers.DBHelper
+import com.github.rtyvz.senla.tr.runningtracker.db.QueryObject
 import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.*
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.ResponseStatus.ERROR
@@ -19,13 +19,16 @@ import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
 
-object MainRunningRepository {
+class MainRunningRepository {
 
-    private const val INVALID_TOKEN = "INVALID_TOKEN"
-    private const val NO_POINTS = "NO_POINTS"
-    private const val IS_DATA_SENT_FLAG = 1
-    private const val USER_TOKEN = "USER_TOKEN"
-    private const val EMPTY_STRING = ""
+
+    companion object {
+        private const val INVALID_TOKEN = "INVALID_TOKEN"
+        private const val NO_POINTS = "NO_POINTS"
+        private const val IS_DATA_SENT_FLAG = 1
+        private const val USER_TOKEN = "USER_TOKEN"
+        private const val EMPTY_STRING = ""
+    }
 
     fun getTracks(
         tracksRequest: TracksRequest,
@@ -56,7 +59,7 @@ object MainRunningRepository {
             .continueWithTask({
                 //save tracks into database
                 if (!it.isFaulted && it.result.tracks.isNotEmpty()) {
-                    DBHelper.insertTracksIntoTable(it.result.tracks.map { track ->
+                    QueryObject.insertTracksIntoTable(it.result.tracks.map { track ->
                         track.toSentTrackEntity()
                     })
                 }

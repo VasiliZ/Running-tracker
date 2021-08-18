@@ -85,14 +85,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         if (App.state?.isDataLoadedYet == true) {
-            openFragmentAfterRotate()
+            findExistingFragment()
         } else {
             openTracksListFragment()
         }
     }
 
-    private fun openFragmentAfterRotate() {
+    private fun findExistingFragment() {
         val fragment = supportFragmentManager.findFragmentByTag(MainRunningFragment.TAG)
+
         if (fragment is MainRunningFragment) {
             showFragment(
                 MainRunningFragment.newInstance(),
@@ -102,6 +103,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         val fragmentNotification =
             supportFragmentManager.findFragmentByTag(NotificationFragment.TAG)
+
         if (fragmentNotification is NotificationFragment) {
             showFragment(
                 NotificationFragment.newInstance(),

@@ -3,7 +3,7 @@ package com.github.rtyvz.senla.tr.runningtracker.db.helpers
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 
-class SelectDataHelper(private val tableNames: List<String>) {
+class SelectDataBuilder(private val tableNames: List<String>) {
 
     companion object {
         private const val SELECT_KEYWORD = "SELECT"
@@ -19,17 +19,17 @@ class SelectDataHelper(private val tableNames: List<String>) {
     private var where: String = EMPTY_STRING
     private var orderByCondition: String = EMPTY_STRING
 
-    fun fieldFromSelect(field: String): SelectDataHelper {
+    fun fieldFromSelect(field: String): SelectDataBuilder {
         selectedFields.add(field)
         return this
     }
 
-    fun orderByDesc(condition: String): SelectDataHelper {
+    fun orderByDesc(condition: String): SelectDataBuilder {
         orderByCondition = condition
         return this
     }
 
-    fun where(whereCondition: String): SelectDataHelper {
+    fun where(whereCondition: String): SelectDataBuilder {
         where = whereCondition
         return this
     }

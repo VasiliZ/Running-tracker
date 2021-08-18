@@ -1,9 +1,9 @@
 package com.github.rtyvz.senla.tr.runningtracker.tasks
 
-import com.github.rtyvz.senla.tr.runningtracker.db.helpers.DBHelper
+import com.github.rtyvz.senla.tr.runningtracker.db.QueryObject
 
 class UpdateStateNotificationTask {
     fun updateNotificationState(alarmId: Int, stateFlag: Int) {
-        DBHelper.updateNotificationStateById(alarmId, stateFlag)
+        QueryObject.updateNotificationStateById(alarmId, stateFlag)
     }
 }

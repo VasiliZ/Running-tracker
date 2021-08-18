@@ -9,7 +9,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserSuccessfulResponse
 import com.github.rtyvz.senla.tr.runningtracker.extension.toUserData
 import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
 
-object LoginFlowRepository {
+class LoginFlowRepository {
 
     fun authUser(
         userDataRequest: UserDataRequest,

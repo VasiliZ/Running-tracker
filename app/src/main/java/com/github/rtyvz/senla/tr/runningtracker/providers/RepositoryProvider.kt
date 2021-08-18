@@ -5,7 +5,7 @@ import com.github.rtyvz.senla.tr.runningtracker.repository.main.MainRunningRepos
 import com.github.rtyvz.senla.tr.runningtracker.repository.notifications.NotificationRepository
 
 object RepositoryProvider {
-    fun provideLoginFlowRepository() = LoginFlowRepository
-    fun provideMainRepository() = MainRunningRepository
-    fun provideNotificationRepository() = NotificationRepository
+    fun provideLoginFlowRepository() = LoginFlowRepository()
+    fun provideMainRepository() = MainRunningRepository()
+    fun provideNotificationRepository() = NotificationRepository()
 }
