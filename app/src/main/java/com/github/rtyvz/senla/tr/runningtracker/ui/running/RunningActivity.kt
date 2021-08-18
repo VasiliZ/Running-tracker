@@ -12,7 +12,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
@@ -82,7 +81,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     private lateinit var errorSavingTrackIntoDbReceiver: BroadcastReceiver
     private lateinit var networkErrorReceiver: BroadcastReceiver
     private lateinit var areYouRunReceiver: BroadcastReceiver
-    private lateinit var gpsStateChangeReceiver: BroadcastReceiver
     private var locationPermissionGranted: Boolean = false
     private var googleMap: GoogleMap? = null
     private var startRunningButton: MaterialButton? = null
@@ -215,19 +213,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         registerAreYouRunReceiver()
         registerGpsEnabledReceiver()
         registerGpsDisabledReceiver()
-
-        gpsStateChangeReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (LocationManager.PROVIDERS_CHANGED_ACTION == intent?.action) {
-                    Log.d(TAG, "onReceive: asd")
-                }
-            }
-        }
-
-        localBroadcastManager.registerReceiver(
-            gpsStateChangeReceiver,
-            IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
-        )
     }
 
     private fun registerGpsDisabledReceiver() {
