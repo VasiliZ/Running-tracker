@@ -421,42 +421,46 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
     private fun drawRunningPath(points: List<PointEntity>) {
-        googleMap?.let {
-            with(PolylineOptions()) {
-                addAll(points.map { point ->
-                    point.toLatLng()
-                })
-                width(WIDTH_PATH_LINE)
-                color(ContextCompat.getColor(this@RunningActivity, R.color.main_app_color))
-                it.addPolyline(this)
+        if (points.isNotEmpty()) {
+            googleMap?.let {
+                with(PolylineOptions()) {
+                    addAll(points.map { point ->
+                        point.toLatLng()
+                    })
+                    width(WIDTH_PATH_LINE)
+                    color(ContextCompat.getColor(this@RunningActivity, R.color.main_app_color))
+                    it.addPolyline(this)
+                }
             }
         }
     }
 
     private fun setupMapData(pointsList: List<PointEntity>) {
-        googleMap?.let { it ->
-            val startPoint = pointsList.first()
-            val finishPoint = pointsList.last()
-            val startMarker = MarkerOptions().position(
-                LatLng(
-                    startPoint.lat,
-                    startPoint.lng
+        if (pointsList.isNotEmpty()) {
+            googleMap?.let { it ->
+                val startPoint = pointsList.first()
+                val finishPoint = pointsList.last()
+                val startMarker = MarkerOptions().position(
+                    LatLng(
+                        startPoint.lat,
+                        startPoint.lng
+                    )
                 )
-            )
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                .title(START_MARKER_TITLE)
-            val finishMarker = MarkerOptions()
-                .position(LatLng(finishPoint.lat, finishPoint.lng))
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                .title(FINISH_MARKER_TITLE)
-            it.addMarker(startMarker)
-            it.addMarker(finishMarker)
-            val cameraUpdate =
-                CameraUpdateFactory.newLatLngBounds(
-                    getMiddlePoint(pointsList),
-                    CAMERA_PADDING
-                )
-            it.animateCamera(cameraUpdate)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                    .title(START_MARKER_TITLE)
+                val finishMarker = MarkerOptions()
+                    .position(LatLng(finishPoint.lat, finishPoint.lng))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                    .title(FINISH_MARKER_TITLE)
+                it.addMarker(startMarker)
+                it.addMarker(finishMarker)
+                val cameraUpdate =
+                    CameraUpdateFactory.newLatLngBounds(
+                        getMiddlePoint(pointsList),
+                        CAMERA_PADDING
+                    )
+                it.animateCamera(cameraUpdate)
+            }
         }
     }
 

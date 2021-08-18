@@ -110,9 +110,15 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         super.onResume()
 
         App.mainRunningRepository.getTracksFromDb(App.state?.isDataLoadedYet == true) {
-            runningAdapter.submitList(it.tracksList)
-            listTrackRecycler?.isVisible = true
-            informationTextView?.isVisible = false
+            if (it.tracksList.isEmpty()) {
+                informationTextView?.isVisible = true
+                informationTextView?.text =
+                    getString(R.string.tracks_fragment_havent_got_data_for_display)
+            } else {
+                runningAdapter.submitList(it.tracksList)
+                listTrackRecycler?.isVisible = true
+                informationTextView?.isVisible = false
+            }
         }
     }
 

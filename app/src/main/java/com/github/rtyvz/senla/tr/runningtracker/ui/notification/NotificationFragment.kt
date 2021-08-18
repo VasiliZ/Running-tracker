@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.github.rtyvz.senla.tr.runningtracker.App
@@ -11,6 +12,7 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textview.MaterialTextView
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import java.util.*
@@ -34,6 +36,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
     private var fab: FloatingActionButton? = null
     private var notificationRecyclerView: RecyclerView? = null
     private var timePicker: MaterialTimePicker? = null
+    private var emptyNotificationListTextView: MaterialTextView? = null
     private var datePicker: MaterialDatePicker<Long>? = null
     private var hour: Int = 0
     private var minute: Int = 0
@@ -80,11 +83,17 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
 
     private fun getNotificationsFromDb() {
         App.notificationRepository.getNotifications {
-            notificationAdapter?.addItems(it)
+            if (it.isEmpty()) {
+                emptyNotificationListTextView?.isVisible = true
+            } else {
+                emptyNotificationListTextView?.isVisible = false
+                notificationAdapter?.addItems(it)
+            }
         }
     }
 
     private fun findViews(view: View) {
+        emptyNotificationListTextView = view.findViewById(R.id.emptyNotificationListTextView)
         fab = view.findViewById(R.id.addNotificationFab)
         notificationRecyclerView = view.findViewById(R.id.notificationsList)
     }
@@ -134,7 +143,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
 
     private fun createNotificationWork(dateLong: Long) {
         var innerAlarmEntity: AlarmEntity
-
+        emptyNotificationListTextView?.isVisible = false
         if (alarmEntity == null) {
             innerAlarmEntity = AlarmEntity(
                 Random().nextInt(Int.MAX_VALUE),
@@ -173,6 +182,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
                     notificationAdapter?.updateItem(positionForAdapter, it)
                 }
             }
+
             //create new notification
             switchChecked = false
             positionForAdapter = 0
@@ -180,17 +190,14 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         }
     }
 
-    override fun onDestroy() {
-        timePicker = null
-        datePicker = null
-
-        super.onDestroy()
-    }
 
     override fun removeNotification(alarmEntity: AlarmEntity, position: Int) {
         NotificationWorkManager().deleteWork(alarmEntity.alarmId.toString())
         App.notificationRepository.deleteNotification(alarmEntity)
         removeItem(alarmEntity, position)
+        if (notificationAdapter?.itemCount == 0) {
+            emptyNotificationListTextView?.isVisible = true
+        }
     }
 
     override fun changeSwipeToggle(
