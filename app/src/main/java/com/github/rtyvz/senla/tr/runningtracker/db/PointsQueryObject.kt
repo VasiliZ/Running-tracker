@@ -1,12 +1,11 @@
 package com.github.rtyvz.senla.tr.runningtracker.db
 
-import android.database.Cursor
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.DeleteDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataTableBuilder
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.SelectDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
-import com.github.rtyvz.senla.tr.runningtracker.extension.toList
+import com.github.rtyvz.senla.tr.runningtracker.extension.map
 
 object PointsQueryObject {
     fun insertPointsIntoTheTable(pointsList: List<PointEntity>) {
@@ -27,23 +26,20 @@ object PointsQueryObject {
             .build(App.db)
     }
 
-    private fun selectPointsFromDb(beginsAt: Long): Cursor? {
-        return SelectDataBuilder(listOf(AppDb.POINTS_TABLE_NAME))
+    private fun selectPointsFromDb(beginsAt: Long) =
+        SelectDataBuilder(listOf(AppDb.POINTS_TABLE_NAME))
             .fieldFromSelect("${AppDb.POINTS_TABLE_NAME}.*")
             .orderByDesc(AppDb.ID_FIELD_NAME)
             .where("${AppDb.BEGIN_AT_FIELD_NAME} = $beginsAt")
             .build(App.db)
-    }
 
     fun getTrackPointsFromDB(beginsAt: Long) =
-        selectPointsFromDb(beginsAt)?.use { cursor ->
-            cursor.toList {
-                PointEntity(
-                    lat = it.getDouble(it.getColumnIndex(AppDb.LAT_FIELD_NAME)),
-                    lng = it.getDouble(it.getColumnIndex(AppDb.LNG_FIELD_NAME)),
-                    beginAt = it.getLong(it.getColumnIndex(AppDb.BEGIN_AT_FIELD_NAME))
-                )
-            }
+        selectPointsFromDb(beginsAt)?.map { cursor ->
+            PointEntity(
+                lat = cursor.getDouble(cursor.getColumnIndex(AppDb.LAT_FIELD_NAME)),
+                lng = cursor.getDouble(cursor.getColumnIndex(AppDb.LNG_FIELD_NAME)),
+                beginAt = cursor.getLong(cursor.getColumnIndex(AppDb.BEGIN_AT_FIELD_NAME))
+            )
         }
 
     fun deleteDataFromPointTable() {

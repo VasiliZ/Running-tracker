@@ -6,7 +6,7 @@ import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataTableBuilde
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.SelectDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.UpdateTableBuilder
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
-import com.github.rtyvz.senla.tr.runningtracker.extension.toList
+import com.github.rtyvz.senla.tr.runningtracker.extension.map
 
 object AlarmsQueryObject {
     fun deleteDataFromAlarmsTable() {
@@ -30,18 +30,16 @@ object AlarmsQueryObject {
         SelectDataBuilder(listOf(AppDb.ALARM_TABLE_NAME))
             .fieldFromSelect("${AppDb.ALARM_TABLE_NAME}.*")
             .orderByDesc(AppDb.HOUR_FIELD_NAME)
-            .build(App.db)?.use {
-                it.toList { cursor ->
-                    AlarmEntity(
-                        alarmId = cursor.getInt(it.getColumnIndex(AppDb.ALARM_ID_FIELD_NAME)),
-                        hour = cursor.getInt(it.getColumnIndex(AppDb.HOUR_FIELD_NAME)),
-                        minute = cursor.getInt(it.getColumnIndex(AppDb.MINUTE_FIELD_NAME)),
-                        title = cursor.getString(it.getColumnIndex(AppDb.TITLE_FIELD_NAME)),
-                        day = cursor.getLong(it.getColumnIndex(AppDb.DAY_FIELD_NAME)),
-                        isEnabled = cursor.getInt(it.getColumnIndex(AppDb.IS_ENABLED_NOTIFICATION)),
-                        oldId = cursor.getInt(it.getColumnIndex(AppDb.OLD_ID_FIELD_NAME))
-                    )
-                }
+            .build(App.db)?.map { cursor ->
+                AlarmEntity(
+                    alarmId = cursor.getInt(cursor.getColumnIndex(AppDb.ALARM_ID_FIELD_NAME)),
+                    hour = cursor.getInt(cursor.getColumnIndex(AppDb.HOUR_FIELD_NAME)),
+                    minute = cursor.getInt(cursor.getColumnIndex(AppDb.MINUTE_FIELD_NAME)),
+                    title = cursor.getString(cursor.getColumnIndex(AppDb.TITLE_FIELD_NAME)),
+                    day = cursor.getLong(cursor.getColumnIndex(AppDb.DAY_FIELD_NAME)),
+                    isEnabled = cursor.getInt(cursor.getColumnIndex(AppDb.IS_ENABLED_NOTIFICATION)),
+                    oldId = cursor.getInt(cursor.getColumnIndex(AppDb.OLD_ID_FIELD_NAME))
+                )
             }
 
     fun updateNotification(alarmEntity: AlarmEntity) {
