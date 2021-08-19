@@ -61,8 +61,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         initViews()
-        getUserDataFromPrefs(getRunningSharedPreference())
-        setDataToNavHeader()
+        userData = getUserDataFromPrefs(getRunningSharedPreference())
+        initNavHeaderWithData()
 
         drawerToggle?.let {
             drawerLayout?.addDrawerListener(it)
@@ -221,16 +221,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun getUserDataFromPrefs(preferences: SharedPreferences) {
-        userData = UserData(
-            preferences.getString(USER_TOKEN, EMPTY_STRING) ?: EMPTY_STRING,
-            preferences.getString(USER_NAME, EMPTY_STRING) ?: EMPTY_STRING,
-            preferences.getString(USER_LAST_NAME, EMPTY_STRING) ?: EMPTY_STRING,
-            preferences.getString(USER_EMAIL, EMPTY_STRING) ?: EMPTY_STRING
-        )
-    }
+    private fun getUserDataFromPrefs(preferences: SharedPreferences) = UserData(
+        preferences.getString(USER_TOKEN, EMPTY_STRING) ?: EMPTY_STRING,
+        preferences.getString(USER_NAME, EMPTY_STRING) ?: EMPTY_STRING,
+        preferences.getString(USER_LAST_NAME, EMPTY_STRING) ?: EMPTY_STRING,
+        preferences.getString(USER_EMAIL, EMPTY_STRING) ?: EMPTY_STRING
+    )
 
-    private fun setDataToNavHeader() {
+
+    private fun initNavHeaderWithData() {
         navHeaderUserEmailTextView?.text = userData.email
         navHeaderUserNameTextView?.text = userData.name
     }

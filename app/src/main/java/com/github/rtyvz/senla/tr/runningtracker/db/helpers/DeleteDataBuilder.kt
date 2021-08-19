@@ -13,7 +13,12 @@ class DeleteDataBuilder(private val tableName: String) {
     }
 
     fun where(whereCondition: String): DeleteDataBuilder {
-        conditionForDelete = whereCondition
+        //only one condition expected now
+        if (conditionForDelete == null) {
+            conditionForDelete = whereCondition
+        } else {
+            error("only one condition expected now")
+        }
 
         return this
     }
