@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             App.state = State()
         }
 
-        findViews()
+        initViews()
         getUserDataFromPrefs(getRunningSharedPreference())
         setDataToNavHeader()
 
@@ -84,44 +84,42 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             logout()
         }
 
-        if (App.state?.isDataLoadedYet == true) {
-            findExistingFragment()
-        } else {
-            openTracksListFragment()
-        }
+        findExistingFragment()
     }
 
     private fun findExistingFragment() {
-        val fragment = supportFragmentManager.findFragmentByTag(MainRunningFragment.TAG)
-
-        if (fragment is MainRunningFragment) {
-            showFragment(
-                MainRunningFragment.newInstance(),
-                MainRunningFragment.TAG,
-            )
-            navigationView?.setCheckedItem(R.id.mainItem)
-        }
-        val fragmentNotification =
-            supportFragmentManager.findFragmentByTag(NotificationFragment.TAG)
-
-        if (fragmentNotification is NotificationFragment) {
-            showFragment(
-                NotificationFragment.newInstance(),
-                NotificationFragment.TAG,
-                NotificationFragment.TAG,
-                false
-            )
-            navigationView?.setCheckedItem(R.id.notificationsItem)
+        when {
+            supportFragmentManager.findFragmentByTag(MainRunningFragment.TAG) is MainRunningFragment -> {
+                showMainFragment()
+            }
+            supportFragmentManager.findFragmentByTag(NotificationFragment.TAG) is NotificationFragment -> {
+                showNotificationFragment()
+            }
+            else -> {
+                showMainFragment()
+            }
         }
     }
 
-    private fun openTracksListFragment() {
+    private fun showMainFragment() {
+        supportActionBar?.title = getString(R.string.main_activity_running_toolbar_title)
         showFragment(
             MainRunningFragment.newInstance(),
             MainRunningFragment.TAG,
-            MainRunningFragment.TAG,
+            MainRunningFragment.TAG
         )
         navigationView?.setCheckedItem(R.id.mainItem)
+    }
+
+    private fun showNotificationFragment() {
+        supportActionBar?.title = getString(R.string.main_activity_notifications_toolbar_title)
+        showFragment(
+            NotificationFragment.newInstance(),
+            NotificationFragment.TAG,
+            NotificationFragment.TAG,
+            true
+        )
+        navigationView?.setCheckedItem(R.id.notificationsItem)
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -165,7 +163,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun findViews() {
+    private fun initViews() {
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.navigationView)
         headerNavView = navigationView?.getHeaderView(FIRST_NAVIGATION_HEADER_ITEM)
@@ -192,6 +190,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun openRunningFragment(item: MenuItem) {
         navigationView?.setCheckedItem(item.itemId)
         val fragmentTag = MainRunningFragment.TAG
+        supportActionBar?.title = getString(R.string.main_activity_running_toolbar_title)
         val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
         drawerLayout?.closeDrawer(GravityCompat.START)
         if (foundFragment != null && fragmentTag == foundFragment.tag) {
@@ -208,6 +207,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun openNotificationFragment(item: MenuItem) {
         navigationView?.setCheckedItem(item.itemId)
         val fragmentTag = NotificationFragment.TAG
+        supportActionBar?.title = getString(R.string.main_activity_notifications_toolbar_title)
         val foundFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
         drawerLayout?.closeDrawer(GravityCompat.START)
         if (foundFragment != null && fragmentTag == foundFragment.tag) {

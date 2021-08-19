@@ -88,4 +88,6 @@
     <string name="main_fragment_select_track_for_show">Выберите трек для просмотра</string>
     <string name="running_service_distance_pattern">Дистанция %d м.</string>
     <string name="fragment_notification_empty_notification_list">Установите время и дату для уведомления</string>
+    <string name="main_activity_running_toolbar_title">Ваши тренировки</string>
+    <string name="main_activity_notifications_toolbar_title">Напоминания</string>
 </resources>

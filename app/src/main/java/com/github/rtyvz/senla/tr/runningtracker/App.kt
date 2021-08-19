@@ -1,6 +1,7 @@
 package com.github.rtyvz.senla.tr.runningtracker
 
 import android.app.Application
+import android.database.sqlite.SQLiteDatabase
 import com.github.rtyvz.senla.tr.runningtracker.entity.State
 import com.github.rtyvz.senla.tr.runningtracker.network.RunningAppApi
 import com.github.rtyvz.senla.tr.runningtracker.providers.DbProvider
@@ -17,8 +18,8 @@ class App : Application() {
         lateinit var instance: App
         lateinit var api: RunningAppApi
         lateinit var loggingInterceptor: HttpLoggingInterceptor
+        lateinit var db: SQLiteDatabase
         var state: State? = null
-        val db = DbProvider.provideDb()
         val mainRunningRepository = RepositoryProvider.provideMainRepository()
         val notificationRepository = RepositoryProvider.provideNotificationRepository()
         val loginFlowRepository = RepositoryProvider.provideLoginFlowRepository()
@@ -31,6 +32,8 @@ class App : Application() {
         loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         api = provideApi()
+        db = DbProvider.provideDb()
+
     }
 
     private fun provideOkHttpClient() =
