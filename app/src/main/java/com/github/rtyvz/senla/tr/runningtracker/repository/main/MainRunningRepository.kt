@@ -224,7 +224,7 @@ class MainRunningRepository {
         val mapUnsentTask = mutableMapOf<Long, Task<SaveTrackResponse>>()
         val cancellationToken = CancellationTokenSource()
         //get all tracks from database
-        TasksProvider.getTracksFromDb(cancellationToken.token).continueWith({
+        TasksProvider.getTracksFromDb(cancellationToken.token).onSuccess({
             if (it.result.isNotEmpty()) {
                 callback(Result.Success(UserTracks(it.result.sortedByDescending { track ->
                     track.beginsAt
@@ -232,7 +232,7 @@ class MainRunningRepository {
             } else {
                 callback(Result.Error(TracksFragment.EMPTY_DATA_RESULT))
             }
-            return@continueWith it.result
+            return@onSuccess it.result
         }, Task.UI_THREAD_EXECUTOR)
             .continueWithTask({
                 //send request for all tracks in network

@@ -7,6 +7,7 @@ import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataTableBuilder
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.SelectDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
+import com.github.rtyvz.senla.tr.runningtracker.extension.toList
 
 object PointsQueryObject {
     fun insertPointsIntoTheTable(pointsList: List<PointEntity>) {
@@ -35,24 +36,16 @@ object PointsQueryObject {
             .build(App.db)
     }
 
-    fun getTrackPointsFromDB(beginsAt: Long): List<PointEntity> {
-        val cursor = selectPointsFromDb(beginsAt)
-        val listPoints = mutableListOf<PointEntity>()
-        cursor?.use {
-            if (it.moveToFirst()) {
-                do {
-                    listPoints.add(
-                        PointEntity(
-                            lat = it.getDouble(it.getColumnIndex(AppDb.LAT_FIELD_NAME)),
-                            lng = it.getDouble(it.getColumnIndex(AppDb.LNG_FIELD_NAME)),
-                            beginAt = it.getLong(it.getColumnIndex(AppDb.BEGIN_AT_FIELD_NAME))
-                        )
-                    )
-                } while (cursor.moveToNext())
+    fun getTrackPointsFromDB(beginsAt: Long) =
+        selectPointsFromDb(beginsAt)?.use { cursor ->
+            cursor.toList {
+                PointEntity(
+                    lat = it.getDouble(it.getColumnIndex(AppDb.LAT_FIELD_NAME)),
+                    lng = it.getDouble(it.getColumnIndex(AppDb.LNG_FIELD_NAME)),
+                    beginAt = it.getLong(it.getColumnIndex(AppDb.BEGIN_AT_FIELD_NAME))
+                )
             }
         }
-        return listPoints
-    }
 
     fun deleteDataFromPointTable() {
         DeleteDataBuilder(AppDb.POINTS_TABLE_NAME)

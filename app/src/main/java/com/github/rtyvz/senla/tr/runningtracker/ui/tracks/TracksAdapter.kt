@@ -59,7 +59,6 @@ class TracksAdapter(private val handleItemClick: (TrackEntity) -> (Unit)) :
             dateOfRunning = null
             distanceTextView = null
             timeRunning = null
-            itemView.setOnClickListener(null)
         }
     }
 

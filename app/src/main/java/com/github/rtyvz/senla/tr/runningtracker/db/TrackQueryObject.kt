@@ -6,6 +6,7 @@ import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataTableBuilde
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.SelectDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.UpdateTableBuilder
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
+import com.github.rtyvz.senla.tr.runningtracker.extension.toList
 
 object TrackQueryObject {
     private const val BEGINS_AT_CONDITION = "beginAt "
@@ -49,59 +50,40 @@ object TrackQueryObject {
             .build(App.db)
     }
 
-    fun getTracksFromDb(): List<TrackEntity> {
-        val listTracks = mutableListOf<TrackEntity>()
-        val cursor = SelectDataBuilder(listOf(AppDb.TRACK_TABLE_NAME))
-            .fieldFromSelect(SELECT_ALL)
-            .orderByDesc(AppDb.BEGIN_AT_FIELD_NAME)
-            .build(App.db)
-        cursor.use {
-            if (cursor != null && cursor.moveToFirst()) {
-                do {
-                    listTracks.add(
-                        TrackEntity(
-                            id = cursor.getLong(cursor.getColumnIndex(AppDb.REMOTE_ID_FIELD_NAME)),
-                            beginsAt = cursor.getLong(cursor.getColumnIndex(AppDb.BEGIN_AT_FIELD_NAME)),
-                            time = cursor.getLong(cursor.getColumnIndex(AppDb.TIME_FIELD_NAME)),
-                            distance = cursor.getInt(cursor.getColumnIndex(AppDb.DISTANCE_FIELD_NAME))
-                        )
-                    )
-                } while (cursor.moveToNext())
+    fun getTracksFromDb() = SelectDataBuilder(listOf(AppDb.TRACK_TABLE_NAME))
+        .fieldFromSelect(SELECT_ALL)
+        .orderByDesc(AppDb.BEGIN_AT_FIELD_NAME)
+        .build(App.db)?.use {
+            it.toList { cursor ->
+                TrackEntity(
+                    id = cursor.getLong(cursor.getColumnIndex(AppDb.REMOTE_ID_FIELD_NAME)),
+                    beginsAt = cursor.getLong(cursor.getColumnIndex(AppDb.BEGIN_AT_FIELD_NAME)),
+                    time = cursor.getLong(cursor.getColumnIndex(AppDb.TIME_FIELD_NAME)),
+                    distance = cursor.getInt(cursor.getColumnIndex(AppDb.DISTANCE_FIELD_NAME))
+                )
             }
         }
-        return listTracks
-    }
 
-    fun getUnsentTracksFromDb(): List<TrackEntity> {
-        val listTracks = mutableListOf<TrackEntity>()
-        val trackCursor = SelectDataBuilder(listOf(AppDb.TRACK_TABLE_NAME))
-            .fieldFromSelect(SELECT_ALL)
-            .where("${AppDb.IS_SENT_FIELD_NAME} = $UNSENT_TRACKS_FLAG")
-            .build(App.db)
-
-        trackCursor.use {
-            if (trackCursor != null && trackCursor.moveToFirst()) {
-                do {
-                    listTracks.add(
-                        TrackEntity(
-                            id = trackCursor.getLong(trackCursor.getColumnIndex(AppDb.REMOTE_ID_FIELD_NAME)),
-                            beginsAt = trackCursor.getLong(trackCursor.getColumnIndex(AppDb.BEGIN_AT_FIELD_NAME)),
-                            time = trackCursor.getLong(trackCursor.getColumnIndex(AppDb.TIME_FIELD_NAME)),
-                            distance = trackCursor.getInt(trackCursor.getColumnIndex(AppDb.DISTANCE_FIELD_NAME)),
-                            listPoints = PointsQueryObject.getTrackPointsFromDB(
-                                trackCursor.getLong(
-                                    trackCursor.getColumnIndex(
-                                        AppDb.BEGIN_AT_FIELD_NAME
-                                    )
-                                )
+    fun getUnsentTracksFromDb() = SelectDataBuilder(listOf(AppDb.TRACK_TABLE_NAME))
+        .fieldFromSelect(SELECT_ALL)
+        .where("${AppDb.IS_SENT_FIELD_NAME} = $UNSENT_TRACKS_FLAG")
+        .build(App.db)?.use {
+            it.toList { trackCursor ->
+                TrackEntity(
+                    id = trackCursor.getLong(trackCursor.getColumnIndex(AppDb.REMOTE_ID_FIELD_NAME)),
+                    beginsAt = trackCursor.getLong(trackCursor.getColumnIndex(AppDb.BEGIN_AT_FIELD_NAME)),
+                    time = trackCursor.getLong(trackCursor.getColumnIndex(AppDb.TIME_FIELD_NAME)),
+                    distance = trackCursor.getInt(trackCursor.getColumnIndex(AppDb.DISTANCE_FIELD_NAME)),
+                    listPoints = PointsQueryObject.getTrackPointsFromDB(
+                        trackCursor.getLong(
+                            trackCursor.getColumnIndex(
+                                AppDb.BEGIN_AT_FIELD_NAME
                             )
                         )
-                    )
-                } while (trackCursor.moveToNext())
+                    ) ?: emptyList()
+                )
             }
         }
-        return listTracks
-    }
 
     fun deleteDataFromTrackTable() {
         DeleteDataBuilder(AppDb.TRACK_TABLE_NAME)

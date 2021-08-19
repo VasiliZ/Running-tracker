@@ -14,6 +14,7 @@ class DeleteDataBuilder(private val tableName: String) {
 
     fun where(whereCondition: String): DeleteDataBuilder {
         conditionForDelete = whereCondition
+
         return this
     }
 
