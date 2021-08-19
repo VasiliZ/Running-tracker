@@ -9,20 +9,20 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 
 class ErrorGetCurrentTrackPointsDialog : DialogFragment() {
 
-    private var callback: HandleErrorGetTrackPoints? = null
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        callback = (parentFragment as HandleErrorGetTrackPoints)
-    }
-
     companion object {
         val TAG = ErrorGetCurrentTrackPointsDialog::class.java.simpleName.toString()
 
         fun newInstance(): ErrorGetCurrentTrackPointsDialog {
             return ErrorGetCurrentTrackPointsDialog()
         }
+    }
+
+    private var callback: HandleErrorGetTrackPoints? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        callback = (parentFragment as HandleErrorGetTrackPoints)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

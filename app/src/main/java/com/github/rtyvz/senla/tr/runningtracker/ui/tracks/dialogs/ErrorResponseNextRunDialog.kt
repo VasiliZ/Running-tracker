@@ -9,8 +9,6 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 
 class ErrorResponseNextRunDialog : DialogFragment() {
 
-    private var callBack: ErrorResponseDialogCallBack? = null
-
     companion object {
         val TAG = ErrorResponseNextRunDialog::class.java.simpleName.toString()
 
@@ -18,6 +16,8 @@ class ErrorResponseNextRunDialog : DialogFragment() {
             return ErrorResponseNextRunDialog()
         }
     }
+
+    private var callBack: ErrorResponseDialogCallBack? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

@@ -105,7 +105,7 @@ class NotificationAdapter(
 
     fun removeItem(position: Int) {
         dataList.removeAt(position)
-        notifyDataSetChanged()
+        notifyItemRemoved(position)
     }
 
     fun updateItem(position: Int, alarmEntity: AlarmEntity) {
