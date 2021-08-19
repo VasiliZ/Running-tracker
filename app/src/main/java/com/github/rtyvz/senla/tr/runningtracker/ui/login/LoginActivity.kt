@@ -3,6 +3,7 @@ package com.github.rtyvz.senla.tr.runningtracker.ui.login
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.ui.ClosableActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.registration.RegistrationFragment
@@ -11,7 +12,6 @@ class LoginActivity : AppCompatActivity(), LoginFlowContract, ClosableActivity {
 
     companion object {
         private const val BACK_STACK_SIZE_1 = 1
-        private const val BACK_STACK_SIZE_2 = 2
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,53 +22,41 @@ class LoginActivity : AppCompatActivity(), LoginFlowContract, ClosableActivity {
     }
 
     override fun openRegistrationFragment() {
-        val registrationFragment =
-            supportFragmentManager.findFragmentByTag(RegistrationFragment.TAG)
-        val loginFragment = supportFragmentManager.findFragmentByTag(LoginFragment.TAG)
-
-        if (registrationFragment is RegistrationFragment && loginFragment != null) {
-            hideFragment(loginFragment)
-            showFragment(registrationFragment)
-        } else {
-            addFragment(RegistrationFragment.newInstance(), RegistrationFragment.TAG)
-        }
+        showFragment(
+            RegistrationFragment.newInstance(),
+            RegistrationFragment.TAG,
+            LoginFragment.TAG
+        )
     }
 
     override fun openLoginFragment() {
-        val registrationFragment =
-            supportFragmentManager.findFragmentByTag(RegistrationFragment.TAG)
-        val loginFragment = supportFragmentManager.findFragmentByTag(LoginFragment.TAG)
-
-        if (loginFragment is LoginFragment && registrationFragment != null) {
-            hideFragment(registrationFragment)
-            showFragment(loginFragment)
-        } else {
-            if (registrationFragment != null) {
-                hideFragment(registrationFragment)
-            }
-            addFragment(LoginFragment.newInstance(), LoginFragment.TAG)
-        }
+        showFragment(
+            LoginFragment.newInstance(),
+            LoginFragment.TAG,
+            RegistrationFragment.TAG
+        )
     }
 
-    private fun addFragment(fragment: Fragment, tag: String) {
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.loginFlowContainer, fragment, tag)
-            .addToBackStack(tag)
+    private fun showFragment(
+        fragment: Fragment,
+        fragmentTag: String,
+        clearToTag: String? = null
+    ) {
+        if (clearToTag != null)
+            supportFragmentManager.popBackStack(
+                clearToTag,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.loginFlowContainer, fragment, fragmentTag)
+            .addToBackStack(fragmentTag)
             .commit()
-    }
-
-    private fun showFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction().show(fragment).commit()
-    }
-
-    private fun hideFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction().hide(fragment).commit()
     }
 
     override fun onBackPressed() {
         when (supportFragmentManager.backStackEntryCount) {
-            BACK_STACK_SIZE_1, BACK_STACK_SIZE_2 -> {
+            BACK_STACK_SIZE_1 -> {
                 finish()
             }
             else -> {

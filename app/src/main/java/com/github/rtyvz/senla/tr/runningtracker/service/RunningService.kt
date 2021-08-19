@@ -60,10 +60,6 @@ class RunningService : Service(), LocationListener {
         startTrackingRunning()
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_RUNNING_SERVICE_STOP) {
             val distance = calculateDistance()
@@ -212,6 +208,10 @@ class RunningService : Service(), LocationListener {
                     )
                 ).build()
         )
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
     }
 
     override fun onDestroy() {

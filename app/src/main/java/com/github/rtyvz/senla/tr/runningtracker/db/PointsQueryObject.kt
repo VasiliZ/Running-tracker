@@ -3,7 +3,6 @@ package com.github.rtyvz.senla.tr.runningtracker.db
 import android.database.Cursor
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.DeleteDataBuilder
-import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataTableBuilder
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.SelectDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
@@ -13,15 +12,15 @@ object PointsQueryObject {
     fun insertPointsIntoTheTable(pointsList: List<PointEntity>) {
         pointsList.forEach { pointEntity ->
             InsertDataTableBuilder(AppDb.POINTS_TABLE_NAME)
-                .setFieldsWithDataForReplace(AppDb.BEGIN_AT_FIELD_NAME, pointEntity.beginAt)
-                .setFieldsWithDataForReplace(AppDb.LNG_FIELD_NAME, pointEntity.lng)
-                .setFieldsWithDataForReplace(AppDb.LAT_FIELD_NAME, pointEntity.lat)
+                .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, pointEntity.beginAt)
+                .setFieldsWithData(AppDb.LNG_FIELD_NAME, pointEntity.lng)
+                .setFieldsWithData(AppDb.LAT_FIELD_NAME, pointEntity.lat)
                 .build(App.db, true)
         }
     }
 
     fun insertPoint(point: PointEntity) {
-        InsertDataBuilder(AppDb.POINTS_TABLE_NAME)
+        InsertDataTableBuilder(AppDb.POINTS_TABLE_NAME)
             .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, point.beginAt)
             .setFieldsWithData(AppDb.LNG_FIELD_NAME, point.lng)
             .setFieldsWithData(AppDb.LAT_FIELD_NAME, point.lat)

@@ -17,11 +17,11 @@ object TrackQueryObject {
     fun insertTracksIntoTable(tracksList: List<TrackEntity>) {
         tracksList.forEach { trackEntity ->
             InsertDataTableBuilder(AppDb.TRACK_TABLE_NAME)
-                .setFieldsWithDataForReplace(AppDb.BEGIN_AT_FIELD_NAME, trackEntity.beginsAt)
-                .setFieldsWithDataForReplace(AppDb.TIME_FIELD_NAME, trackEntity.time)
-                .setFieldsWithDataForReplace(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
-                .setFieldsWithDataForReplace(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
-                .setFieldsWithDataForReplace(AppDb.IS_SENT_FIELD_NAME, trackEntity.isSent)
+                .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, trackEntity.beginsAt)
+                .setFieldsWithData(AppDb.TIME_FIELD_NAME, trackEntity.time)
+                .setFieldsWithData(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
+                .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
+                .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, trackEntity.isSent)
                 .build(App.db, true)
         }
     }

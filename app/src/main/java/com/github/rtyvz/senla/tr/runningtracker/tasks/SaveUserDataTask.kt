@@ -5,7 +5,6 @@ import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserData
 import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
-import com.github.rtyvz.senla.tr.runningtracker.extension.putString
 
 class SaveUserDataTask {
 
@@ -19,10 +18,10 @@ class SaveUserDataTask {
     fun saveUserData(userData: UserData, cancellationToken: CancellationToken) {
         Task.callInBackground({
             val prefs = App.instance.getRunningSharedPreference()
-            prefs.putString(USER_TOKEN, userData.token)
-            prefs.putString(USER_NAME, userData.name)
-            prefs.putString(USER_LAST_NAME, userData.lastName)
-            prefs.putString(USER_EMAIL, userData.email)
+            prefs.edit().putString(USER_TOKEN, userData.token).apply()
+            prefs.edit().putString(USER_NAME, userData.name).apply()
+            prefs.edit().putString(USER_LAST_NAME, userData.lastName).apply()
+            prefs.edit().putString(USER_EMAIL, userData.email).apply()
         }, cancellationToken)
     }
 }

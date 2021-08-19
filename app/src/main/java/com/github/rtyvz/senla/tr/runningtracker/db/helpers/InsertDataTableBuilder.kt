@@ -15,7 +15,7 @@ class InsertDataTableBuilder(private val tableName: String) {
 
     private val mapWithData = mutableMapOf<String, Any>()
 
-    fun setFieldsWithDataForReplace(fieldName: String, data: Any): InsertDataTableBuilder {
+    fun setFieldsWithData(fieldName: String, data: Any): InsertDataTableBuilder {
         mapWithData[fieldName] = data
         return this
     }
