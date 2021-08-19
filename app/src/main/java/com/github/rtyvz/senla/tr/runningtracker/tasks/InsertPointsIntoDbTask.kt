@@ -2,7 +2,7 @@ package com.github.rtyvz.senla.tr.runningtracker.tasks
 
 import bolts.CancellationToken
 import bolts.Task
-import com.github.rtyvz.senla.tr.runningtracker.db.QueryObject
+import com.github.rtyvz.senla.tr.runningtracker.db.PointsQueryObject
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 
 class InsertPointsIntoDbTask {
@@ -11,7 +11,7 @@ class InsertPointsIntoDbTask {
         cancellationToken: CancellationToken
     ): Task<Unit> {
         return Task.callInBackground({
-            QueryObject.insertPointsIntoTheTable(pointsList)
+            PointsQueryObject.insertPointsIntoTheTable(pointsList)
         }, cancellationToken)
     }
 }
