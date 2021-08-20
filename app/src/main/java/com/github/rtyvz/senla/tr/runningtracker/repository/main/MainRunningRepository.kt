@@ -253,7 +253,8 @@ class MainRunningRepository {
                         cancellationToken.token,
                         data.tracks.map { track ->
                             track.toSentTrackEntity()
-                        })
+                        } ?: emptyList()
+                    )
                 } else {
                     cancellationToken.cancel()
                     callback(Result.Error(it.result?.errorCode.toString()))
@@ -292,7 +293,7 @@ class MainRunningRepository {
                 //get all unsent tracks
                 return@continueWithTask TasksProvider.getUnsentTracks(cancellationToken.token)
             }, Task.BACKGROUND_EXECUTOR, cancellationToken.token)
-            .continueWith({
+            .continueWithTask({
                 //push all unsent tracks on remote server
                 it.result.forEach { trackForSend ->
                     mapUnsentTask[trackForSend.beginsAt] =
@@ -304,8 +305,8 @@ class MainRunningRepository {
                             cancellationToken.token
                         )
                 }
-                return@continueWith Task.whenAll(mapUnsentTask.values)
-            }, Task.BACKGROUND_EXECUTOR).onSuccess({
+                return@continueWithTask Task.whenAll(mapUnsentTask.values)
+            }, Task.BACKGROUND_EXECUTOR).continueWithTask({
                 //save success request into database after save unsent points
                 mapUnsentTask.forEach { map ->
                     TasksProvider.getUpdateIdTrackTask(
@@ -314,10 +315,9 @@ class MainRunningRepository {
                         cancellationToken.token
                     )
                 }
-                return@onSuccess it
+                return@continueWithTask it
             }, Task.BACKGROUND_EXECUTOR, cancellationToken.token)
-            .onSuccess {
-
+            .continueWithTask {
                 //update ui data from new data in database
                 TasksProvider.getTracksFromDb(cancellationToken.token)
                     .continueWith({ listTrack ->
