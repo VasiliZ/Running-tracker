@@ -25,8 +25,10 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         private const val TIME_PICKER_DIALOG = "TIME_PICKER_DIALOG"
         private const val DATE_PICKER_DIALOG = "DATE_PICKER_DIALOG"
         private const val IS_ENABLE_NOTIFICATION_FLAG = 1
+        private const val IS_DiSABLE_NOTIFICATION_FLAG = 0
         private const val DEFAULT_HOUR = 0
         private const val DEFAULT_MINUTES = 0
+        private const val EMPTY_ADAPTER_LIST = 0
 
         fun newInstance(): NotificationFragment {
             return NotificationFragment()
@@ -74,8 +76,8 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
                     childFragmentManager, DeleteNotificationDialog.TAG
                 )
             })
-
         notificationRecyclerView?.adapter = notificationAdapter
+
         fab?.setOnClickListener {
             timePicker?.show(childFragmentManager, TIME_PICKER_DIALOG)
         }
@@ -195,7 +197,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         NotificationWorkManager().deleteWork(alarmEntity.alarmId.toString())
         App.notificationRepository.deleteNotification(alarmEntity)
         removeItem(alarmEntity, position)
-        if (notificationAdapter?.itemCount == 0) {
+        if (notificationAdapter?.itemCount == EMPTY_ADAPTER_LIST) {
             emptyNotificationListTextView?.isVisible = true
         }
     }
@@ -223,11 +225,15 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
                 App.notificationRepository.updateNotification(newEntity)
             }
             else -> {
-                val newAlarm = alarmEntity.copy(isEnabled = 0, oldId = alarmEntity.alarmId)
+                val newAlarm = alarmEntity.copy(
+                    isEnabled = IS_DiSABLE_NOTIFICATION_FLAG,
+                    oldId = alarmEntity.alarmId
+                )
 
                 if (notificationRecyclerView?.isComputingLayout == false) {
                     updateAdapter(adapterPosition, newAlarm)
                 }
+
                 App.notificationRepository.updateNotification(newAlarm)
                 NotificationWorkManager().deleteWork(alarmEntity.alarmId.toString())
             }

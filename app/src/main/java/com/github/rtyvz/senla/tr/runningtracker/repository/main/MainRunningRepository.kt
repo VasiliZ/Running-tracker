@@ -253,7 +253,7 @@ class MainRunningRepository {
                         cancellationToken.token,
                         data.tracks.map { track ->
                             track.toSentTrackEntity()
-                        } ?: emptyList()
+                        }
                     )
                 } else {
                     cancellationToken.cancel()
