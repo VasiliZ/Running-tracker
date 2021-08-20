@@ -2,9 +2,9 @@ package com.github.rtyvz.senla.tr.runningtracker.db
 
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.DeleteDataBuilder
-import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataTableBuilder
+import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.SelectDataBuilder
-import com.github.rtyvz.senla.tr.runningtracker.db.helpers.UpdateTableBuilder
+import com.github.rtyvz.senla.tr.runningtracker.db.helpers.UpdateDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.map
 
@@ -16,7 +16,7 @@ object TrackQueryObject {
 
     fun insertTracksIntoTable(tracksList: List<TrackEntity>) {
         tracksList.forEach { trackEntity ->
-            InsertDataTableBuilder(AppDb.TRACK_TABLE_NAME)
+            InsertDataBuilder(AppDb.TRACK_TABLE_NAME)
                 .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, trackEntity.beginsAt)
                 .setFieldsWithData(AppDb.TIME_FIELD_NAME, trackEntity.time)
                 .setFieldsWithData(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)
@@ -27,7 +27,7 @@ object TrackQueryObject {
     }
 
     fun updateTrackIdFromBeginsAt(id: Long, beginsAt: Long) {
-        UpdateTableBuilder(AppDb.TRACK_TABLE_NAME)
+        UpdateDataBuilder(AppDb.TRACK_TABLE_NAME)
             .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, id)
             .setFieldsWithData(AppDb.IS_SENT_FIELD_NAME, SENT_TRACK_FLAG)
             .whereCondition("$BEGINS_AT_CONDITION = $beginsAt")
@@ -41,7 +41,7 @@ object TrackQueryObject {
     }
 
     fun updateTrack(trackEntity: TrackEntity) {
-        UpdateTableBuilder(AppDb.TRACK_TABLE_NAME)
+        UpdateDataBuilder(AppDb.TRACK_TABLE_NAME)
             .setFieldsWithData(AppDb.TIME_FIELD_NAME, trackEntity.time)
             .setFieldsWithData(AppDb.REMOTE_ID_FIELD_NAME, trackEntity.id)
             .setFieldsWithData(AppDb.DISTANCE_FIELD_NAME, trackEntity.distance)

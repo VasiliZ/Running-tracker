@@ -2,9 +2,9 @@ package com.github.rtyvz.senla.tr.runningtracker.db
 
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.DeleteDataBuilder
-import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataTableBuilder
+import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.SelectDataBuilder
-import com.github.rtyvz.senla.tr.runningtracker.db.helpers.UpdateTableBuilder
+import com.github.rtyvz.senla.tr.runningtracker.db.helpers.UpdateDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.map
 
@@ -15,7 +15,7 @@ object AlarmsQueryObject {
     }
 
     fun insertNotificationToDb(alarmEntity: AlarmEntity) {
-        InsertDataTableBuilder(AppDb.ALARM_TABLE_NAME)
+        InsertDataBuilder(AppDb.ALARM_TABLE_NAME)
             .setFieldsWithData(AppDb.ALARM_ID_FIELD_NAME, alarmEntity.alarmId)
             .setFieldsWithData(AppDb.HOUR_FIELD_NAME, alarmEntity.hour)
             .setFieldsWithData(AppDb.MINUTE_FIELD_NAME, alarmEntity.minute)
@@ -43,7 +43,7 @@ object AlarmsQueryObject {
             }
 
     fun updateNotification(alarmEntity: AlarmEntity) {
-        UpdateTableBuilder(AppDb.ALARM_TABLE_NAME)
+        UpdateDataBuilder(AppDb.ALARM_TABLE_NAME)
             .setFieldsWithData(AppDb.ALARM_ID_FIELD_NAME, alarmEntity.alarmId)
             .setFieldsWithData(AppDb.HOUR_FIELD_NAME, alarmEntity.hour)
             .setFieldsWithData(AppDb.MINUTE_FIELD_NAME, alarmEntity.minute)
@@ -62,7 +62,7 @@ object AlarmsQueryObject {
     }
 
     fun updateNotificationStateById(alarmId: Int, stateFlag: Int) {
-        UpdateTableBuilder(AppDb.ALARM_TABLE_NAME)
+        UpdateDataBuilder(AppDb.ALARM_TABLE_NAME)
             .setFieldsWithData(AppDb.IS_ENABLED_NOTIFICATION, stateFlag)
             .whereCondition("${AppDb.ALARM_ID_FIELD_NAME} = $alarmId")
             .build(App.db)

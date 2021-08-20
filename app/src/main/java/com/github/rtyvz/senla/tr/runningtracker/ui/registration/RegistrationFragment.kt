@@ -52,7 +52,7 @@ class RegistrationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        findViews(view)
+        initViews(view)
         moveToLogin()
 
         loginActionTextView?.paint?.isUnderlineText = true
@@ -68,7 +68,7 @@ class RegistrationFragment : Fragment() {
         }
     }
 
-    private fun findViews(view: View) {
+    private fun initViews(view: View) {
         emailEditText = view.findViewById(R.id.emailEditText)
         nameEditText = view.findViewById(R.id.nameEditText)
         lastNameEditText = view.findViewById(R.id.lastNameEditText)

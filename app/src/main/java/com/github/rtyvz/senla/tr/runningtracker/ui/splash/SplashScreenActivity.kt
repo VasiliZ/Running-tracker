@@ -26,12 +26,12 @@ class SplashScreenActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        findViews()
+        initViews()
         rotateLogo()
         openNextActivityWithDelay()
     }
 
-    private fun findViews() {
+    private fun initViews() {
         appLogoImageView = findViewById(R.id.appLogoImageView)
     }
 

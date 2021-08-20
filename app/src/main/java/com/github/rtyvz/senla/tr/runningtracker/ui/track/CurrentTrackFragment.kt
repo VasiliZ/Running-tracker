@@ -59,7 +59,7 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        findViews(view)
+        initViews(view)
 
         MapsInitializer.initialize(requireContext().applicationContext)
         mapView?.onCreate(savedInstanceState)
@@ -77,7 +77,7 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
         mapView?.onResume()
     }
 
-    private fun findViews(view: View) {
+    private fun initViews(view: View) {
         distanceTextView = view.findViewById(R.id.distanceTextView)
         timeActionTextView = view.findViewById(R.id.timeActionTextView)
         mapView = view.findViewById(R.id.currentTrackMapView)

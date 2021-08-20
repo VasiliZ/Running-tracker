@@ -57,7 +57,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        findViews(view)
+        initViews(view)
         createTimePicker()
         createDatePicker()
         getNotificationsFromDb()
@@ -92,7 +92,7 @@ class NotificationFragment : Fragment(), DeleteNotificationDialog.OnRemoveNotifi
         }
     }
 
-    private fun findViews(view: View) {
+    private fun initViews(view: View) {
         emptyNotificationListTextView = view.findViewById(R.id.emptyNotificationListTextView)
         fab = view.findViewById(R.id.addNotificationFab)
         notificationRecyclerView = view.findViewById(R.id.notificationsList)

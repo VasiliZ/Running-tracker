@@ -2,7 +2,7 @@ package com.github.rtyvz.senla.tr.runningtracker.db.helpers
 
 import android.database.sqlite.SQLiteDatabase
 
-class UpdateTableBuilder(private val tableName: String) {
+class UpdateDataBuilder(private val tableName: String) {
     companion object {
         private const val UPDATE = "UPDATE "
         private const val SET = "SET "
@@ -15,12 +15,12 @@ class UpdateTableBuilder(private val tableName: String) {
     private val fieldsAndDataMap = mutableMapOf<String, Any>()
     private var whereCondition: String? = null
 
-    fun setFieldsWithData(fieldName: String, data: Any): UpdateTableBuilder {
+    fun setFieldsWithData(fieldName: String, data: Any): UpdateDataBuilder {
         fieldsAndDataMap[fieldName] = data
         return this
     }
 
-    fun whereCondition(condition: String): UpdateTableBuilder {
+    fun whereCondition(condition: String): UpdateDataBuilder {
         whereCondition = condition
         return this
     }

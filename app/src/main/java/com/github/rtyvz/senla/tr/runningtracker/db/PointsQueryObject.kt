@@ -2,7 +2,7 @@ package com.github.rtyvz.senla.tr.runningtracker.db
 
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.DeleteDataBuilder
-import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataTableBuilder
+import com.github.rtyvz.senla.tr.runningtracker.db.helpers.InsertDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.db.helpers.SelectDataBuilder
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.map
@@ -10,7 +10,7 @@ import com.github.rtyvz.senla.tr.runningtracker.extension.map
 object PointsQueryObject {
     fun insertPointsIntoTheTable(pointsList: List<PointEntity>) {
         pointsList.forEach { pointEntity ->
-            InsertDataTableBuilder(AppDb.POINTS_TABLE_NAME)
+            InsertDataBuilder(AppDb.POINTS_TABLE_NAME)
                 .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, pointEntity.beginAt)
                 .setFieldsWithData(AppDb.LNG_FIELD_NAME, pointEntity.lng)
                 .setFieldsWithData(AppDb.LAT_FIELD_NAME, pointEntity.lat)
@@ -19,7 +19,7 @@ object PointsQueryObject {
     }
 
     fun insertPoint(point: PointEntity) {
-        InsertDataTableBuilder(AppDb.POINTS_TABLE_NAME)
+        InsertDataBuilder(AppDb.POINTS_TABLE_NAME)
             .setFieldsWithData(AppDb.BEGIN_AT_FIELD_NAME, point.beginAt)
             .setFieldsWithData(AppDb.LNG_FIELD_NAME, point.lng)
             .setFieldsWithData(AppDb.LAT_FIELD_NAME, point.lat)

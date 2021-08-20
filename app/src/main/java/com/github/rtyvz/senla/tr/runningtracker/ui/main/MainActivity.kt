@@ -24,6 +24,7 @@ import com.github.rtyvz.senla.tr.runningtracker.ui.ClosableActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.notification.NotificationFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.MainRunningFragment
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 

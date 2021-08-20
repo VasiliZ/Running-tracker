@@ -73,7 +73,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        findViews(view)
+        initViews(view)
 
         val token =
             requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
@@ -122,7 +122,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
         }
     }
 
-    private fun findViews(view: View) {
+    private fun initViews(view: View) {
         coordinateLayout = view.findViewById(R.id.coordinatorLayout)
         informationTextView = view.findViewById(R.id.informationTextView)
         progressBar = view.findViewById(R.id.progressBar)

@@ -57,7 +57,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         private const val FINISH_MARKER_TITLE = "Финиш"
         private const val FIRST_ARRAY_INDEX = 0
         private const val NANO_TIME_DIVIDER = 1000000
-        private val TAG = RunningActivity::class.java.simpleName.toString()
         const val EXTRA_RUN_DISTANCE = "RUN_DISTANCE"
         const val BROADCAST_RUN_DISTANCE = "local:BROADCAST_RUN_DISTANCE"
         const val BROADCAST_ARE_YOU_RUN = "local:BROADCAST_ARE_YOU_RUN"
@@ -111,7 +110,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_running)
 
-        findViews()
+        initViews()
         setSupportActionBar(toolbar)
 
         localBroadcastManager = LocalBroadcastManager.getInstance(this)
@@ -259,7 +258,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         )
     }
 
-    private fun findViews() {
+    private fun initViews() {
         gpsStatus = findViewById(R.id.gpsStatusTextView)
         startRunningButton = findViewById(R.id.startRunningButton)
         exitLayout = findViewById(R.id.exitLayout)

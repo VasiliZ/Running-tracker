@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.main
+package com.github.rtyvz.senla.tr.runningtracker.ui.running
 
 import android.content.SharedPreferences
 import android.os.Bundle
