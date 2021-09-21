@@ -15,7 +15,7 @@ class RegistrationPresenter : BasePresenter<RegistrationContract.ViewRegistratio
 
     override fun sendRegistrationRequest(userDataRequest: UserDataRequest) {
         getView().showLoading()
-        App.loginFlowRepository.authUser(userDataRequest) {
+        App.loginFlowRepository.registerUser(userDataRequest) {
             getView().hideLoading()
             when (it) {
                 is Result.Success -> {

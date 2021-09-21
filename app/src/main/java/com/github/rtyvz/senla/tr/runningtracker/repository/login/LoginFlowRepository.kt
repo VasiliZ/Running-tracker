@@ -12,7 +12,7 @@ import java.util.*
 
 class LoginFlowRepository {
 
-    fun authUser(
+    fun registerUser(
             userDataRequest: UserDataRequest,
             callBack: (Result<UserSuccessfulResponse>) -> (Unit)
     ) {
