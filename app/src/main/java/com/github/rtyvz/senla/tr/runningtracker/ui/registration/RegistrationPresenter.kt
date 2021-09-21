@@ -13,30 +13,8 @@ class RegistrationPresenter : BasePresenter<RegistrationContract.ViewRegistratio
         private const val EMAIL_ALREADY_EXISTS = "EMAIL_ALREADY_EXISTS"
     }
 
-    override fun sendRegistrationRequest(userDataRequest: UserDataRequest) {
-        getView().showLoading()
-        App.loginFlowRepository.registerUser(userDataRequest) {
-            getView().hideLoading()
-            when (it) {
-                is Result.Success -> {
-                    getView().openMainActivity()
-                }
-                is Result.Error -> {
-                    when (it.error) {
-                        EMAIL_ALREADY_EXISTS -> {
-                            showMessage(R.string.registration_fragment_email_already_exists_response)
-                        }
-                        else -> {
-                            showMessage(R.string.registration_fragment_unknown_network_error)
-                        }
-                    }
-                    getView().showMessage(it.error)
-                }
-            }
-        }
-    }
-
     override fun openLoginFragment() {
+        getView().clearError()
         getView().moveToLoginFragment()
     }
 
@@ -47,13 +25,13 @@ class RegistrationPresenter : BasePresenter<RegistrationContract.ViewRegistratio
                     or getView().getLastName().isBlank()
                     or getView().getPassword().isBlank()
                     or getView().getRepeatedPassword().isBlank() ->
-                showMessage(R.string.registration_fragment_empty_fields_error)
-            isEmailInvalid(getView().getEmail()) -> showMessage(R.string.registration_fragment_match_email_error)
+                getView().showMessage(R.string.registration_fragment_empty_fields_error)
+            isEmailInvalid(getView().getEmail()) -> getView().showMessage(R.string.registration_fragment_match_email_error)
             isPasswordsNotEquals(
                 getView().getPassword(),
                 getView().getRepeatedPassword()
             ) ->
-                showMessage(R.string.registration_fragment_password_matches_error)
+                getView().showMessage(R.string.registration_fragment_password_matches_error)
             else -> {
                 sendRegistrationRequest(
                     UserDataRequest(
@@ -67,15 +45,34 @@ class RegistrationPresenter : BasePresenter<RegistrationContract.ViewRegistratio
         }
     }
 
-    private fun showMessage(resId: Int) {
-        getView().showMessage(App.instance.getString(resId))
-    }
-
     private fun isEmailInvalid(email: String): Boolean {
         return !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
     private fun isPasswordsNotEquals(password: String, repeatPassword: String): Boolean {
         return password != repeatPassword
+    }
+
+    private fun sendRegistrationRequest(userDataRequest: UserDataRequest) {
+        getView().showLoading()
+        App.loginFlowRepository.registerUser(userDataRequest) {
+            getView().hideLoading()
+            when (it) {
+                is Result.Success -> {
+                    getView().openMainActivity()
+                }
+                is Result.Error -> {
+                    when (it.error) {
+                        EMAIL_ALREADY_EXISTS -> {
+                            getView().showMessage(R.string.registration_fragment_email_already_exists_response)
+                        }
+                        else -> {
+                            getView().showMessage(R.string.registration_fragment_unknown_network_error)
+                        }
+                    }
+                    getView().showMessage(it.error)
+                }
+            }
+        }
     }
 }

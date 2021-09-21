@@ -13,11 +13,11 @@ interface RegistrationContract {
         fun getPassword(): String
         fun getRepeatedPassword(): String
         fun showMessage(message: String)
+        fun showMessage(resId: Int)
         fun clearError()
     }
 
     interface PresenterRegistration : MainContract.Presenter<ViewRegistration> {
-        fun sendRegistrationRequest(userDataRequest: UserDataRequest)
         fun openLoginFragment()
         fun checkInputData()
     }

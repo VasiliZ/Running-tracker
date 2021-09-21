@@ -9,11 +9,13 @@ abstract class BaseFragment<Presenter : MainContract.Presenter<View>, View : Mai
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         presenter = createPresenter()
     }
 
     override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         presenter?.attachView(getMvpView())
     }
 

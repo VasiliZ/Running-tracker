@@ -13,35 +13,15 @@ class LoginPresenter : BasePresenter<LoginContract.ViewLogin>(), LoginContract.P
     }
 
     override fun moveToRegistration() {
+        getView().clearError()
         getView().openRegistrationFragment()
     }
 
-    override fun sendLoginRequest(userDataRequest: UserDataRequest, email: String) {
-        getView().showLoading()
-        App.loginFlowRepository.loginUser(userDataRequest, email) {
-            getView().hideLoading()
-            when (it) {
-                is Result.Success -> {
-                    getView().openMainActivity()
-                }
-                is Result.Error -> {
-                    when (it.error) {
-                        INVALID_CREDENTIALS -> {
-                            showMessage(R.string.login_fragment_invalid_credentials)
-                        }
-                        else ->
-                            showMessage(R.string.login_fragment_unknown_network_error)
-                    }
-                }
-            }
-        }
-    }
-
-    override fun checkUserInput(){
+    override fun checkUserInput() {
         when {
-            getView().getEmail().isBlank() or getView().getPassword()
-                .isBlank() -> showMessage(R.string.login_fragment_empty_fields_error)
-            isEmailInvalid(getView().getEmail()) -> showMessage(R.string.login_fragment_match_email_error)
+            getView().getEmail().isBlank() or getView().getPassword().isBlank()
+            -> getView().showErrorMessage(R.string.login_fragment_empty_fields_error)
+            isEmailInvalid(getView().getEmail()) -> getView().showErrorMessage(R.string.login_fragment_match_email_error)
             else -> {
                 getView().clearError()
                 sendLoginRequest(
@@ -58,7 +38,24 @@ class LoginPresenter : BasePresenter<LoginContract.ViewLogin>(), LoginContract.P
         return !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
-    private fun showMessage(resId: Int) {
-        getView().showErrorMessage(App.instance.getString(resId))
+    private fun sendLoginRequest(userDataRequest: UserDataRequest, email: String) {
+        getView().showLoading()
+        App.loginFlowRepository.loginUser(userDataRequest, email) {
+            getView().hideLoading()
+            when (it) {
+                is Result.Success -> {
+                    getView().openMainActivity()
+                }
+                is Result.Error -> {
+                    when (it.error) {
+                        INVALID_CREDENTIALS -> {
+                            getView().showErrorMessage(R.string.login_fragment_invalid_credentials)
+                        }
+                        else ->
+                            getView().showErrorMessage(R.string.login_fragment_unknown_network_error)
+                    }
+                }
+            }
+        }
     }
 }

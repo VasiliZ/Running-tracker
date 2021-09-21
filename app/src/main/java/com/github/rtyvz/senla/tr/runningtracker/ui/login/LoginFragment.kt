@@ -14,7 +14,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 
-class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.ViewLogin>(), LoginContract.ViewLogin {
+class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.ViewLogin>(),
+    LoginContract.ViewLogin {
 
     companion object {
         private const val EMPTY_STRING = ""
@@ -34,9 +35,9 @@ class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.V
     private var progressBar: ProgressBar? = null
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
@@ -51,7 +52,6 @@ class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.V
         }
 
         registrationActionTextView?.setOnClickListener {
-            clearError()
             getPresenter().moveToRegistration()
         }
 
@@ -73,6 +73,10 @@ class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.V
 
     override fun showErrorMessage(message: String) {
         errorTextView?.text = message
+    }
+
+    override fun showErrorMessage(resId: Int) {
+        errorTextView?.text = getString(resId)
     }
 
     override fun openRegistrationFragment() {

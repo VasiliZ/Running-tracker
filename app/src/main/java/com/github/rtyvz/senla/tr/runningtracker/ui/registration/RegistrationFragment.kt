@@ -57,7 +57,6 @@ class RegistrationFragment :
         }
 
         loginActionTextView?.setOnClickListener {
-            errorTextView?.text = EMPTY_STRING
             getPresenter().openLoginFragment()
         }
     }
@@ -109,6 +108,10 @@ class RegistrationFragment :
 
     override fun showMessage(message: String) {
         errorTextView?.text = message
+    }
+
+    override fun showMessage(resId: Int) {
+        errorTextView?.text = getString(resId)
     }
 
     override fun clearError() {
