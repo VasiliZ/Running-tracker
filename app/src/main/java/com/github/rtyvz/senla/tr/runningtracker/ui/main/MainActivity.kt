@@ -28,8 +28,7 @@ import com.github.rtyvz.senla.tr.runningtracker.ui.running.MainRunningFragment
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    ClosableActivity, LogoutFromApp, MainRunningFragment.ChangeNavigationInToolbar {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LogoutFromApp, MainRunningFragment.ChangeNavigationInToolbar {
 
     companion object {
         private const val USER_TOKEN = "USER_TOKEN"
@@ -251,10 +250,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .replace(R.id.mainFragmentContainer, fragment, fragmentTag)
             .addToBackStack(fragmentTag)
             .commit()
-    }
-
-    override fun closeActivity() {
-        finish()
     }
 
     override fun enableHomeButton(isEnable: Boolean) {

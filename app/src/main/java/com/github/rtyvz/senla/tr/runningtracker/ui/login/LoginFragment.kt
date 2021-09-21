@@ -7,18 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
-import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
-import com.github.rtyvz.senla.tr.runningtracker.ui.ClosableActivity
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 
-class LoginFragment : Fragment() {
+class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.ViewLogin>(), LoginContract.ViewLogin {
 
     companion object {
         private const val EMPTY_STRING = ""
@@ -39,9 +36,9 @@ class LoginFragment : Fragment() {
     private var progressBar: ProgressBar? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
@@ -50,19 +47,17 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         findViews(view)
-        moveToRegistration()
 
         loginButton?.setOnClickListener {
             checkEnteredValues()
         }
-        registrationActionTextView?.paint?.isUnderlineText = true
-    }
 
-    private fun moveToRegistration() {
         registrationActionTextView?.setOnClickListener {
             errorTextView?.text = EMPTY_STRING
-            (activity as LoginFlowContract).openRegistrationFragment()
+            getPresenter().moveToRegistration()
         }
+
+        registrationActionTextView?.paint?.isUnderlineText = true
     }
 
     private fun findViews(view: View) {
@@ -82,45 +77,50 @@ class LoginFragment : Fragment() {
         when {
             emailEditText?.text.isNullOrBlank()
                     or passwordEditText?.text.isNullOrBlank() -> errorTextView?.text =
-                getString(R.string.login_fragment_empty_fields_error)
+                    getString(R.string.login_fragment_empty_fields_error)
             isEmailInvalid(emailEditText?.text.toString()) -> errorTextView?.text =
-                getString(R.string.login_fragment_match_email_error)
+                    getString(R.string.login_fragment_match_email_error)
             else -> {
                 registrationActionTextView?.isEnabled = false
                 errorTextView?.text = EMPTY_STRING
-                sendLoginRequest(
-                    UserDataRequest(
-                        email = emailEditText?.text.toString(),
-                        password = passwordEditText?.text.toString()
-                    )
+                getPresenter().sendLoginRequest(
+                        UserDataRequest(
+                                email = emailEditText?.text.toString(),
+                                password = passwordEditText?.text.toString()
+                        ), emailEditText?.text.toString()
                 )
             }
         }
     }
 
-    private fun sendLoginRequest(userDataRequest: UserDataRequest) {
-        progressBar?.isVisible = true
-        App.loginFlowRepository.loginUser(userDataRequest, emailEditText?.text.toString()) {
-            progressBar?.isVisible = false
+    override fun createPresenter(): LoginContract.PresenterLogin {
+        return LoginPresenter()
+    }
 
-            when (it) {
-                is Result.Success -> {
-                    startActivity(Intent(requireContext(), MainActivity::class.java))
-                    (activity as ClosableActivity).closeActivity()
-                }
-                is Result.Error -> {
-                    registrationActionTextView?.isEnabled = true
-                    when (it.error) {
-                        INVALID_CREDENTIALS -> {
-                            errorTextView?.text =
-                                getString(R.string.login_fragment_invalid_credentials)
-                        }
-                        else -> errorTextView?.text =
-                            getString(R.string.login_fragment_unknown_network_error)
-                    }
-                }
+    override fun showErrorMessage(message: String) {
+        when (message) {
+            INVALID_CREDENTIALS -> {
+                errorTextView?.text = getString(R.string.login_fragment_invalid_credentials)
             }
+            else -> getString(R.string.login_fragment_unknown_network_error)
         }
+    }
+
+    override fun openRegistrationFragment() {
+        (activity as ChangeFragmentContract).openRegistrationFragment()
+    }
+
+    override fun openMainActivity() {
+        startActivity(Intent(requireContext(), MainActivity::class.java))
+        activity?.finish()
+    }
+
+    override fun showLoading() {
+        progressBar?.isVisible = true
+    }
+
+    override fun hideLoading() {
+        progressBar?.isVisible = false
     }
 
     override fun onDestroyView() {

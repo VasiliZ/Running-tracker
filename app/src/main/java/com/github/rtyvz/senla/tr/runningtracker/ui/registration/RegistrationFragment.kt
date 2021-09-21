@@ -7,19 +7,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
-import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
-import com.github.rtyvz.senla.tr.runningtracker.ui.ClosableActivity
-import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginFlowContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.login.ChangeFragmentContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 
-class RegistrationFragment : Fragment() {
+class RegistrationFragment :
+    BaseFragment<RegistrationContract.PresenterRegistration, RegistrationContract.ViewRegistration>(),
+    RegistrationContract.ViewRegistration {
 
     companion object {
         val TAG = RegistrationFragment::class.java.simpleName.toString()
@@ -53,18 +52,15 @@ class RegistrationFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initViews(view)
-        moveToLogin()
 
         loginActionTextView?.paint?.isUnderlineText = true
         registrationButton?.setOnClickListener {
             checkEnteredValues()
         }
-    }
 
-    private fun moveToLogin() {
         loginActionTextView?.setOnClickListener {
             errorTextView?.text = EMPTY_STRING
-            (activity as LoginFlowContract).openLoginFragment()
+            getPresenter().openLoginFragment()
         }
     }
 
@@ -107,7 +103,7 @@ class RegistrationFragment : Fragment() {
             else -> {
                 errorTextView?.text = EMPTY_STRING
                 loginActionTextView?.isEnabled = false
-                sendRegistrationRequest(
+                getPresenter().sendRegistrationRequest(
                     UserDataRequest(
                         emailEditText?.text.toString(),
                         nameEditText?.text.toString(),
@@ -115,33 +111,6 @@ class RegistrationFragment : Fragment() {
                         passwordEditText?.text.toString()
                     )
                 )
-            }
-        }
-    }
-
-    private fun sendRegistrationRequest(userDataRequest: UserDataRequest) {
-        progressBar?.isVisible = true
-        App.loginFlowRepository.authUser(userDataRequest) {
-            progressBar?.isVisible = false
-
-            when (it) {
-                is Result.Success -> {
-                    startActivity(Intent(requireContext(), MainActivity::class.java))
-                    (activity as ClosableActivity).closeActivity()
-                }
-                is Result.Error -> {
-                    loginActionTextView?.isEnabled = true
-                    when (it.error) {
-                        EMAIL_ALREADY_EXISTS -> {
-                            errorTextView?.text =
-                                getString(R.string.registration_fragment_email_already_exists_response)
-                        }
-                        else -> {
-                            errorTextView?.text =
-                                getString(R.string.registration_fragment_unknown_network_error)
-                        }
-                    }
-                }
             }
         }
     }
@@ -158,5 +127,40 @@ class RegistrationFragment : Fragment() {
         progressBar = null
 
         super.onDestroyView()
+    }
+
+    override fun createPresenter(): RegistrationContract.PresenterRegistration {
+        return RegistrationPresenter()
+    }
+
+    override fun openMainActivity() {
+        startActivity(Intent(requireContext(), MainActivity::class.java))
+        activity?.finish()
+    }
+
+    override fun moveToLoginFragment() {
+        (activity as ChangeFragmentContract).openLoginFragment()
+    }
+
+    override fun showMessage(message: String) {
+        loginActionTextView?.isEnabled = true
+        when (message) {
+            EMAIL_ALREADY_EXISTS -> {
+                errorTextView?.text =
+                    getString(R.string.registration_fragment_email_already_exists_response)
+            }
+            else -> {
+                errorTextView?.text =
+                    getString(R.string.registration_fragment_unknown_network_error)
+            }
+        }
+    }
+
+    override fun showLoading() {
+        progressBar?.isVisible = true
+    }
+
+    override fun hideLoading() {
+        progressBar?.isVisible = false
     }
 }

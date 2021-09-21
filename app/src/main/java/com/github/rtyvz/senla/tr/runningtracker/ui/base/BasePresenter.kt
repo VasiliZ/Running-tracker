@@ -1,6 +1,6 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.base
 
-class BasePresenter<View : MainContract.View> : MainContract.Presenter<View> {
+open class BasePresenter<View : MainContract.View> : MainContract.Presenter<View> {
 
     private var view: View? = null
 

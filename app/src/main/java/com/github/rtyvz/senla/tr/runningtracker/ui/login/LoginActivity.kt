@@ -8,7 +8,7 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.ui.ClosableActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.registration.RegistrationFragment
 
-class LoginActivity : AppCompatActivity(), LoginFlowContract, ClosableActivity {
+class LoginActivity : AppCompatActivity(), ChangeFragmentContract {
 
     companion object {
         private const val BACK_STACK_SIZE_1 = 1
@@ -23,35 +23,35 @@ class LoginActivity : AppCompatActivity(), LoginFlowContract, ClosableActivity {
 
     override fun openRegistrationFragment() {
         showFragment(
-            RegistrationFragment.newInstance(),
-            RegistrationFragment.TAG,
-            LoginFragment.TAG
+                RegistrationFragment.newInstance(),
+                RegistrationFragment.TAG,
+                LoginFragment.TAG
         )
     }
 
     override fun openLoginFragment() {
         showFragment(
-            LoginFragment.newInstance(),
-            LoginFragment.TAG,
-            RegistrationFragment.TAG
+                LoginFragment.newInstance(),
+                LoginFragment.TAG,
+                RegistrationFragment.TAG
         )
     }
 
     private fun showFragment(
-        fragment: Fragment,
-        fragmentTag: String,
-        clearToTag: String? = null
+            fragment: Fragment,
+            fragmentTag: String,
+            clearToTag: String? = null
     ) {
         if (clearToTag != null)
             supportFragmentManager.popBackStack(
-                clearToTag,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE
+                    clearToTag,
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE
             )
 
         supportFragmentManager.beginTransaction()
-            .replace(R.id.loginFlowContainer, fragment, fragmentTag)
-            .addToBackStack(fragmentTag)
-            .commit()
+                .replace(R.id.loginFlowContainer, fragment, fragmentTag)
+                .addToBackStack(fragmentTag)
+                .commit()
     }
 
     override fun onBackPressed() {
@@ -63,9 +63,5 @@ class LoginActivity : AppCompatActivity(), LoginFlowContract, ClosableActivity {
                 super.onBackPressed()
             }
         }
-    }
-
-    override fun closeActivity() {
-        finish()
     }
 }
