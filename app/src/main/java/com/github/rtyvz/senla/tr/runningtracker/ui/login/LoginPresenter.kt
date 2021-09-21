@@ -1,11 +1,16 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.login
 
 import com.github.rtyvz.senla.tr.runningtracker.App
+import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BasePresenter
 
 class LoginPresenter : BasePresenter<LoginContract.ViewLogin>(), LoginContract.PresenterLogin {
+
+    companion object {
+        private const val INVALID_CREDENTIALS = "INVALID_CREDENTIALS"
+    }
 
     override fun moveToRegistration() {
         getView().openRegistrationFragment()
@@ -20,9 +25,40 @@ class LoginPresenter : BasePresenter<LoginContract.ViewLogin>(), LoginContract.P
                     getView().openMainActivity()
                 }
                 is Result.Error -> {
-                    getView().showErrorMessage(it.error)
+                    when (it.error) {
+                        INVALID_CREDENTIALS -> {
+                            showMessage(R.string.login_fragment_invalid_credentials)
+                        }
+                        else ->
+                            showMessage(R.string.login_fragment_unknown_network_error)
+                    }
                 }
             }
         }
+    }
+
+    override fun checkUserInput(){
+        when {
+            getView().getEmail().isBlank() or getView().getPassword()
+                .isBlank() -> showMessage(R.string.login_fragment_empty_fields_error)
+            isEmailInvalid(getView().getEmail()) -> showMessage(R.string.login_fragment_match_email_error)
+            else -> {
+                getView().clearError()
+                sendLoginRequest(
+                    UserDataRequest(
+                        email = getView().getEmail(),
+                        password = getView().getPassword()
+                    ), getView().getEmail()
+                )
+            }
+        }
+    }
+
+    private fun isEmailInvalid(email: String): Boolean {
+        return !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
+
+    private fun showMessage(resId: Int) {
+        getView().showErrorMessage(App.instance.getString(resId))
     }
 }

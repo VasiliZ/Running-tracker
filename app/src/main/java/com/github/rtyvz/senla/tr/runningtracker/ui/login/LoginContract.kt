@@ -8,10 +8,14 @@ interface LoginContract {
         fun showErrorMessage(message: String)
         fun openRegistrationFragment()
         fun openMainActivity()
+        fun clearError()
+        fun getEmail(): String
+        fun getPassword(): String
     }
 
     interface PresenterLogin : MainContract.Presenter<ViewLogin> {
         fun moveToRegistration()
         fun sendLoginRequest(userDataRequest: UserDataRequest, email: String)
+        fun checkUserInput()
     }
 }

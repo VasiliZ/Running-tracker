@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
 import com.google.android.material.button.MaterialButton
@@ -19,7 +18,6 @@ class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.V
 
     companion object {
         private const val EMPTY_STRING = ""
-        private const val INVALID_CREDENTIALS = "INVALID_CREDENTIALS"
 
         val TAG = LoginFragment::class.java.simpleName.toString()
 
@@ -49,11 +47,11 @@ class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.V
         findViews(view)
 
         loginButton?.setOnClickListener {
-            checkEnteredValues()
+            getPresenter().checkUserInput()
         }
 
         registrationActionTextView?.setOnClickListener {
-            errorTextView?.text = EMPTY_STRING
+            clearError()
             getPresenter().moveToRegistration()
         }
 
@@ -69,41 +67,12 @@ class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.V
         progressBar = view.findViewById(R.id.progressBar)
     }
 
-    private fun isEmailInvalid(email: String): Boolean {
-        return !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    }
-
-    private fun checkEnteredValues() {
-        when {
-            emailEditText?.text.isNullOrBlank()
-                    or passwordEditText?.text.isNullOrBlank() -> errorTextView?.text =
-                    getString(R.string.login_fragment_empty_fields_error)
-            isEmailInvalid(emailEditText?.text.toString()) -> errorTextView?.text =
-                    getString(R.string.login_fragment_match_email_error)
-            else -> {
-                registrationActionTextView?.isEnabled = false
-                errorTextView?.text = EMPTY_STRING
-                getPresenter().sendLoginRequest(
-                        UserDataRequest(
-                                email = emailEditText?.text.toString(),
-                                password = passwordEditText?.text.toString()
-                        ), emailEditText?.text.toString()
-                )
-            }
-        }
-    }
-
     override fun createPresenter(): LoginContract.PresenterLogin {
         return LoginPresenter()
     }
 
     override fun showErrorMessage(message: String) {
-        when (message) {
-            INVALID_CREDENTIALS -> {
-                errorTextView?.text = getString(R.string.login_fragment_invalid_credentials)
-            }
-            else -> getString(R.string.login_fragment_unknown_network_error)
-        }
+        errorTextView?.text = message
     }
 
     override fun openRegistrationFragment() {
@@ -114,6 +83,13 @@ class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.V
         startActivity(Intent(requireContext(), MainActivity::class.java))
         activity?.finish()
     }
+
+    override fun clearError() {
+        errorTextView?.text = EMPTY_STRING
+    }
+
+    override fun getEmail() = emailEditText?.text.toString()
+    override fun getPassword() = passwordEditText?.text.toString()
 
     override fun showLoading() {
         progressBar?.isVisible = true

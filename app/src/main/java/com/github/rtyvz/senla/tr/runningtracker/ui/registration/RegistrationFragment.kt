@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.ChangeFragmentContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
@@ -23,7 +22,6 @@ class RegistrationFragment :
     companion object {
         val TAG = RegistrationFragment::class.java.simpleName.toString()
         private const val EMPTY_STRING = ""
-        private const val EMAIL_ALREADY_EXISTS = "EMAIL_ALREADY_EXISTS"
 
         fun newInstance(): RegistrationFragment {
             return RegistrationFragment()
@@ -55,7 +53,7 @@ class RegistrationFragment :
 
         loginActionTextView?.paint?.isUnderlineText = true
         registrationButton?.setOnClickListener {
-            checkEnteredValues()
+            getPresenter().checkInputData()
         }
 
         loginActionTextView?.setOnClickListener {
@@ -74,45 +72,6 @@ class RegistrationFragment :
         loginActionTextView = view.findViewById(R.id.loginActionTextView)
         errorTextView = view.findViewById(R.id.errorTextView)
         progressBar = view.findViewById(R.id.progressBar)
-    }
-
-    private fun isEmailInvalid(email: String): Boolean {
-        return !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    }
-
-    private fun isPasswordsNotEquals(password: String, repeatPassword: String): Boolean {
-        return password != repeatPassword
-    }
-
-    private fun checkEnteredValues() {
-        when {
-            emailEditText?.text.isNullOrBlank()
-                    or nameEditText?.text.isNullOrBlank()
-                    or lastNameEditText?.text.isNullOrBlank()
-                    or passwordEditText?.text.isNullOrBlank()
-                    or repeatPasswordEditText?.text.isNullOrBlank() -> errorTextView?.text =
-                getString(R.string.registration_fragment_empty_fields_error)
-            isEmailInvalid(emailEditText?.text.toString()) -> errorTextView?.text =
-                getString(R.string.registration_fragment_match_email_error)
-            isPasswordsNotEquals(
-                passwordEditText?.text.toString(),
-                repeatPasswordEditText?.text.toString()
-            ) ->
-                errorTextView?.text =
-                    getString(R.string.registration_fragment_password_matches_error)
-            else -> {
-                errorTextView?.text = EMPTY_STRING
-                loginActionTextView?.isEnabled = false
-                getPresenter().sendRegistrationRequest(
-                    UserDataRequest(
-                        emailEditText?.text.toString(),
-                        nameEditText?.text.toString(),
-                        lastNameEditText?.text.toString(),
-                        passwordEditText?.text.toString()
-                    )
-                )
-            }
-        }
     }
 
     override fun onDestroyView() {
@@ -142,18 +101,18 @@ class RegistrationFragment :
         (activity as ChangeFragmentContract).openLoginFragment()
     }
 
+    override fun getEmail() = emailEditText?.text.toString()
+    override fun getName() = nameEditText?.text.toString()
+    override fun getLastName() = lastNameEditText?.text.toString()
+    override fun getPassword() = passwordEditText?.text.toString()
+    override fun getRepeatedPassword() = repeatPasswordEditText?.text.toString()
+
     override fun showMessage(message: String) {
-        loginActionTextView?.isEnabled = true
-        when (message) {
-            EMAIL_ALREADY_EXISTS -> {
-                errorTextView?.text =
-                    getString(R.string.registration_fragment_email_already_exists_response)
-            }
-            else -> {
-                errorTextView?.text =
-                    getString(R.string.registration_fragment_unknown_network_error)
-            }
-        }
+        errorTextView?.text = message
+    }
+
+    override fun clearError() {
+        errorTextView?.text = EMPTY_STRING
     }
 
     override fun showLoading() {
