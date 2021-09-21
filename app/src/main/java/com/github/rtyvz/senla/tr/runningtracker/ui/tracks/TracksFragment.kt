@@ -18,7 +18,6 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
-import com.github.rtyvz.senla.tr.runningtracker.ui.ClosableActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorFetchingPointsDialog
@@ -144,7 +143,7 @@ class TracksFragment : Fragment(), ErrorResponseNextRunDialog.ErrorResponseDialo
                         INVALID_TOKEN -> {
                             requireContext().getRunningSharedPreference().edit().clear().apply()
                             startActivity(Intent(requireContext(), LoginActivity::class.java))
-                            (activity as ClosableActivity).closeActivity()
+                            activity?.finish()
                         }
                         else -> {
                             when (it.error) {
