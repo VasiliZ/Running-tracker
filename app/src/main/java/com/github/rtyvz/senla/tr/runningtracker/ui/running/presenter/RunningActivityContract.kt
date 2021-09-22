@@ -1,6 +1,7 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.running.presenter
 
 import android.location.LocationManager
+import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.MainContract
 
 interface RunningActivityContract {
@@ -24,6 +25,7 @@ interface RunningActivityContract {
         fun stopRunningService()
         fun stopTimer()
         fun displayRunningTime()
+        fun showAreYouRunningDialog()
     }
 
     interface PresenterRunningActivity : MainContract.Presenter<ViewRunningActivity> {
@@ -41,5 +43,10 @@ interface RunningActivityContract {
         )
 
         fun stopRunning()
+        fun saveTrack(startRunningTime:Long)
+        fun updateTrackAfterRun(pointsList: List<PointEntity>?,
+                                distance: Int?,
+                                startRunningTime: Long,
+                                time: Long)
     }
 }

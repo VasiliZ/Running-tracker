@@ -2,16 +2,10 @@ package com.github.rtyvz.senla.tr.runningtracker.ui.running
 
 import android.Manifest
 import android.animation.AnimatorInflater
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
@@ -110,6 +104,19 @@ class RunningActivity :
             handler?.postDelayed(this, TIMER_INTERVAL)
         }
     }
+    private var isBoundToRunningService = false
+    private var service: RunningService? = null
+    private val runningServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
+            val binder = p1 as RunningService.RunningServiceBinder
+            service = binder.getService()
+            isBoundToRunningService = true
+        }
+
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            isBoundToRunningService = false
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -144,7 +151,6 @@ class RunningActivity :
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        initRunningDistanceReceiver()
         initErrorSavingTrackIntoDbReceiver()
         initWrongUserTokenReceiver()
         initNetworkErrorReceiver()
@@ -246,23 +252,17 @@ class RunningActivity :
         getPresenter().checkRequstPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    private fun initRunningDistanceReceiver() {
-        runningDistanceReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                val distance = intent?.getIntExtra(EXTRA_RUN_DISTANCE, DEFAULT_INT_VALUE)
-                intent?.getParcelableArrayListExtra<PointEntity>(EXTRA_TRACK_POINTS)?.toList()
-                    ?.let {
-                        drawRunningPath(it)
-                        setupMapData(it)
-                    }
-                runDistanceTextView?.text = String.format(
-                    resources.getString(R.string.running_activity_run_distance_pattern),
-                    distance,
-                    distance?.humanizeDistance()
-                )
-            }
-        }
-    }
+//    private fun initRunningDistanceReceiver() {
+//        runningDistanceReceiver = object : BroadcastReceiver() {
+//            override fun onReceive(context: Context?, intent: Intent?) {
+//                val distance = intent?.getIntExtra(EXTRA_RUN_DISTANCE, DEFAULT_INT_VALUE)
+//                intent?.getParcelableArrayListExtra<PointEntity>(EXTRA_TRACK_POINTS)?.toList()
+//                    ?.let {
+//
+//                    }
+//            }
+//        }
+//    }
 
     private fun initErrorSavingTrackIntoDbReceiver() {
         errorSavingTrackIntoDbReceiver = object : BroadcastReceiver() {
@@ -302,7 +302,7 @@ class RunningActivity :
     private fun initAreYouRunReceiver() {
         areYouRunReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                AreYouRunDialog.newInstance().show(supportFragmentManager, AreYouRunDialog.TAG)
+
             }
         }
     }
@@ -344,18 +344,26 @@ class RunningActivity :
     }
 
     override fun startRunningService() {
-        val intentRunningService = Intent(this, RunningService::class.java).apply {
-            putExtra(
-                RunningService.EXTRA_CURRENT_TIME,
-                startRunMillis
+        if (!isBoundToRunningService) {
+            bindService(
+                Intent(this, RunningService::class.java),
+                runningServiceConnection,
+                Context.BIND_AUTO_CREATE
             )
+            getPresenter().saveTrack(startTimerRunningTime)
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intentRunningService)
-        } else {
-            startService(intentRunningService)
-        }
+//        val intentRunningService = Intent(this, RunningService::class.java).apply {
+//            putExtra(
+//                RunningService.EXTRA_CURRENT_TIME,
+//                startRunMillis
+//            )
+//        }
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            startForegroundService(intentRunningService)
+//        } else {
+//            startService(intentRunningService)
+//        }
     }
 
     override fun showEnableGpsDialog() {
@@ -472,6 +480,10 @@ class RunningActivity :
             timeMillis.toDateTimeWithoutUTCOffset(STOP_WATCH_PATTERN)
     }
 
+    override fun showAreYouRunningDialog() {
+        AreYouRunDialog.newInstance().show(supportFragmentManager, AreYouRunDialog.TAG)
+    }
+
     override fun onPause() {
         localBroadcastManager.unregisterReceiver(runningDistanceReceiver)
         localBroadcastManager.unregisterReceiver(errorSavingTrackIntoDbReceiver)
@@ -537,12 +549,34 @@ class RunningActivity :
     }
 
     override fun stopRunningService() {
-        val stopActionRunningServiceIntent = Intent(this, RunningService::class.java)
-            .apply {
-                action = RunningService.ACTION_RUNNING_SERVICE_STOP
-                putExtra(RunningService.EXTRA_FINISH_RUNNING_TIME, timeMillis)
+        if (isBoundToRunningService) {
+            val distance = service?.getDistance()
+            runDistanceTextView?.text = String.format(
+                resources.getString(R.string.running_activity_run_distance_pattern),
+                distance,
+                distance?.humanizeDistance()
+            )
+
+            service?.getTrackPoints(startTimerRunningTime)?.let {
+                drawRunningPath(it)
+                setupMapData(it)
             }
-        startService(stopActionRunningServiceIntent)
+
+            getPresenter().updateTrackAfterRun(
+                service?.getTrackPoints(startTimerRunningTime),
+                distance,
+                startTimerRunningTime,
+                timeMillis
+            )
+            unbindService(runningServiceConnection)
+        }
+
+//        val stopActionRunningServiceIntent = Intent(this, RunningService::class.java)
+//            .apply {
+//                action = RunningService.ACTION_RUNNING_SERVICE_STOP
+//                putExtra(RunningService.EXTRA_FINISH_RUNNING_TIME, timeMillis)
+//            }
+//        startService(stopActionRunningServiceIntent)
     }
 
     override fun onDestroy() {
