@@ -2,9 +2,9 @@ package com.github.rtyvz.senla.tr.runningtracker.ui.registration.presenter
 
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
+import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BasePresenter
-import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 
 class RegistrationPresenter : BasePresenter<RegistrationContract.ViewRegistration>(),
     RegistrationContract.PresenterRegistration {

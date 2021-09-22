@@ -21,11 +21,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
-import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.toPointEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 import java.util.*
-import kotlin.collections.ArrayList
 
 class RunningService : Service(), LocationListener {
 

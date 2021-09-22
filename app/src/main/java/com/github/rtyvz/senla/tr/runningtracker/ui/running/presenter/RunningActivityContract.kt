@@ -43,10 +43,12 @@ interface RunningActivityContract {
         )
 
         fun stopRunning()
-        fun saveTrack(startRunningTime:Long)
-        fun updateTrackAfterRun(pointsList: List<PointEntity>?,
-                                distance: Int?,
-                                startRunningTime: Long,
-                                time: Long)
+        fun saveTrack(startRunningTime: Long)
+        fun updateTrackAfterRun(
+            pointsList: List<PointEntity>?,
+            distance: Int?,
+            startRunningTime: Long,
+            time: Long
+        )
     }
 }

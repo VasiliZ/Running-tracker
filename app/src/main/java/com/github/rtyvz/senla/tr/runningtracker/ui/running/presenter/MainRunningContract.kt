@@ -15,13 +15,14 @@ interface MainRunningContract {
             clearInclusive: Boolean = false,
             containerId: Int
         )
+
         fun isTrackContainerAvailable(): Boolean
         fun enableHomeButton()
         fun disableHomeButton()
         fun showTrackTextView()
         fun hideTrackTextView()
-        fun getFragmentByTag(tag:String): Fragment?
-        fun getBackStackEntryCount():Int
+        fun getFragmentByTag(tag: String): Fragment?
+        fun getBackStackEntryCount(): Int
         fun popBackStack()
         fun enableToggle()
         fun getRunningPreference(): SharedPreferences
@@ -32,6 +33,6 @@ interface MainRunningContract {
         fun showMainFragment()
         fun openMainFragment()
         fun clickTrackItem(trackEntity: TrackEntity)
-        fun backPressedClick():Boolean
+        fun backPressedClick(): Boolean
     }
 }

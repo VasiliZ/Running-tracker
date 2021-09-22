@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 
 
-abstract class BaseFragment<Presenter : MainContract.Presenter<View>, View : MainContract.View> : Fragment() {
+abstract class BaseFragment<Presenter : MainContract.Presenter<View>, View : MainContract.View> :
+    Fragment() {
     private var presenter: Presenter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
