@@ -1,13 +1,15 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.login
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.ui.registration.RegistrationFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseActivity
 
-class LoginActivity : AppCompatActivity(), ChangeFragmentContract {
+class LoginActivity :
+    BaseActivity<LoginActivityContract.LoginActivityPresenter, LoginActivityContract.LoginActivityView>(),
+    LoginActivityContract.LoginActivityView,
+    ChangeFragmentContract {
 
     companion object {
         private const val BACK_STACK_SIZE_1 = 1
@@ -17,40 +19,15 @@ class LoginActivity : AppCompatActivity(), ChangeFragmentContract {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        openRegistrationFragment()
+        getPresenter().openRegistrationFragment()
     }
 
     override fun openRegistrationFragment() {
-        showFragment(
-                RegistrationFragment.newInstance(),
-                RegistrationFragment.TAG,
-                LoginFragment.TAG
-        )
+        getPresenter().openRegistrationFragment()
     }
 
     override fun openLoginFragment() {
-        showFragment(
-                LoginFragment.newInstance(),
-                LoginFragment.TAG,
-                RegistrationFragment.TAG
-        )
-    }
-
-    private fun showFragment(
-            fragment: Fragment,
-            fragmentTag: String,
-            clearToTag: String? = null
-    ) {
-        if (clearToTag != null)
-            supportFragmentManager.popBackStack(
-                    clearToTag,
-                    FragmentManager.POP_BACK_STACK_INCLUSIVE
-            )
-
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.loginFlowContainer, fragment, fragmentTag)
-                .addToBackStack(fragmentTag)
-                .commit()
+        getPresenter().openLoginFragment()
     }
 
     override fun onBackPressed() {
@@ -62,5 +39,34 @@ class LoginActivity : AppCompatActivity(), ChangeFragmentContract {
                 super.onBackPressed()
             }
         }
+    }
+
+    override fun createPresenter(): LoginActivityContract.LoginActivityPresenter {
+        return LoginActivityPresenter()
+    }
+
+    override fun showFragment(
+        fragment: Fragment,
+        fragmentTag: String,
+        clearToTag: String?
+    ) {
+        if (clearToTag != null)
+            supportFragmentManager.popBackStack(
+                clearToTag,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.loginFlowContainer, fragment, fragmentTag)
+            .addToBackStack(fragmentTag)
+            .commit()
+    }
+
+    override fun showLoading() {
+        //nothing to do here
+    }
+
+    override fun hideLoading() {
+        //nothing to do here
     }
 }
