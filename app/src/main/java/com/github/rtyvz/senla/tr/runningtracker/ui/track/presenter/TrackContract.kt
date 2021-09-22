@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.track
+package com.github.rtyvz.senla.tr.runningtracker.ui.track.presenter
 
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
@@ -15,6 +15,5 @@ interface TrackContract {
 
     interface PresenterTrack : MainContract.Presenter<ViewTrack> {
         fun getPoints(track: TrackEntity?)
-
     }
 }

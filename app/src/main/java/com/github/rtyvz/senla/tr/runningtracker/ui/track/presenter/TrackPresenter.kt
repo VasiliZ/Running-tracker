@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.track
+package com.github.rtyvz.senla.tr.runningtracker.ui.track.presenter
 
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.entity.Result

@@ -12,6 +12,9 @@ import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
 import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithoutUTCOffset
 import com.github.rtyvz.senla.tr.runningtracker.extension.toLatLng
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.track.dialog.ErrorGetCurrentTrackPointsDialog
+import com.github.rtyvz.senla.tr.runningtracker.ui.track.presenter.TrackContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.track.presenter.TrackPresenter
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
