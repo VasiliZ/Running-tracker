@@ -1,6 +1,5 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.login
+package com.github.rtyvz.senla.tr.runningtracker.ui.login.presenter
 
-import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.MainContract
 
 interface LoginContract {

@@ -6,10 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.notification.dialog.DeleteNotificationDialog
+import com.github.rtyvz.senla.tr.runningtracker.ui.notification.presenter.NotificationContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.notification.presenter.NotificationPresenter
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textview.MaterialTextView

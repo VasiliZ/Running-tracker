@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseActivity
+import com.github.rtyvz.senla.tr.runningtracker.ui.login.presenter.LoginActivityContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.login.presenter.LoginActivityPresenter
 
 class LoginActivity :
     BaseActivity<LoginActivityContract.LoginActivityPresenter, LoginActivityContract.LoginActivityView>(),

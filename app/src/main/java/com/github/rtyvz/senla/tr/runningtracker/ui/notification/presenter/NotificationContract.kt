@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.notification
+package com.github.rtyvz.senla.tr.runningtracker.ui.notification.presenter
 
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.MainContract

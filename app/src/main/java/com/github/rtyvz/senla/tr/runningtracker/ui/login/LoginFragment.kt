@@ -9,6 +9,8 @@ import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.login.presenter.LoginContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.login.presenter.LoginPresenter
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText

@@ -1,8 +1,9 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.notification
+package com.github.rtyvz.senla.tr.runningtracker.ui.notification.presenter
 
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BasePresenter
+import com.github.rtyvz.senla.tr.runningtracker.ui.notification.NotificationWorkManager
 import java.util.*
 
 class NotificationPresenter : BasePresenter<NotificationContract.ViewNotification>(),

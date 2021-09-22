@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.login
+package com.github.rtyvz.senla.tr.runningtracker.ui.login.presenter
 
 import androidx.fragment.app.Fragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.MainContract

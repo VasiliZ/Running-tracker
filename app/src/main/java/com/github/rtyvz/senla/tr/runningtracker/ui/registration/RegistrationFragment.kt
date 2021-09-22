@@ -11,6 +11,8 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.ChangeFragmentContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
+import com.github.rtyvz.senla.tr.runningtracker.ui.registration.presenter.RegistrationContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.registration.presenter.RegistrationPresenter
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView

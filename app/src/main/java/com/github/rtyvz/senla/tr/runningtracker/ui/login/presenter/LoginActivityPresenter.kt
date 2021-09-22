@@ -1,6 +1,7 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.login
+package com.github.rtyvz.senla.tr.runningtracker.ui.login.presenter
 
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BasePresenter
+import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.registration.RegistrationFragment
 
 class LoginActivityPresenter : BasePresenter<LoginActivityContract.LoginActivityView>(),
