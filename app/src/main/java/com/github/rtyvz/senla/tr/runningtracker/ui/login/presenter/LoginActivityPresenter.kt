@@ -1,25 +1,34 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.login.presenter
 
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BasePresenter
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
+import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.registration.RegistrationFragment
 
-class LoginActivityPresenter : BasePresenter<LoginActivityContract.LoginActivityView>(),
-    LoginActivityContract.LoginActivityPresenter {
+class LoginActivityPresenter(private val view: LoginActivity) : BasePresenter<BaseView>(view) {
 
-    override fun openRegistrationFragment() {
-        getView().showFragment(
+    fun openLoginFragment() {
+        view.showFragment(
+            LoginFragment.newInstance(),
+            LoginFragment.TAG,
+            RegistrationFragment.TAG
+        )
+    }
+
+    fun openRegistrationFragment() {
+        view.showFragment(
             RegistrationFragment.newInstance(),
             RegistrationFragment.TAG,
             LoginFragment.TAG
         )
     }
 
-    override fun openLoginFragment() {
-        getView().showFragment(
-            LoginFragment.newInstance(),
-            LoginFragment.TAG,
-            RegistrationFragment.TAG
+    fun onCreate() {
+        view.showFragment(
+            RegistrationFragment.newInstance(),
+            RegistrationFragment.TAG,
+            LoginFragment.TAG
         )
     }
 }

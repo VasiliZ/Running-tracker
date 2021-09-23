@@ -2,6 +2,7 @@ package com.github.rtyvz.senla.tr.runningtracker.repository.main
 
 import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.work.WorkManager
 import bolts.CancellationTokenSource
 import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.App
@@ -346,5 +347,9 @@ class MainRunningRepository {
 
     fun removeTrackPoints(startRunningTime: Long) {
         TasksProvider.getDeleteTrackPointsTask(startRunningTime)
+    }
+
+    fun cancelAllManagerWork() {
+        WorkManager.getInstance(App.instance).cancelAllWork()
     }
 }

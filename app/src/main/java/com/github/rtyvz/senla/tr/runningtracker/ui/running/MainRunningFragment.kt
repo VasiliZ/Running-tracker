@@ -50,11 +50,11 @@ class MainRunningFragment :
         currentTrackContainer = view.findViewById(R.id.currentTrackContainer)
         selectTrackTextView = view.findViewById(R.id.selectTrackTextView)
 
-        getPresenter().openMainFragment()
+        presenter?.openMainFragment()
     }
 
     fun onBackPressed(): Boolean {
-        return getPresenter().backPressedClick()
+        return presenter?.backPressedClick() ?: false
     }
 
     override fun isTrackContainerAvailable() = currentTrackContainer != null
@@ -101,7 +101,7 @@ class MainRunningFragment :
     }
 
     override fun onTrackItemClick(trackEntity: TrackEntity) {
-        getPresenter().clickTrackItem(trackEntity)
+        presenter?.clickTrackItem(trackEntity)
     }
 
     override fun showFragment(

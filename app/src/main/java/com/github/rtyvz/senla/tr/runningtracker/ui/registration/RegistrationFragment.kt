@@ -55,11 +55,11 @@ class RegistrationFragment :
 
         loginActionTextView?.paint?.isUnderlineText = true
         registrationButton?.setOnClickListener {
-            getPresenter().checkInputData()
+            presenter?.checkInputData()
         }
 
         loginActionTextView?.setOnClickListener {
-            getPresenter().openLoginFragment()
+            presenter?.openLoginFragment()
         }
     }
 

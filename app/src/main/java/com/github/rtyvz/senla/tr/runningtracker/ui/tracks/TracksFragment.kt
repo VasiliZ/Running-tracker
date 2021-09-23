@@ -76,20 +76,20 @@ class TracksFragment : BaseFragment<TracksContract.PresenterTracks, TracksContra
             requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
 
         if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
-            getPresenter().getTracksFromServer(token)
+            presenter?.getTracksFromServer(token)
         } else {
             if (App.state?.isDataLoadedYet == false) {
-                getPresenter().getTracksFromDb()
+                presenter?.getTracksFromDb()
             }
         }
 
         fab?.setOnClickListener {
-            getPresenter().openRunningActivity()
+            presenter?.openRunningActivity()
         }
 
         swipeRefreshLayout?.setOnRefreshListener {
             if (token != null && token.isNotBlank()) {
-                getPresenter().getTracksFromServer(token)
+                presenter?.getTracksFromServer(token)
             }
         }
 
@@ -106,7 +106,7 @@ class TracksFragment : BaseFragment<TracksContract.PresenterTracks, TracksContra
     override fun onResume() {
         super.onResume()
 
-        getPresenter().getTracksFromDb(App.state?.isDataLoadedYet == true)
+        presenter?.getTracksFromDb(App.state?.isDataLoadedYet == true)
     }
 
     private fun initViews(view: View) {
@@ -120,7 +120,7 @@ class TracksFragment : BaseFragment<TracksContract.PresenterTracks, TracksContra
 
 
     override fun retryRequestTracksDataFromDb() {
-        getPresenter().getTracksFromDb()
+        presenter?.getTracksFromDb()
     }
 
     interface OnItemClickListListener {
@@ -133,7 +133,7 @@ class TracksFragment : BaseFragment<TracksContract.PresenterTracks, TracksContra
 
     override fun retryRequestTracksDataFromServer() {
         requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)?.let {
-            getPresenter().getTracksFromServer(it)
+            presenter?.getTracksFromServer(it)
         }
     }
 

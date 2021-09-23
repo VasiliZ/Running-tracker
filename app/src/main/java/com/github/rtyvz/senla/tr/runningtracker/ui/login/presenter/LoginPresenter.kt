@@ -5,8 +5,10 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BasePresenter
+import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginFragment
 
-class LoginPresenter : BasePresenter<LoginContract.ViewLogin>(), LoginContract.PresenterLogin {
+class LoginPresenter(view: LoginFragment) : BasePresenter<LoginContract.ViewLogin>(view),
+    LoginContract.PresenterLogin {
 
     companion object {
         private const val INVALID_CREDENTIALS = "INVALID_CREDENTIALS"

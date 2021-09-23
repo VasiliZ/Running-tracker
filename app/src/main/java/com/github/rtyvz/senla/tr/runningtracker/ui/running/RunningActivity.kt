@@ -49,16 +49,12 @@ class RunningActivity :
         private const val DEFAULT_ZOOM = 15
         private const val TIMER_INTERVAL = 10L
         private const val STOP_WATCH_PATTERN = "mm:ss,SS"
-        private const val DEFAULT_INT_VALUE = 0
         private const val CAMERA_PADDING = 300
         private const val WIDTH_PATH_LINE = 10f
         private const val START_MARKER_TITLE = "Старт"
         private const val FINISH_MARKER_TITLE = "Финиш"
 
         private const val NANO_TIME_DIVIDER = 1000000
-        const val EXTRA_RUN_DISTANCE = "RUN_DISTANCE"
-        const val BROADCAST_RUN_DISTANCE = "local:BROADCAST_RUN_DISTANCE"
-        const val BROADCAST_ARE_YOU_RUN = "local:BROADCAST_ARE_YOU_RUN"
         const val BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE =
             "local:BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE"
         const val BROADCAST_WRONG_USER_TOKEN =
@@ -67,18 +63,14 @@ class RunningActivity :
             "local:BROADCAST_NETWORK_ERROR"
         const val BROADCAST_GPS_ENABLED = "local:BROADCAST_GPS_ENABLED"
         const val BROADCAST_GPS_DISABLED = "local:BROADCAST_GPS_DISABLED"
-        const val EXTRA_TRACK_POINTS = "TRACK_POINTS"
     }
 
     private lateinit var locationProvider: FusedLocationProviderClient
     private lateinit var localBroadcastManager: LocalBroadcastManager
-    private lateinit var runningDistanceReceiver: BroadcastReceiver
     private lateinit var wrongUserTokenReceiver: BroadcastReceiver
     private lateinit var gpsProviderDisabledReceiver: BroadcastReceiver
     private lateinit var gpsProviderEnabledReceiver: BroadcastReceiver
-    private lateinit var errorSavingTrackIntoDbReceiver: BroadcastReceiver
     private lateinit var networkErrorReceiver: BroadcastReceiver
-    private lateinit var areYouRunReceiver: BroadcastReceiver
     private var locationPermissionGranted: Boolean = false
     private var googleMap: GoogleMap? = null
     private var startRunningButton: MaterialButton? = null
@@ -141,20 +133,18 @@ class RunningActivity :
         mapFragment.getMapAsync(this)
 
         startRunningButton?.setOnClickListener {
-            getPresenter().startRunning()
+            presenter?.startRunning()
         }
 
         finishRunningButton?.setOnClickListener {
-            getPresenter().stopRunning()
+            presenter?.stopRunning()
         }
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        initErrorSavingTrackIntoDbReceiver()
         initWrongUserTokenReceiver()
         initNetworkErrorReceiver()
-        initAreYouRunReceiver()
         initGpsEnabledReceiver()
         initGpsDisabledReceiver()
     }
@@ -163,11 +153,8 @@ class RunningActivity :
     override fun onResume() {
         super.onResume()
 
-        registerRunDistanceReceiver()
-        registerErrorSavingTrackIntoDbReceiver()
         registerWrongUserTokenReceiver()
         registerNetworkErrorReceiver()
-        registerAreYouRunReceiver()
         registerGpsEnabledReceiver()
         registerGpsDisabledReceiver()
     }
@@ -190,29 +177,9 @@ class RunningActivity :
         )
     }
 
-    private fun registerRunDistanceReceiver() {
-        localBroadcastManager.registerReceiver(
-            runningDistanceReceiver, IntentFilter(BROADCAST_RUN_DISTANCE)
-        )
-    }
-
-    private fun registerErrorSavingTrackIntoDbReceiver() {
-        localBroadcastManager.registerReceiver(
-            errorSavingTrackIntoDbReceiver,
-            IntentFilter(BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE)
-        )
-    }
-
     private fun registerNetworkErrorReceiver() {
         localBroadcastManager.registerReceiver(
             networkErrorReceiver, IntentFilter(BROADCAST_NETWORK_ERROR)
-        )
-    }
-
-    private fun registerAreYouRunReceiver() {
-        localBroadcastManager.registerReceiver(
-            areYouRunReceiver,
-            IntentFilter(BROADCAST_ARE_YOU_RUN)
         )
     }
 
@@ -249,7 +216,7 @@ class RunningActivity :
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        getPresenter().checkRequstPermissionsResult(requestCode, permissions, grantResults)
+        presenter?.checkRequstPermissionsResult(requestCode, permissions, grantResults)
     }
 
 //    private fun initRunningDistanceReceiver() {
@@ -264,17 +231,6 @@ class RunningActivity :
 //        }
 //    }
 
-    private fun initErrorSavingTrackIntoDbReceiver() {
-        errorSavingTrackIntoDbReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                Toast.makeText(
-                    this@RunningActivity,
-                    R.string.running_activity_error_saving_data_into_db,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-    }
 
     private fun initWrongUserTokenReceiver() {
         wrongUserTokenReceiver = object : BroadcastReceiver() {
@@ -295,14 +251,6 @@ class RunningActivity :
                 )
                 toast.setGravity(Gravity.TOP, 0, 0)
                 toast.show()
-            }
-        }
-    }
-
-    private fun initAreYouRunReceiver() {
-        areYouRunReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-
             }
         }
     }
@@ -350,7 +298,7 @@ class RunningActivity :
                 runningServiceConnection,
                 Context.BIND_AUTO_CREATE
             )
-            getPresenter().saveTrack(startTimerRunningTime)
+            presenter?.saveTrack(startRunMillis)
         }
 //        val intentRunningService = Intent(this, RunningService::class.java).apply {
 //            putExtra(
@@ -485,11 +433,8 @@ class RunningActivity :
     }
 
     override fun onPause() {
-        localBroadcastManager.unregisterReceiver(runningDistanceReceiver)
-        localBroadcastManager.unregisterReceiver(errorSavingTrackIntoDbReceiver)
         localBroadcastManager.unregisterReceiver(wrongUserTokenReceiver)
         localBroadcastManager.unregisterReceiver(networkErrorReceiver)
-        localBroadcastManager.unregisterReceiver(areYouRunReceiver)
         localBroadcastManager.unregisterReceiver(gpsProviderEnabledReceiver)
         localBroadcastManager.unregisterReceiver(gpsProviderDisabledReceiver)
 
@@ -514,11 +459,11 @@ class RunningActivity :
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return getPresenter().checkFinishButtonWasClicked(
+        return presenter?.checkFinishButtonWasClicked(
             item.itemId,
             isStartButtonClicked,
             isFinishButtonClicked
-        )
+        )?:false
     }
 
     override fun showNeedsClickFinishToast() {
@@ -557,15 +502,15 @@ class RunningActivity :
                 distance?.humanizeDistance()
             )
 
-            service?.getTrackPoints(startTimerRunningTime)?.let {
+            service?.getTrackPoints(startRunMillis)?.let {
                 drawRunningPath(it)
                 setupMapData(it)
             }
 
-            getPresenter().updateTrackAfterRun(
-                service?.getTrackPoints(startTimerRunningTime),
+            presenter?.updateTrackAfterRun(
+                service?.getTrackPoints(startRunMillis),
                 distance,
-                startTimerRunningTime,
+                startRunMillis,
                 timeMillis
             )
             unbindService(runningServiceConnection)

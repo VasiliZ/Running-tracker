@@ -5,12 +5,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseActivity
-import com.github.rtyvz.senla.tr.runningtracker.ui.login.presenter.LoginActivityContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.presenter.LoginActivityPresenter
 
-class LoginActivity :
-    BaseActivity<LoginActivityContract.LoginActivityPresenter, LoginActivityContract.LoginActivityView>(),
-    LoginActivityContract.LoginActivityView,
+class LoginActivity : BaseActivity<LoginActivityPresenter>(), BaseView,
     ChangeFragmentContract {
 
     companion object {
@@ -20,16 +18,14 @@ class LoginActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
-        getPresenter().openRegistrationFragment()
-    }
-
-    override fun openRegistrationFragment() {
-        getPresenter().openRegistrationFragment()
     }
 
     override fun openLoginFragment() {
-        getPresenter().openLoginFragment()
+        presenter?.openLoginFragment()
+    }
+
+    override fun openRegistrationFragment() {
+        presenter?.openRegistrationFragment()
     }
 
     override fun onBackPressed() {
@@ -43,11 +39,11 @@ class LoginActivity :
         }
     }
 
-    override fun createPresenter(): LoginActivityContract.LoginActivityPresenter {
-        return LoginActivityPresenter()
+    override fun createPresenter(): LoginActivityPresenter {
+        return LoginActivityPresenter(this)
     }
 
-    override fun showFragment(
+    fun showFragment(
         fragment: Fragment,
         fragmentTag: String,
         clearToTag: String?

@@ -1,19 +1,9 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.base
 
-open class BasePresenter<View : MainContract.View> : MainContract.Presenter<View> {
+abstract class BasePresenter<VIEW : BaseView>(private var view: VIEW?) {
 
-    private var view: View? = null
-
-    override fun attachView(mvpView: View) {
-        view = mvpView
-    }
-
-    override fun detach() {
+    fun detach() {
         view = null
-    }
-
-    protected fun getView(): View {
-        return view ?: throw IllegalArgumentException("view is not attached")
     }
 
     protected fun isViewAttached(): Boolean {

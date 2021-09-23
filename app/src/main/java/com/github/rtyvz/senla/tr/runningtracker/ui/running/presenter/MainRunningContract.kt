@@ -15,7 +15,6 @@ interface MainRunningContract {
             clearInclusive: Boolean = false,
             containerId: Int
         )
-
         fun isTrackContainerAvailable(): Boolean
         fun enableHomeButton()
         fun disableHomeButton()

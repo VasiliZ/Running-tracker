@@ -65,7 +65,7 @@ class NotificationFragment :
         initViews(view)
         createTimePicker()
         createDatePicker()
-        getPresenter().getNotificationsFromDb()
+        presenter?.getNotificationsFromDb()
         notificationAdapter = NotificationAdapter(this,
             { clickCallBack, position, isSwitchChecked ->
                 isSwitchChecked?.let {
@@ -122,7 +122,7 @@ class NotificationFragment :
         }
 
         datePicker?.addOnPositiveButtonClickListener { dateLong ->
-            getPresenter().createNotificationWork(
+            presenter?.createNotificationWork(
                 dateLong,
                 alarmEntity,
                 hour,
@@ -144,7 +144,7 @@ class NotificationFragment :
     }
 
     override fun removeNotification(alarmEntity: AlarmEntity, position: Int) {
-        getPresenter().removeNotification(alarmEntity, position)
+        presenter?.removeNotification(alarmEntity, position)
     }
 
     override fun changeSwipeToggle(
@@ -152,7 +152,7 @@ class NotificationFragment :
         alarmEntity: AlarmEntity,
         adapterPosition: Int
     ) {
-        getPresenter().changeNotificationToggle(
+        presenter?.changeNotificationToggle(
             isChecked,
             alarmEntity,
             adapterPosition,
