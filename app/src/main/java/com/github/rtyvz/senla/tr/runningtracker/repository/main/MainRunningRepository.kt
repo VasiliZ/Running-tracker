@@ -2,6 +2,7 @@ package com.github.rtyvz.senla.tr.runningtracker.repository.main
 
 import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.work.WorkManager
 import bolts.CancellationTokenSource
 import bolts.Task
 import com.github.rtyvz.senla.tr.runningtracker.App
@@ -17,7 +18,7 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserTracks
 import com.github.rtyvz.senla.tr.runningtracker.extension.*
 import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
-import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.presenter.TracksPresenter
 
 class MainRunningRepository {
 
@@ -86,7 +87,7 @@ class MainRunningRepository {
             .onSuccess({
                 //insert points into table
                 if (it.isFaulted) {
-                    callback(Result.Error(TracksFragment.GET_POINTS_ERROR))
+                    callback(Result.Error(TracksPresenter.GET_POINTS_ERROR))
                 } else {
                     listTask.forEach { map ->
                         if (!it.isFaulted) {
@@ -230,7 +231,7 @@ class MainRunningRepository {
                     track.beginsAt
                 })))
             } else {
-                callback(Result.Error(TracksFragment.EMPTY_DATA_RESULT))
+                callback(Result.Error(TracksPresenter.EMPTY_DATA_RESULT))
             }
             return@onSuccess it.result
         }, Task.UI_THREAD_EXECUTOR)
@@ -346,5 +347,9 @@ class MainRunningRepository {
 
     fun removeTrackPoints(startRunningTime: Long) {
         TasksProvider.getDeleteTrackPointsTask(startRunningTime)
+    }
+
+    fun cancelAllManagerWork() {
+        WorkManager.getInstance(App.instance).cancelAllWork()
     }
 }

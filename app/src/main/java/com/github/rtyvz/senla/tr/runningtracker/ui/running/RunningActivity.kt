@@ -2,21 +2,14 @@ package com.github.rtyvz.senla.tr.runningtracker.ui.running
 
 import android.Manifest
 import android.animation.AnimatorInflater
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -29,10 +22,13 @@ import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
 import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithoutUTCOffset
 import com.github.rtyvz.senla.tr.runningtracker.extension.toLatLng
 import com.github.rtyvz.senla.tr.runningtracker.service.RunningService
-import com.github.rtyvz.senla.tr.runningtracker.service.RunningService.Companion.ACTION_RUNNING_SERVICE_STOP
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.dialogs.AreYouRunDialog
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.dialogs.EnableGpsDialog
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.presenter.RunningActivityPresenter
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.presenter.RunningActivityPresenter.Companion.FINE_LOCATION_REQUEST_CODE
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.presenter.ViewRunningActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
@@ -42,24 +38,22 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import java.util.*
 
-class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
+class RunningActivity :
+    BaseActivity<RunningActivityPresenter>(),
+    ViewRunningActivity, OnMapReadyCallback,
     AreYouRunDialog.AreYouWantToRunningYetContract {
 
     companion object {
-        private const val FINE_LOCATION_REQUEST_CODE = 1101
+
         private const val DEFAULT_ZOOM = 15
         private const val TIMER_INTERVAL = 10L
         private const val STOP_WATCH_PATTERN = "mm:ss,SS"
-        private const val DEFAULT_INT_VALUE = 0
         private const val CAMERA_PADDING = 300
         private const val WIDTH_PATH_LINE = 10f
         private const val START_MARKER_TITLE = "Старт"
         private const val FINISH_MARKER_TITLE = "Финиш"
-        private const val FIRST_ARRAY_INDEX = 0
+
         private const val NANO_TIME_DIVIDER = 1000000
-        const val EXTRA_RUN_DISTANCE = "RUN_DISTANCE"
-        const val BROADCAST_RUN_DISTANCE = "local:BROADCAST_RUN_DISTANCE"
-        const val BROADCAST_ARE_YOU_RUN = "local:BROADCAST_ARE_YOU_RUN"
         const val BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE =
             "local:BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE"
         const val BROADCAST_WRONG_USER_TOKEN =
@@ -68,18 +62,14 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
             "local:BROADCAST_NETWORK_ERROR"
         const val BROADCAST_GPS_ENABLED = "local:BROADCAST_GPS_ENABLED"
         const val BROADCAST_GPS_DISABLED = "local:BROADCAST_GPS_DISABLED"
-        const val EXTRA_TRACK_POINTS = "TRACK_POINTS"
     }
 
     private lateinit var locationProvider: FusedLocationProviderClient
     private lateinit var localBroadcastManager: LocalBroadcastManager
-    private lateinit var runningDistanceReceiver: BroadcastReceiver
     private lateinit var wrongUserTokenReceiver: BroadcastReceiver
     private lateinit var gpsProviderDisabledReceiver: BroadcastReceiver
     private lateinit var gpsProviderEnabledReceiver: BroadcastReceiver
-    private lateinit var errorSavingTrackIntoDbReceiver: BroadcastReceiver
     private lateinit var networkErrorReceiver: BroadcastReceiver
-    private lateinit var areYouRunReceiver: BroadcastReceiver
     private var locationPermissionGranted: Boolean = false
     private var googleMap: GoogleMap? = null
     private var startRunningButton: MaterialButton? = null
@@ -103,6 +93,19 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
             timeMillis = (System.nanoTime() - startTimerRunningTime) / NANO_TIME_DIVIDER
             updateWatch(timeMillis)
             handler?.postDelayed(this, TIMER_INTERVAL)
+        }
+    }
+    private var isBoundToRunningService = false
+    private var service: RunningService? = null
+    private val runningServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
+            val binder = p1 as RunningService.RunningServiceBinder
+            service = binder.getService()
+            isBoundToRunningService = true
+        }
+
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            isBoundToRunningService = false
         }
     }
 
@@ -129,87 +132,28 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         mapFragment.getMapAsync(this)
 
         startRunningButton?.setOnClickListener {
-            if (isGpsEnabled()) {
-                startTimerRunningTime = System.nanoTime()
-                startRunMillis = System.currentTimeMillis()
-                isStartButtonClicked = true
-                startAnimation(startLayout as CardView, R.animator.flip_out)
-                startAnimation(exitLayout as CardView, R.animator.flip_in)
-                exitLayout?.isVisible = true
-                startRunningButton?.isClickable = false
-                finishRunningButton?.isClickable = true
-
-                startTimer()
-                getDeviceLocation()
-                updateLocationUi()
-
-                val intentRunningService = Intent(this, RunningService::class.java).apply {
-                    putExtra(
-                        RunningService.EXTRA_CURRENT_TIME,
-                        startRunMillis
-                    )
-                }
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(intentRunningService)
-                } else {
-                    startService(intentRunningService)
-                }
-            } else {
-                EnableGpsDialog.newInstance().show(supportFragmentManager, EnableGpsDialog.TAG)
-            }
+            presenter.startRunning()
         }
 
         finishRunningButton?.setOnClickListener {
-            isFinishButtonClicked = true
-            isStartButtonClicked = false
-            startAnimation(exitLayout as CardView, R.animator.flip_out)
-            startAnimation(resultLayout as CardView, R.animator.flip_in)
-            finishRunningButton?.isClickable = false
-            startRunningButton?.isClickable = false
-            val stopActionRunningServiceIntent = Intent(this, RunningService::class.java)
-                .apply {
-                    action = ACTION_RUNNING_SERVICE_STOP
-                    putExtra(RunningService.EXTRA_FINISH_RUNNING_TIME, timeMillis)
-                }
-
-            stopTimer()
-            startService(stopActionRunningServiceIntent)
-
-            resultRunningTimeTextView?.text =
-                timeMillis.toDateTimeWithoutUTCOffset(STOP_WATCH_PATTERN)
+            presenter.stopRunning()
         }
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        initRunningDistanceReceiver()
-        initErrorSavingTrackIntoDbReceiver()
         initWrongUserTokenReceiver()
         initNetworkErrorReceiver()
-        initAreYouRunReceiver()
         initGpsEnabledReceiver()
         initGpsDisabledReceiver()
     }
 
-    private fun isGpsEnabled(): Boolean {
-        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            true
-        } else {
-            EnableGpsDialog.newInstance().show(supportFragmentManager, EnableGpsDialog.TAG)
-            false
-        }
-    }
 
     override fun onResume() {
         super.onResume()
 
-        registerRunDistanceReceiver()
-        registerErrorSavingTrackIntoDbReceiver()
         registerWrongUserTokenReceiver()
         registerNetworkErrorReceiver()
-        registerAreYouRunReceiver()
         registerGpsEnabledReceiver()
         registerGpsDisabledReceiver()
     }
@@ -232,29 +176,9 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         )
     }
 
-    private fun registerRunDistanceReceiver() {
-        localBroadcastManager.registerReceiver(
-            runningDistanceReceiver, IntentFilter(BROADCAST_RUN_DISTANCE)
-        )
-    }
-
-    private fun registerErrorSavingTrackIntoDbReceiver() {
-        localBroadcastManager.registerReceiver(
-            errorSavingTrackIntoDbReceiver,
-            IntentFilter(BROADCAST_ERROR_SAVE_TRACK_TO_LOCAL_STORAGE)
-        )
-    }
-
     private fun registerNetworkErrorReceiver() {
         localBroadcastManager.registerReceiver(
             networkErrorReceiver, IntentFilter(BROADCAST_NETWORK_ERROR)
-        )
-    }
-
-    private fun registerAreYouRunReceiver() {
-        localBroadcastManager.registerReceiver(
-            areYouRunReceiver,
-            IntentFilter(BROADCAST_ARE_YOU_RUN)
         )
     }
 
@@ -290,51 +214,8 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        when (requestCode) {
-            FINE_LOCATION_REQUEST_CODE -> {
-                if (grantResults.isEmpty() || grantResults[FIRST_ARRAY_INDEX] != PackageManager.PERMISSION_GRANTED) {
-                    finish()
-                } else {
-                    locationPermissionGranted = true
-                }
-            }
-            else -> {
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-            }
-        }
-
-        getDeviceLocation()
-        updateLocationUi()
-    }
-
-    private fun initRunningDistanceReceiver() {
-        runningDistanceReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                val distance = intent?.getIntExtra(EXTRA_RUN_DISTANCE, DEFAULT_INT_VALUE)
-                intent?.getParcelableArrayListExtra<PointEntity>(EXTRA_TRACK_POINTS)?.toList()
-                    ?.let {
-                        drawRunningPath(it)
-                        setupMapData(it)
-                    }
-                runDistanceTextView?.text = String.format(
-                    resources.getString(R.string.running_activity_run_distance_pattern),
-                    distance,
-                    distance?.humanizeDistance()
-                )
-            }
-        }
-    }
-
-    private fun initErrorSavingTrackIntoDbReceiver() {
-        errorSavingTrackIntoDbReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                Toast.makeText(
-                    this@RunningActivity,
-                    R.string.running_activity_error_saving_data_into_db,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        presenter.checkRequestPermissionsResult(requestCode, grantResults)
     }
 
     private fun initWrongUserTokenReceiver() {
@@ -356,14 +237,6 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                 )
                 toast.setGravity(Gravity.TOP, 0, 0)
                 toast.show()
-            }
-        }
-    }
-
-    private fun initAreYouRunReceiver() {
-        areYouRunReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                AreYouRunDialog.newInstance().show(supportFragmentManager, AreYouRunDialog.TAG)
             }
         }
     }
@@ -390,7 +263,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         updateLocationUi()
     }
 
-    private fun updateLocationUi() {
+    override fun updateLocationUi() {
         if (googleMap == null) {
             return
         }
@@ -402,6 +275,28 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         } catch (e: SecurityException) {
             showEnableGpsToast()
         }
+    }
+
+    override fun startRunningService() {
+        if (!isBoundToRunningService) {
+            bindService(
+                Intent(this, RunningService::class.java),
+                runningServiceConnection,
+                Context.BIND_AUTO_CREATE
+            )
+            presenter.saveTrack(startRunMillis)
+        }
+    }
+
+    override fun showEnableGpsDialog() {
+        EnableGpsDialog.newInstance().show(supportFragmentManager, EnableGpsDialog.TAG)
+    }
+
+    override fun getLocationManager() =
+        getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+    override fun finishActivity() {
+        finish()
     }
 
     private fun drawRunningPath(points: List<PointEntity>) {
@@ -429,8 +324,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
                         startPoint.lat,
                         startPoint.lng
                     )
-                )
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                ).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
                     .title(START_MARKER_TITLE)
                 val finishMarker = MarkerOptions()
                     .position(LatLng(finishPoint.lat, finishPoint.lng))
@@ -456,7 +350,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         return bounds.build()
     }
 
-    private fun getDeviceLocation() {
+    override fun getDeviceLocation() {
         try {
             if (locationPermissionGranted) {
                 locationProvider.lastLocation.addOnCompleteListener { location ->
@@ -494,21 +388,27 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
             timeInHundredthOfASecond.toDateTimeWithoutUTCOffset(STOP_WATCH_PATTERN)
     }
 
-    private fun startTimer() {
+    override fun startTimer() {
         handler = Handler(Looper.getMainLooper())
         timeTicker.run()
     }
 
-    private fun stopTimer() {
+    override fun stopTimer() {
         handler?.removeCallbacks(timeTicker)
     }
 
+    override fun displayRunningTime() {
+        resultRunningTimeTextView?.text =
+            timeMillis.toDateTimeWithoutUTCOffset(STOP_WATCH_PATTERN)
+    }
+
+    override fun showAreYouRunningDialog() {
+        AreYouRunDialog.newInstance().show(supportFragmentManager, AreYouRunDialog.TAG)
+    }
+
     override fun onPause() {
-        localBroadcastManager.unregisterReceiver(runningDistanceReceiver)
-        localBroadcastManager.unregisterReceiver(errorSavingTrackIntoDbReceiver)
         localBroadcastManager.unregisterReceiver(wrongUserTokenReceiver)
         localBroadcastManager.unregisterReceiver(networkErrorReceiver)
-        localBroadcastManager.unregisterReceiver(areYouRunReceiver)
         localBroadcastManager.unregisterReceiver(gpsProviderEnabledReceiver)
         localBroadcastManager.unregisterReceiver(gpsProviderDisabledReceiver)
 
@@ -533,28 +433,62 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                if (isStartButtonClicked && !isFinishButtonClicked) {
-                    showNeedsClickFinishToast()
-                    false
-                } else {
-                    finish()
-                    true
-                }
-            }
-            else -> {
-                false
-            }
-        }
+        return presenter.checkFinishButtonWasClicked(
+            item.itemId,
+            isStartButtonClicked,
+            isFinishButtonClicked
+        )
     }
 
-    private fun showNeedsClickFinishToast() {
+    override fun showNeedsClickFinishToast() {
         Toast.makeText(
             this,
             getString(R.string.running_activity_dialog_finish_button_is_not_click_yet),
             Toast.LENGTH_LONG
         ).show()
+    }
+
+    override fun setGrandPermissionFlag(flag: Boolean) {
+        locationPermissionGranted = true
+    }
+
+    override fun stopRunAnimation() {
+        startAnimation(exitLayout as CardView, R.animator.flip_out)
+        startAnimation(resultLayout as CardView, R.animator.flip_in)
+    }
+
+    override fun disableButtons() {
+        finishRunningButton?.isClickable = false
+        startRunningButton?.isClickable = false
+    }
+
+    override fun changeButtonClickable() {
+        isFinishButtonClicked = true
+        isStartButtonClicked = false
+    }
+
+    override fun stopRunningService() {
+        if (isBoundToRunningService) {
+            val distance = service?.getDistance()
+            runDistanceTextView?.text = String.format(
+                resources.getString(R.string.running_activity_run_distance_pattern),
+                distance,
+                distance?.humanizeDistance()
+            )
+
+            service?.getTrackPoints(startRunMillis)?.let {
+                drawRunningPath(it)
+                setupMapData(it)
+            }
+
+            presenter.updateTrackAfterRun(
+                service?.getTrackPoints(startRunMillis),
+                distance,
+                startRunMillis,
+                timeMillis
+            )
+            unbindService(runningServiceConnection)
+        }
     }
 
     override fun onDestroy() {
@@ -563,5 +497,23 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback,
         googleMap = null
 
         super.onDestroy()
+    }
+
+    override fun createPresenter() = RunningActivityPresenter(this)
+    override fun initTimer() {
+        startTimerRunningTime = System.nanoTime()
+        startRunMillis = System.currentTimeMillis()
+    }
+
+    override fun startAnimation() {
+        isStartButtonClicked = true
+        startAnimation(startLayout as CardView, R.animator.flip_out)
+        startAnimation(exitLayout as CardView, R.animator.flip_in)
+    }
+
+    override fun setUpAnimatedLayouts() {
+        exitLayout?.isVisible = true
+        startRunningButton?.isClickable = false
+        finishRunningButton?.isClickable = true
     }
 }

@@ -1,6 +1,6 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.login
 
-interface LoginFlowContract {
+interface ChangeFragmentContract {
     fun openLoginFragment()
     fun openRegistrationFragment()
 }

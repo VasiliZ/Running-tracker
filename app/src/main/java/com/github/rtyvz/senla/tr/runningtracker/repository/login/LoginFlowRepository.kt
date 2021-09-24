@@ -8,10 +8,11 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.UserSuccessfulResponse
 import com.github.rtyvz.senla.tr.runningtracker.extension.toUserData
 import com.github.rtyvz.senla.tr.runningtracker.providers.TasksProvider
+import java.util.*
 
 class LoginFlowRepository {
 
-    fun authUser(
+    fun registerUser(
         userDataRequest: UserDataRequest,
         callBack: (Result<UserSuccessfulResponse>) -> (Unit)
     ) {

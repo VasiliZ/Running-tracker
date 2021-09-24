@@ -5,15 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
-import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
 import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithoutUTCOffset
 import com.github.rtyvz.senla.tr.runningtracker.extension.toLatLng
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
+import com.github.rtyvz.senla.tr.runningtracker.ui.track.dialog.ErrorGetCurrentTrackPointsDialog
+import com.github.rtyvz.senla.tr.runningtracker.ui.track.presenter.TrackPresenter
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -21,7 +22,8 @@ import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.*
 import com.google.android.material.textview.MaterialTextView
 
-class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
+class CurrentTrackFragment : BaseFragment<TrackPresenter>(),
+    BaseView, GoogleMap.OnMarkerClickListener,
     ErrorGetCurrentTrackPointsDialog.HandleErrorGetTrackPoints {
 
     companion object {
@@ -46,7 +48,6 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
     private var map: GoogleMap? = null
     private var distanceTextView: MaterialTextView? = null
     private var timeActionTextView: MaterialTextView? = null
-    private var trackPoints: List<PointEntity> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,7 +67,7 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
         mapView?.onResume()
         mapView?.getMapAsync { googleMap ->
             val track = arguments?.getParcelable<TrackEntity>(EXTRA_TRACK_ENTITY)
-            getPoints(track)
+            presenter.onTryToRetryPoints(track)
             map = googleMap
         }
     }
@@ -83,74 +84,6 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
         mapView = view.findViewById(R.id.currentTrackMapView)
     }
 
-    private fun getPoints(trackEntity: TrackEntity?) {
-        if (trackEntity != null) {
-            App.mainRunningRepository.getTrackPoints(trackEntity.id, trackEntity.beginsAt) {
-                when (it) {
-                    is Result.Success -> {
-                        trackPoints = it.data.listPoints
-                        if (trackPoints.isNotEmpty()) {
-                            map?.clear()
-                            setupMapData(map, trackPoints)
-                            drawPath(map, trackPoints)
-                            setDataOnUI(trackEntity)
-                        }
-                    }
-                    is Result.Error -> {
-                        ErrorGetCurrentTrackPointsDialog.newInstance()
-                            .show(childFragmentManager, ErrorGetCurrentTrackPointsDialog.TAG)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun setDataOnUI(trackEntity: TrackEntity) {
-        distanceTextView?.text = String.format(
-            getString(R.string.current_fragment_run_distance_pattern),
-            trackEntity.distance,
-            trackEntity.distance.humanizeDistance()
-        )
-        timeActionTextView?.text = trackEntity.time.toDateTimeWithoutUTCOffset(DATE_TIME_PATTERN)
-    }
-
-    private fun drawPath(googleMap: GoogleMap?, listPoints: List<PointEntity>) {
-        googleMap?.let {
-            with(PolylineOptions()) {
-                addAll(listPoints.map { point ->
-                    point.toLatLng()
-                })
-                width(WIDTH_PATH_LINE)
-                color(ContextCompat.getColor(requireContext(), R.color.main_app_color))
-                it.addPolyline(this)
-            }
-        }
-    }
-
-    private fun setupMapData(googleMap: GoogleMap?, pointsList: List<PointEntity>) {
-        googleMap?.let { it ->
-            val startPoint = pointsList.first()
-            val finishPoint = pointsList.last()
-            val startMarker = MarkerOptions().position(
-                LatLng(
-                    startPoint.lat,
-                    startPoint.lng
-                )
-            )
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                .title(START_MARKER_TITLE)
-            val finishMarker = MarkerOptions()
-                .position(LatLng(finishPoint.lat, finishPoint.lng))
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                .title(FINISH_MARKER_TITLE)
-            it.addMarker(startMarker)
-            it.addMarker(finishMarker)
-            val cameraUpdate =
-                CameraUpdateFactory.newLatLngBounds(getMiddlePoint(pointsList), CAMERA_PADDING)
-            it.animateCamera(cameraUpdate)
-        }
-    }
-
     private fun getMiddlePoint(pointsList: List<PointEntity>): LatLngBounds {
         val bounds = LatLngBounds.builder()
         pointsList.forEach {
@@ -165,7 +98,7 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
     }
 
     fun setTrack(trackEntity: TrackEntity) {
-        getPoints(trackEntity)
+        presenter.onTryToRetryPoints(trackEntity)
     }
 
     override fun onPause() {
@@ -189,6 +122,64 @@ class CurrentTrackFragment : Fragment(), GoogleMap.OnMarkerClickListener,
     }
 
     override fun retryGetPoints() {
-        getPoints(arguments?.getParcelable(EXTRA_TRACK_ENTITY))
+        presenter.onTryToRetryPoints(arguments?.getParcelable(EXTRA_TRACK_ENTITY))
+    }
+
+    override fun createPresenter() = TrackPresenter(this)
+
+
+    fun clearMap() {
+        map?.clear()
+    }
+
+    fun setupMapData(trackPoints: List<PointEntity>) {
+        map?.let { it ->
+            val startPoint = trackPoints.first()
+            val finishPoint = trackPoints.last()
+            val startMarker = MarkerOptions().position(
+                LatLng(
+                    startPoint.lat,
+                    startPoint.lng
+                )
+            )
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                .title(START_MARKER_TITLE)
+            val finishMarker = MarkerOptions()
+                .position(LatLng(finishPoint.lat, finishPoint.lng))
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                .title(FINISH_MARKER_TITLE)
+            it.addMarker(startMarker)
+            it.addMarker(finishMarker)
+            val cameraUpdate =
+                CameraUpdateFactory.newLatLngBounds(getMiddlePoint(trackPoints), CAMERA_PADDING)
+            it.animateCamera(cameraUpdate)
+        }
+    }
+
+    fun drawPath(trackPoints: List<PointEntity>) {
+        map?.let {
+            with(PolylineOptions()) {
+                addAll(trackPoints.map { point ->
+                    point.toLatLng()
+                })
+                width(WIDTH_PATH_LINE)
+                color(ContextCompat.getColor(requireContext(), R.color.main_app_color))
+                it.addPolyline(this)
+            }
+        }
+    }
+
+    fun setDataOnUI(trackEntity: TrackEntity?) {
+        distanceTextView?.text = String.format(
+            getString(R.string.current_fragment_run_distance_pattern),
+            trackEntity?.distance,
+            trackEntity?.distance?.humanizeDistance()
+        )
+        timeActionTextView?.text = trackEntity?.time?.toDateTimeWithoutUTCOffset(DATE_TIME_PATTERN)
+    }
+
+    fun showError() {
+        ErrorGetCurrentTrackPointsDialog.newInstance()
+            .show(childFragmentManager, ErrorGetCurrentTrackPointsDialog.TAG)
     }
 }

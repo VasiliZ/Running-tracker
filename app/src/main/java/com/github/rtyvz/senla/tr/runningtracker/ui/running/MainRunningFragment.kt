@@ -14,16 +14,19 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
-import com.github.rtyvz.senla.tr.runningtracker.ui.track.CurrentTrackFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.presenter.MainRunningPresenter
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
 import com.google.android.material.textview.MaterialTextView
 
-class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
+class MainRunningFragment :
+    BaseFragment<MainRunningPresenter>(),
+    BaseView, TracksFragment.OnItemClickListListener,
     TracksFragment.LogOutFromApp {
 
     companion object {
         val TAG = MainRunningFragment::class.java.simpleName.toString()
-        private const val FIRST_TIME_RUN_APP = "FIRST_TIME_RUN_APP"
 
         fun newInstance(): MainRunningFragment {
             return MainRunningFragment()
@@ -46,77 +49,50 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
 
         currentTrackContainer = view.findViewById(R.id.currentTrackContainer)
         selectTrackTextView = view.findViewById(R.id.selectTrackTextView)
-
-        openMainFragment(isFirstTimeLaunchApp(requireActivity().getRunningSharedPreference()))
-        App.state?.lastOpenedUserTrack?.let { lastTrack ->
-            if (isTrackContainerAvailable()) {
-                showFragment(
-                    fragment = CurrentTrackFragment.newInstance(lastTrack),
-                    fragmentTag = CurrentTrackFragment.TAG,
-                    containerId = R.id.currentTrackContainer
-                )
-            }
-        }
+        presenter.onCreate()
     }
 
     fun onBackPressed(): Boolean {
-        return when {
-            (childFragmentManager.backStackEntryCount == 1) -> {
-                val fragment = childFragmentManager.findFragmentByTag(CurrentTrackFragment.TAG)
-                if (fragment is CurrentTrackFragment && fragment.isVisible) {
-                    childFragmentManager.popBackStack()
-                    App.state?.lastOpenedUserTrack = null
-                    (activity as ChangeNavigationInToolbar).enableHomeButton(false)
-                    (activity as ChangeNavigationInToolbar).enableToggle()
-                    return false
-                }
-                return true
-            }
-            else -> {
-                childFragmentManager.popBackStack()
-                (activity as ChangeNavigationInToolbar).enableHomeButton(false)
-                (activity as ChangeNavigationInToolbar).enableToggle()
-                selectTrackTextView?.isVisible = true
-                App.state?.lastOpenedUserTrack = null
-                false
-            }
-        }
+        return presenter.onBackPressedClick()
     }
 
-    private fun openMainFragment(isFirstTimeRunFlag: Boolean) {
+    fun isTrackContainerAvailable() = currentTrackContainer != null
+
+    fun enableHomeButton() {
+        (activity as ChangeNavigationInToolbar).enableHomeButton(true)
+    }
+
+    fun disableHomeButton() {
+        (activity as ChangeNavigationInToolbar).enableHomeButton(false)
+    }
+
+    fun showTrackTextView() {
+        selectTrackTextView?.isVisible = true
+    }
+
+    fun hideTrackTextView() {
         selectTrackTextView?.isVisible = false
-        showFragment(
-            fragment = TracksFragment.newInstance(isFirstTimeRunFlag),
-            fragmentTag = TracksFragment.TAG,
-            containerId = R.id.listTrackContainer
-        )
-
-        if (!isTrackContainerAvailable() && App.state?.lastOpenedUserTrack != null) {
-            App.state?.lastOpenedUserTrack?.let {
-                showFragment(
-                    fragment = CurrentTrackFragment.newInstance(it),
-                    fragmentTag = CurrentTrackFragment.TAG,
-                    containerId = R.id.listTrackContainer
-                )
-            }
-            (activity as ChangeNavigationInToolbar).enableHomeButton(true)
-        }
-
-        if (isTrackContainerAvailable() && App.state?.lastOpenedUserTrack == null) {
-            selectTrackTextView?.isVisible = true
-        }
     }
 
-    private fun isFirstTimeLaunchApp(sharedPreference: SharedPreferences): Boolean {
-        return if (sharedPreference.getBoolean(FIRST_TIME_RUN_APP, true)) {
-            sharedPreference.edit().putBoolean(FIRST_TIME_RUN_APP, false).apply()
-            true
-        } else {
-            false
-        }
+    fun getFragmentByTag(tag: String): Fragment? {
+        return childFragmentManager.findFragmentByTag(tag)
     }
 
-    private fun isTrackContainerAvailable() = currentTrackContainer != null
+    fun getBackStackEntryCount(): Int {
+        return childFragmentManager.backStackEntryCount
+    }
+
+    fun popBackStack() {
+        childFragmentManager.popBackStack()
+    }
+
+    fun enableToggle() {
+        (activity as ChangeNavigationInToolbar).enableToggle()
+    }
+
+    fun getRunningPreference(): SharedPreferences {
+        return requireActivity().getRunningSharedPreference()
+    }
 
     override fun logout() {
         App.mainRunningRepository.clearCache()
@@ -124,31 +100,10 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
     }
 
     override fun onTrackItemClick(trackEntity: TrackEntity) {
-        App.state?.lastOpenedUserTrack = trackEntity
-
-        if (isTrackContainerAvailable()) {
-            selectTrackTextView?.isVisible = false
-            val fragment = childFragmentManager.findFragmentByTag(CurrentTrackFragment.TAG)
-            if (fragment is CurrentTrackFragment) {
-                fragment.setTrack(trackEntity)
-            } else {
-                showFragment(
-                    CurrentTrackFragment.newInstance(trackEntity),
-                    CurrentTrackFragment.TAG,
-                    containerId = R.id.currentTrackContainer
-                )
-            }
-        } else {
-            (activity as ChangeNavigationInToolbar).enableHomeButton(true)
-            showFragment(
-                CurrentTrackFragment.newInstance(trackEntity),
-                CurrentTrackFragment.TAG,
-                containerId = R.id.listTrackContainer
-            )
-        }
+        presenter.onTrackItemClick(trackEntity)
     }
 
-    private fun showFragment(
+    fun showFragment(
         fragment: Fragment,
         fragmentTag: String,
         clearToTag: String? = null,
@@ -177,4 +132,6 @@ class MainRunningFragment : Fragment(), TracksFragment.OnItemClickListListener,
         fun enableHomeButton(isEnable: Boolean)
         fun enableToggle()
     }
+
+    override fun createPresenter() = MainRunningPresenter(this)
 }

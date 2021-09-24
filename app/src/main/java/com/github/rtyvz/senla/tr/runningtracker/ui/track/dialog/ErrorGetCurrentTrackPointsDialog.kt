@@ -1,4 +1,4 @@
-package com.github.rtyvz.senla.tr.runningtracker.ui.track
+package com.github.rtyvz.senla.tr.runningtracker.ui.track.dialog
 
 import android.app.AlertDialog
 import android.app.Dialog
