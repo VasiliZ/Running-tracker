@@ -18,7 +18,6 @@ class LoginActivity : BaseActivity<LoginActivityPresenter>(), BaseView,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        presenter.onCreate()
     }
 
     override fun openLoginFragment() {

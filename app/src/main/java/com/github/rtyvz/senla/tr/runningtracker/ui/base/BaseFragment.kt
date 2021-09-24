@@ -1,6 +1,7 @@
 package com.github.rtyvz.senla.tr.runningtracker.ui.base
 
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.Fragment
 
 abstract class BaseFragment<PRESENTER : BasePresenter<BaseView>> :
@@ -12,6 +13,10 @@ abstract class BaseFragment<PRESENTER : BasePresenter<BaseView>> :
         super.onCreate(savedInstanceState)
 
         presenter = createPresenter()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         presenter.onCreate()
     }
 
