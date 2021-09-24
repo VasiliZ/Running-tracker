@@ -117,7 +117,7 @@ class NotificationPresenter(private val view: NotificationFragment) :
         }
     }
 
-    fun onCreate() {
+    override fun onCreate() {
         getNotificationsFromDb()
     }
 }

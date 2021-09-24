@@ -21,7 +21,7 @@ class MainActivityPresenter(private val view: MainActivity) : BasePresenter<Base
 
     private var userData: UserData? = null
 
-    fun onCreate() {
+    override fun onCreate() {
         restoreUserData()
         initNavHeaderWithData()
     }

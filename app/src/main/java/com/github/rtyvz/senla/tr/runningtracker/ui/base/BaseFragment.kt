@@ -12,6 +12,7 @@ abstract class BaseFragment<PRESENTER : BasePresenter<BaseView>> :
         super.onCreate(savedInstanceState)
 
         presenter = createPresenter()
+        presenter.onCreate()
     }
 
     override fun onDestroyView() {

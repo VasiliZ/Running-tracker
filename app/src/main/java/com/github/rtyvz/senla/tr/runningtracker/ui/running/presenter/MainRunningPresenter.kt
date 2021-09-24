@@ -108,7 +108,7 @@ class MainRunningPresenter(private val view: MainRunningFragment) : BasePresente
         }
     }
 
-    fun onCreate() {
+    override fun onCreate() {
         openMainFragment()
     }
 }

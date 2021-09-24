@@ -10,6 +10,7 @@ abstract class BaseActivity<PRESENTER : BasePresenter<BaseView>> : AppCompatActi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         presenter = createPresenter()
+        presenter.onCreate()
     }
 
     abstract fun createPresenter(): PRESENTER

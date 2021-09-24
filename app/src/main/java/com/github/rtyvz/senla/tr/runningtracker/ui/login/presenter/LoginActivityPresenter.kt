@@ -24,7 +24,7 @@ class LoginActivityPresenter(private val view: LoginActivity) : BasePresenter<Ba
         )
     }
 
-    fun onCreate() {
+    override fun onCreate() {
         view.showFragment(
             RegistrationFragment.newInstance(),
             RegistrationFragment.TAG,

@@ -59,6 +59,9 @@ dependencies {
 
     /*work manager*/
     implementation "androidx.work:work-runtime-ktx:2.5.0"
+//rx
+    implementation "io.reactivex.rxjava3:rxjava:3.0.13"
+    implementation "io.reactivex.rxjava3:rxandroid:3.0.0"
 
     /*test*/
     testImplementation 'junit:junit:4.+'
