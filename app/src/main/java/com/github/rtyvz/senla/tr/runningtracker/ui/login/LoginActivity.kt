@@ -18,14 +18,15 @@ class LoginActivity : BaseActivity<LoginActivityPresenter>(), BaseView,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        presenter.onCreate()
     }
 
     override fun openLoginFragment() {
-        presenter?.openLoginFragment()
+        presenter.openLoginFragment()
     }
 
     override fun openRegistrationFragment() {
-        presenter?.openRegistrationFragment()
+        presenter.openRegistrationFragment()
     }
 
     override fun onBackPressed() {
@@ -58,13 +59,5 @@ class LoginActivity : BaseActivity<LoginActivityPresenter>(), BaseView,
             .replace(R.id.loginFlowContainer, fragment, fragmentTag)
             .addToBackStack(fragmentTag)
             .commit()
-    }
-
-    override fun showLoading() {
-        //nothing to do here
-    }
-
-    override fun hideLoading() {
-        //nothing to do here
     }
 }

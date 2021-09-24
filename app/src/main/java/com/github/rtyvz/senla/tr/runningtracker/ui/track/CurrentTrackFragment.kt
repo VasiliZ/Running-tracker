@@ -12,8 +12,8 @@ import com.github.rtyvz.senla.tr.runningtracker.extension.humanizeDistance
 import com.github.rtyvz.senla.tr.runningtracker.extension.toDateTimeWithoutUTCOffset
 import com.github.rtyvz.senla.tr.runningtracker.extension.toLatLng
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
 import com.github.rtyvz.senla.tr.runningtracker.ui.track.dialog.ErrorGetCurrentTrackPointsDialog
-import com.github.rtyvz.senla.tr.runningtracker.ui.track.presenter.TrackContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.track.presenter.TrackPresenter
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -22,8 +22,8 @@ import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.*
 import com.google.android.material.textview.MaterialTextView
 
-class CurrentTrackFragment : BaseFragment<TrackContract.PresenterTrack, TrackContract.ViewTrack>(),
-    TrackContract.ViewTrack, GoogleMap.OnMarkerClickListener,
+class CurrentTrackFragment : BaseFragment<TrackPresenter>(),
+    BaseView, GoogleMap.OnMarkerClickListener,
     ErrorGetCurrentTrackPointsDialog.HandleErrorGetTrackPoints {
 
     companion object {
@@ -67,7 +67,7 @@ class CurrentTrackFragment : BaseFragment<TrackContract.PresenterTrack, TrackCon
         mapView?.onResume()
         mapView?.getMapAsync { googleMap ->
             val track = arguments?.getParcelable<TrackEntity>(EXTRA_TRACK_ENTITY)
-            presenter?.getPoints(track)
+            presenter.getPoints(track)
             map = googleMap
         }
     }
@@ -98,7 +98,7 @@ class CurrentTrackFragment : BaseFragment<TrackContract.PresenterTrack, TrackCon
     }
 
     fun setTrack(trackEntity: TrackEntity) {
-        presenter?.getPoints(trackEntity)
+        presenter.getPoints(trackEntity)
     }
 
     override fun onPause() {
@@ -122,18 +122,17 @@ class CurrentTrackFragment : BaseFragment<TrackContract.PresenterTrack, TrackCon
     }
 
     override fun retryGetPoints() {
-        presenter?.getPoints(arguments?.getParcelable(EXTRA_TRACK_ENTITY))
+        presenter.getPoints(arguments?.getParcelable(EXTRA_TRACK_ENTITY))
     }
 
-    override fun createPresenter(): TrackContract.PresenterTrack {
-        return TrackPresenter()
-    }
+    override fun createPresenter() = TrackPresenter(this)
 
-    override fun clearMap() {
+
+    fun clearMap() {
         map?.clear()
     }
 
-    override fun setupMapData(trackPoints: List<PointEntity>) {
+    fun setupMapData(trackPoints: List<PointEntity>) {
         map?.let { it ->
             val startPoint = trackPoints.first()
             val finishPoint = trackPoints.last()
@@ -157,7 +156,7 @@ class CurrentTrackFragment : BaseFragment<TrackContract.PresenterTrack, TrackCon
         }
     }
 
-    override fun drawPath(trackPoints: List<PointEntity>) {
+    fun drawPath(trackPoints: List<PointEntity>) {
         map?.let {
             with(PolylineOptions()) {
                 addAll(trackPoints.map { point ->
@@ -170,7 +169,7 @@ class CurrentTrackFragment : BaseFragment<TrackContract.PresenterTrack, TrackCon
         }
     }
 
-    override fun setDataOnUI(trackEntity: TrackEntity?) {
+    fun setDataOnUI(trackEntity: TrackEntity?) {
         distanceTextView?.text = String.format(
             getString(R.string.current_fragment_run_distance_pattern),
             trackEntity?.distance,
@@ -179,14 +178,8 @@ class CurrentTrackFragment : BaseFragment<TrackContract.PresenterTrack, TrackCon
         timeActionTextView?.text = trackEntity?.time?.toDateTimeWithoutUTCOffset(DATE_TIME_PATTERN)
     }
 
-    override fun showError() {
+    fun showError() {
         ErrorGetCurrentTrackPointsDialog.newInstance()
             .show(childFragmentManager, ErrorGetCurrentTrackPointsDialog.TAG)
-    }
-
-    override fun showLoading() {
-    }
-
-    override fun hideLoading() {
     }
 }

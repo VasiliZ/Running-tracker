@@ -9,15 +9,14 @@ import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
-import com.github.rtyvz.senla.tr.runningtracker.ui.login.presenter.LoginContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.presenter.LoginPresenter
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 
-class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.ViewLogin>(),
-    LoginContract.ViewLogin {
+class LoginFragment : BaseFragment<LoginPresenter>(), BaseView {
 
     companion object {
         private const val EMPTY_STRING = ""
@@ -50,11 +49,11 @@ class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.V
         findViews(view)
 
         loginButton?.setOnClickListener {
-            presenter?.checkUserInput()
+            presenter.checkUserInput()
         }
 
         registrationActionTextView?.setOnClickListener {
-            presenter?.moveToRegistration()
+            presenter.moveToRegistration()
         }
 
         registrationActionTextView?.paint?.isUnderlineText = true
@@ -69,39 +68,35 @@ class LoginFragment : BaseFragment<LoginContract.PresenterLogin, LoginContract.V
         progressBar = view.findViewById(R.id.progressBar)
     }
 
-    override fun createPresenter(): LoginContract.PresenterLogin {
-        return LoginPresenter()
+    override fun createPresenter(): LoginPresenter {
+        return LoginPresenter(this)
     }
 
-    override fun showErrorMessage(message: String) {
-        errorTextView?.text = message
-    }
-
-    override fun showErrorMessage(resId: Int) {
+    fun showErrorMessage(resId: Int) {
         errorTextView?.text = getString(resId)
     }
 
-    override fun openRegistrationFragment() {
+    fun openRegistrationFragment() {
         (activity as ChangeFragmentContract).openRegistrationFragment()
     }
 
-    override fun openMainActivity() {
+    fun openMainActivity() {
         startActivity(Intent(requireContext(), MainActivity::class.java))
         activity?.finish()
     }
 
-    override fun clearError() {
+    fun clearError() {
         errorTextView?.text = EMPTY_STRING
     }
 
-    override fun getEmail() = emailEditText?.text.toString()
-    override fun getPassword() = passwordEditText?.text.toString()
+    fun getEmail() = emailEditText?.text.toString()
+    fun getPassword() = passwordEditText?.text.toString()
 
-    override fun showLoading() {
+    fun showLoading() {
         progressBar?.isVisible = true
     }
 
-    override fun hideLoading() {
+    fun hideLoading() {
         progressBar?.isVisible = false
     }
 

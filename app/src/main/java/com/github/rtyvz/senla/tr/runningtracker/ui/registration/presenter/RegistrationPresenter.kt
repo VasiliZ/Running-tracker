@@ -5,40 +5,41 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BasePresenter
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
+import com.github.rtyvz.senla.tr.runningtracker.ui.registration.RegistrationFragment
 
-class RegistrationPresenter : BasePresenter<RegistrationContract.ViewRegistration>(),
-    RegistrationContract.PresenterRegistration {
+class RegistrationPresenter(private val view: RegistrationFragment) : BasePresenter<BaseView>(view){
 
     companion object {
         private const val EMAIL_ALREADY_EXISTS = "EMAIL_ALREADY_EXISTS"
     }
 
-    override fun openLoginFragment() {
-        getView().clearError()
-        getView().moveToLoginFragment()
+    fun openLoginFragment() {
+        view.clearError()
+        view.moveToLoginFragment()
     }
 
-    override fun checkInputData() {
+    fun checkInputData() {
         when {
-            getView().getEmail().isBlank()
-                    or getView().getName().isBlank()
-                    or getView().getLastName().isBlank()
-                    or getView().getPassword().isBlank()
-                    or getView().getRepeatedPassword().isBlank() ->
-                getView().showMessage(R.string.registration_fragment_empty_fields_error)
-            isEmailInvalid(getView().getEmail()) -> getView().showMessage(R.string.registration_fragment_match_email_error)
+            view.getEmail().isBlank()
+                    or view.getName().isBlank()
+                    or view.getLastName().isBlank()
+                    or view.getPassword().isBlank()
+                    or view.getRepeatedPassword().isBlank() ->
+                view.showMessage(R.string.registration_fragment_empty_fields_error)
+            isEmailInvalid(view.getEmail()) -> view.showMessage(R.string.registration_fragment_match_email_error)
             isPasswordsNotEquals(
-                getView().getPassword(),
-                getView().getRepeatedPassword()
+                view.getPassword(),
+                view.getRepeatedPassword()
             ) ->
-                getView().showMessage(R.string.registration_fragment_password_matches_error)
+                view.showMessage(R.string.registration_fragment_password_matches_error)
             else -> {
                 sendRegistrationRequest(
                     UserDataRequest(
-                        getView().getEmail(),
-                        getView().getName(),
-                        getView().getLastName(),
-                        getView().getPassword()
+                        view.getEmail(),
+                        view.getName(),
+                        view.getLastName(),
+                        view.getPassword()
                     )
                 )
             }
@@ -54,23 +55,23 @@ class RegistrationPresenter : BasePresenter<RegistrationContract.ViewRegistratio
     }
 
     private fun sendRegistrationRequest(userDataRequest: UserDataRequest) {
-        getView().showLoading()
+        view.showLoading()
         App.loginFlowRepository.registerUser(userDataRequest) {
-            getView().hideLoading()
+            view.hideLoading()
             when (it) {
                 is Result.Success -> {
-                    getView().openMainActivity()
+                    view.openMainActivity()
                 }
                 is Result.Error -> {
                     when (it.error) {
                         EMAIL_ALREADY_EXISTS -> {
-                            getView().showMessage(R.string.registration_fragment_email_already_exists_response)
+                            view.showMessage(R.string.registration_fragment_email_already_exists_response)
                         }
                         else -> {
-                            getView().showMessage(R.string.registration_fragment_unknown_network_error)
+                            view.showMessage(R.string.registration_fragment_unknown_network_error)
                         }
                     }
-                    getView().showMessage(it.error)
+                    view.showMessage(it.error)
                 }
             }
         }

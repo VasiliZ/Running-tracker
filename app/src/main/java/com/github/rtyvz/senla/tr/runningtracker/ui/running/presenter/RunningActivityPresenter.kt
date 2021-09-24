@@ -6,9 +6,11 @@ import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.PointEntity
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BasePresenter
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 
-class RunningActivityPresenter : BasePresenter<RunningActivityContract.ViewRunningActivity>(),
-    RunningActivityContract.PresenterRunningActivity {
+class RunningActivityPresenter(private val view: RunningActivity) :
+    BasePresenter<BaseView>(view) {
 
     companion object {
         private const val FIRST_ARRAY_INDEX = 0
@@ -20,21 +22,21 @@ class RunningActivityPresenter : BasePresenter<RunningActivityContract.ViewRunni
         private const val NOT_EMPTY_LIST_SIZE = 1
     }
 
-    override fun startRunning() {
+    fun startRunning() {
         if (isGpsEnabled()) {
-            getView().initTimer()
-            getView().startAnimation()
-            getView().setUpAnimatedLayouts()
-            getView().startTimer()
-            getView().getDeviceLocation()
-            getView().updateLocationUi()
-            getView().startRunningService()
+            view.initTimer()
+            view.startAnimation()
+            view.setUpAnimatedLayouts()
+            view.startTimer()
+            view.getDeviceLocation()
+            view.updateLocationUi()
+            view.startRunningService()
         } else {
-            getView().showEnableGpsDialog()
+            view.showEnableGpsDialog()
         }
     }
 
-    override fun checkFinishButtonWasClicked(
+    fun checkFinishButtonWasClicked(
         itemId: Int,
         startButtonFlag: Boolean,
         finishButtonFlag: Boolean
@@ -42,10 +44,10 @@ class RunningActivityPresenter : BasePresenter<RunningActivityContract.ViewRunni
         return when (itemId) {
             android.R.id.home -> {
                 if (startButtonFlag && !finishButtonFlag) {
-                    getView().showNeedsClickFinishToast()
+                    view.showNeedsClickFinishToast()
                     false
                 } else {
-                    getView().finishActivity()
+                    view.finishActivity()
                     true
                 }
             }
@@ -55,35 +57,34 @@ class RunningActivityPresenter : BasePresenter<RunningActivityContract.ViewRunni
         }
     }
 
-    override fun checkRequstPermissionsResult(
+    fun checkRequestPermissionsResult(
         requestCode: Int,
-        permissions: Array<out String>,
         grantResults: IntArray
     ) {
         when (requestCode) {
             FINE_LOCATION_REQUEST_CODE -> {
                 if (grantResults.isEmpty() || grantResults[FIRST_ARRAY_INDEX] != PackageManager.PERMISSION_GRANTED) {
-                    getView().finishActivity()
+                    view.finishActivity()
                 } else {
-                    getView().setGrandPermissionFlag(true)
+                    view.setGrandPermissionFlag(true)
                 }
             }
         }
 
-        getView().getDeviceLocation()
-        getView().updateLocationUi()
+        view.getDeviceLocation()
+        view.updateLocationUi()
     }
 
-    override fun stopRunning() {
-        getView().changeButtonClickable()
-        getView().stopRunAnimation()
-        getView().disableButtons()
-        getView().stopRunningService()
-        getView().stopTimer()
-        getView().displayRunningTime()
+    fun stopRunning() {
+        view.changeButtonClickable()
+        view.stopRunAnimation()
+        view.disableButtons()
+        view.stopRunningService()
+        view.stopTimer()
+        view.displayRunningTime()
     }
 
-    override fun saveTrack(startRunningTime: Long) {
+    fun saveTrack(startRunningTime: Long) {
         App.mainRunningRepository.insertTracksIntoDB(
             TrackEntity(
                 beginsAt = startRunningTime,
@@ -94,7 +95,7 @@ class RunningActivityPresenter : BasePresenter<RunningActivityContract.ViewRunni
         )
     }
 
-    override fun updateTrackAfterRun(
+    fun updateTrackAfterRun(
         pointsList: List<PointEntity>?,
         distance: Int?,
         startRunningTime: Long,
@@ -114,16 +115,16 @@ class RunningActivityPresenter : BasePresenter<RunningActivityContract.ViewRunni
         } else {
             App.mainRunningRepository.removeEmptyTrack(startRunningTime)
             App.mainRunningRepository.removeTrackPoints(startRunningTime)
-            getView().showAreYouRunningDialog()
+            view.showAreYouRunningDialog()
         }
     }
 
     private fun isGpsEnabled(): Boolean {
-        val locationManager = getView().getLocationManager()
+        val locationManager = view.getLocationManager()
         return if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             true
         } else {
-            getView().showEnableGpsDialog()
+            view.showEnableGpsDialog()
             false
         }
     }

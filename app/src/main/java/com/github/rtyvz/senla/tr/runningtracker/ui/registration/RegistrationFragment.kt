@@ -9,17 +9,17 @@ import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.ChangeFragmentContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.main.MainActivity
-import com.github.rtyvz.senla.tr.runningtracker.ui.registration.presenter.RegistrationContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.registration.presenter.RegistrationPresenter
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 
 class RegistrationFragment :
-    BaseFragment<RegistrationContract.PresenterRegistration, RegistrationContract.ViewRegistration>(),
-    RegistrationContract.ViewRegistration {
+    BaseFragment<RegistrationPresenter>(),
+    BaseView {
 
     companion object {
         val TAG = RegistrationFragment::class.java.simpleName.toString()
@@ -55,11 +55,11 @@ class RegistrationFragment :
 
         loginActionTextView?.paint?.isUnderlineText = true
         registrationButton?.setOnClickListener {
-            presenter?.checkInputData()
+            presenter.checkInputData()
         }
 
         loginActionTextView?.setOnClickListener {
-            presenter?.openLoginFragment()
+            presenter.openLoginFragment()
         }
     }
 
@@ -89,42 +89,42 @@ class RegistrationFragment :
         super.onDestroyView()
     }
 
-    override fun createPresenter(): RegistrationContract.PresenterRegistration {
-        return RegistrationPresenter()
+    override fun createPresenter(): RegistrationPresenter {
+        return RegistrationPresenter(this)
     }
 
-    override fun openMainActivity() {
+    fun openMainActivity() {
         startActivity(Intent(requireContext(), MainActivity::class.java))
         activity?.finish()
     }
 
-    override fun moveToLoginFragment() {
+    fun moveToLoginFragment() {
         (activity as ChangeFragmentContract).openLoginFragment()
     }
 
-    override fun getEmail() = emailEditText?.text.toString()
-    override fun getName() = nameEditText?.text.toString()
-    override fun getLastName() = lastNameEditText?.text.toString()
-    override fun getPassword() = passwordEditText?.text.toString()
-    override fun getRepeatedPassword() = repeatPasswordEditText?.text.toString()
+    fun getEmail() = emailEditText?.text.toString()
+    fun getName() = nameEditText?.text.toString()
+    fun getLastName() = lastNameEditText?.text.toString()
+    fun getPassword() = passwordEditText?.text.toString()
+    fun getRepeatedPassword() = repeatPasswordEditText?.text.toString()
 
-    override fun showMessage(message: String) {
+    fun showMessage(message: String) {
         errorTextView?.text = message
     }
 
-    override fun showMessage(resId: Int) {
+    fun showMessage(resId: Int) {
         errorTextView?.text = getString(resId)
     }
 
-    override fun clearError() {
+    fun clearError() {
         errorTextView?.text = EMPTY_STRING
     }
 
-    override fun showLoading() {
+    fun showLoading() {
         progressBar?.isVisible = true
     }
 
-    override fun hideLoading() {
+    fun hideLoading() {
         progressBar?.isVisible = false
     }
 }

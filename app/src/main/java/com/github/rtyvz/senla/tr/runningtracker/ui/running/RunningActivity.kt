@@ -26,9 +26,9 @@ import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.dialogs.AreYouRunDialog
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.dialogs.EnableGpsDialog
-import com.github.rtyvz.senla.tr.runningtracker.ui.running.presenter.RunningActivityContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.presenter.RunningActivityPresenter
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.presenter.RunningActivityPresenter.Companion.FINE_LOCATION_REQUEST_CODE
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.presenter.ViewRunningActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
@@ -39,9 +39,8 @@ import com.google.android.material.textview.MaterialTextView
 import java.util.*
 
 class RunningActivity :
-    BaseActivity<RunningActivityContract.PresenterRunningActivity, RunningActivityContract.ViewRunningActivity>(),
-    RunningActivityContract.ViewRunningActivity,
-    OnMapReadyCallback,
+    BaseActivity<RunningActivityPresenter>(),
+    ViewRunningActivity, OnMapReadyCallback,
     AreYouRunDialog.AreYouWantToRunningYetContract {
 
     companion object {
@@ -133,11 +132,11 @@ class RunningActivity :
         mapFragment.getMapAsync(this)
 
         startRunningButton?.setOnClickListener {
-            presenter?.startRunning()
+            presenter.startRunning()
         }
 
         finishRunningButton?.setOnClickListener {
-            presenter?.stopRunning()
+            presenter.stopRunning()
         }
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -216,21 +215,8 @@ class RunningActivity :
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        presenter?.checkRequstPermissionsResult(requestCode, permissions, grantResults)
+        presenter.checkRequestPermissionsResult(requestCode, grantResults)
     }
-
-//    private fun initRunningDistanceReceiver() {
-//        runningDistanceReceiver = object : BroadcastReceiver() {
-//            override fun onReceive(context: Context?, intent: Intent?) {
-//                val distance = intent?.getIntExtra(EXTRA_RUN_DISTANCE, DEFAULT_INT_VALUE)
-//                intent?.getParcelableArrayListExtra<PointEntity>(EXTRA_TRACK_POINTS)?.toList()
-//                    ?.let {
-//
-//                    }
-//            }
-//        }
-//    }
-
 
     private fun initWrongUserTokenReceiver() {
         wrongUserTokenReceiver = object : BroadcastReceiver() {
@@ -298,20 +284,8 @@ class RunningActivity :
                 runningServiceConnection,
                 Context.BIND_AUTO_CREATE
             )
-            presenter?.saveTrack(startRunMillis)
+            presenter.saveTrack(startRunMillis)
         }
-//        val intentRunningService = Intent(this, RunningService::class.java).apply {
-//            putExtra(
-//                RunningService.EXTRA_CURRENT_TIME,
-//                startRunMillis
-//            )
-//        }
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            startForegroundService(intentRunningService)
-//        } else {
-//            startService(intentRunningService)
-//        }
     }
 
     override fun showEnableGpsDialog() {
@@ -459,11 +433,11 @@ class RunningActivity :
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return presenter?.checkFinishButtonWasClicked(
+        return presenter.checkFinishButtonWasClicked(
             item.itemId,
             isStartButtonClicked,
             isFinishButtonClicked
-        )?:false
+        )
     }
 
     override fun showNeedsClickFinishToast() {
@@ -507,7 +481,7 @@ class RunningActivity :
                 setupMapData(it)
             }
 
-            presenter?.updateTrackAfterRun(
+            presenter.updateTrackAfterRun(
                 service?.getTrackPoints(startRunMillis),
                 distance,
                 startRunMillis,
@@ -515,13 +489,6 @@ class RunningActivity :
             )
             unbindService(runningServiceConnection)
         }
-
-//        val stopActionRunningServiceIntent = Intent(this, RunningService::class.java)
-//            .apply {
-//                action = RunningService.ACTION_RUNNING_SERVICE_STOP
-//                putExtra(RunningService.EXTRA_FINISH_RUNNING_TIME, timeMillis)
-//            }
-//        startService(stopActionRunningServiceIntent)
     }
 
     override fun onDestroy() {
@@ -532,7 +499,7 @@ class RunningActivity :
         super.onDestroy()
     }
 
-    override fun createPresenter() = RunningActivityPresenter()
+    override fun createPresenter() = RunningActivityPresenter(this)
     override fun initTimer() {
         startTimerRunningTime = System.nanoTime()
         startRunMillis = System.currentTimeMillis()
@@ -549,7 +516,4 @@ class RunningActivity :
         startRunningButton?.isClickable = false
         finishRunningButton?.isClickable = true
     }
-
-    override fun showLoading() {}
-    override fun hideLoading() {}
 }

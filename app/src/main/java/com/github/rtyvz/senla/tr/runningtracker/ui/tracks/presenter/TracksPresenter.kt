@@ -5,8 +5,10 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.TracksRequest
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BasePresenter
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
+import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
 
-class TracksPresenter : BasePresenter<TracksContract.ViewTracks>(), TracksContract.PresenterTracks {
+class TracksPresenter(private val view: TracksFragment) : BasePresenter<BaseView>(view){
 
     companion object {
         private const val INVALID_TOKEN = "INVALID_TOKEN"
@@ -14,71 +16,71 @@ class TracksPresenter : BasePresenter<TracksContract.ViewTracks>(), TracksContra
         const val EMPTY_DATA_RESULT = "EMPTY_DATA_RESULT"
     }
 
-    override fun openRunningActivity() {
-        getView().startRunningActivity()
+    fun openRunningActivity() {
+        view.startRunningActivity()
     }
 
-    override fun getTracksFromDb() {
+    fun getTracksFromDb() {
         App.mainRunningRepository.getTracksFromDb {
             App.state?.isDataLoadedYet = true
-            getView().hideInformation()
+            view.hideInformation()
             when (it) {
                 is Result.Success -> {
-                    getView().hideInformation()
-                    getView().setData(it.data.tracksList)
+                    view.hideInformation()
+                    view.setData(it.data.tracksList)
                 }
                 is Result.Error -> {
                     when (it.error) {
                         INVALID_TOKEN -> {
-                            getView().logout()
+                            view.logout()
                         }
                         EMPTY_DATA_RESULT -> {
-                            getView().showInformation()
-                            getView().showMessage(R.string.tracks_fragment_havent_got_data_for_display)
+                            view.showInformation()
+                            view.showMessage(R.string.tracks_fragment_havent_got_data_for_display)
                         }
-                        else -> getView().showErrorResponseNextRunDialog()
+                        else -> view.showErrorResponseNextRunDialog()
                     }
                 }
             }
         }
     }
 
-    override fun getTracksFromDb(isDataLoadedYet: Boolean) {
+    fun getTracksFromDb(isDataLoadedYet: Boolean) {
         App.mainRunningRepository.getTracksFromDb(isDataLoadedYet) {
             if (it.tracksList.isEmpty()) {
-                getView().showInformation()
-                getView().showMessage(R.string.tracks_fragment_havent_got_data_for_display)
+                view.showInformation()
+                view.showMessage(R.string.tracks_fragment_havent_got_data_for_display)
             } else {
-                getView().hideInformation()
-                getView().setData(it.tracksList)
+                view.hideInformation()
+                view.setData(it.tracksList)
             }
         }
     }
 
-    override fun getTracksFromServer(token: String) {
-        getView().hideInformation()
-        getView().showLoading()
+    fun getTracksFromServer(token: String) {
+        view.hideInformation()
+        view.showLoading()
 
         App.mainRunningRepository.getTracks(TracksRequest(token)) {
-            getView().hideLoading()
-            getView().hideRefresh()
+            view.hideLoading()
+            view.hideRefresh()
             App.state?.isDataLoadedYet = true
             when (it) {
                 is Result.Error -> {
                     when (it.error) {
                         INVALID_TOKEN -> {
-                            getView().logout()
+                            view.logout()
                         }
                         else -> {
                             when (it.error) {
                                 INVALID_TOKEN -> {
-                                    getView().logout()
+                                    view.logout()
                                 }
                                 GET_POINTS_ERROR -> {
-                                    getView().showErrorFetchingPointsDialog()
+                                    view.showErrorFetchingPointsDialog()
                                 }
                                 else -> {
-                                    getView().showErrorResponseFirstRunDialog()
+                                    view.showErrorResponseFirstRunDialog()
                                 }
                             }
                         }
@@ -86,11 +88,11 @@ class TracksPresenter : BasePresenter<TracksContract.ViewTracks>(), TracksContra
                 }
                 is Result.Success -> {
                     if (it.data.tracksList.isEmpty()) {
-                        getView().showInformation()
-                        getView().showMessage(R.string.tracks_fragment_havent_got_data_for_display)
+                        view.showInformation()
+                        view.showMessage(R.string.tracks_fragment_havent_got_data_for_display)
                     } else {
-                        getView().hideInformation()
-                        getView().setData(it.data.tracksList)
+                        view.hideInformation()
+                        view.setData(it.data.tracksList)
                     }
                 }
             }

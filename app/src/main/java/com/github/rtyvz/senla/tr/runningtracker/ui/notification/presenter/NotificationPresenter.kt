@@ -3,29 +3,31 @@ package com.github.rtyvz.senla.tr.runningtracker.ui.notification.presenter
 import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BasePresenter
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
+import com.github.rtyvz.senla.tr.runningtracker.ui.notification.NotificationFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.notification.NotificationWorkManager
 import java.util.*
 
-class NotificationPresenter : BasePresenter<NotificationContract.ViewNotification>(),
-    NotificationContract.PresenterNotification {
+class NotificationPresenter(private val view: NotificationFragment) :
+    BasePresenter<BaseView>(view) {
 
     companion object {
         private const val IS_ENABLE_NOTIFICATION_FLAG = 1
         private const val IS_DiSABLE_NOTIFICATION_FLAG = 0
     }
 
-    override fun getNotificationsFromDb() {
+    fun getNotificationsFromDb() {
         App.notificationRepository.getNotifications {
             if (it.isEmpty()) {
-                getView().showEmptyListMessage()
+                view.showEmptyListMessage()
             } else {
-                getView().hideEmptyListMessage()
-                getView().setData(it)
+                view.hideEmptyListMessage()
+                view.setData(it)
             }
         }
     }
 
-    override fun createNotificationWork(
+    fun createNotificationWork(
         date: Long,
         alarmEntity: AlarmEntity?,
         hour: Int,
@@ -33,7 +35,7 @@ class NotificationPresenter : BasePresenter<NotificationContract.ViewNotificatio
         title: String
     ) {
         var innerAlarmEntity: AlarmEntity
-        getView().hideEmptyListMessage()
+        view.hideEmptyListMessage()
         if (alarmEntity == null) {
             innerAlarmEntity = AlarmEntity(
                 Random().nextInt(Int.MAX_VALUE),
@@ -47,7 +49,7 @@ class NotificationPresenter : BasePresenter<NotificationContract.ViewNotificatio
             innerAlarmEntity.let { settings ->
                 NotificationWorkManager().createWorkForNotification(settings)
                 App.notificationRepository.saveNotificationInDb(settings)
-                getView().addItem(settings)
+                view.addItem(settings)
 
             }
         } else {
@@ -70,22 +72,22 @@ class NotificationPresenter : BasePresenter<NotificationContract.ViewNotificatio
                         NotificationWorkManager().createWorkForNotification(it)
                     }
                     App.notificationRepository.saveNotificationInDb(it)
-                    getView().updateItem(it)
+                    view.updateItem(it)
                 }
             }
 
-            getView().clearState()
+            view.clearState()
         }
     }
 
-    override fun removeNotification(alarmEntity: AlarmEntity, position: Int) {
+    fun removeNotification(alarmEntity: AlarmEntity, position: Int) {
         NotificationWorkManager().deleteWork(alarmEntity.alarmId.toString())
         App.notificationRepository.deleteNotification(alarmEntity)
-        getView().removeItem(position)
-        getView().checkAdapterItemCount()
+        view.removeItem(position)
+        view.checkAdapterItemCount()
     }
 
-    override fun changeNotificationToggle(
+    fun changeNotificationToggle(
         isChecked: Boolean,
         alarmEntity: AlarmEntity,
         adapterPosition: Int, hour: Int, minute: Int
@@ -99,7 +101,7 @@ class NotificationPresenter : BasePresenter<NotificationContract.ViewNotificatio
                     isEnabled = 1,
                     oldId = alarmEntity.alarmId
                 )
-                getView().updateItem(newEntity, adapterPosition)
+                view.updateItem(newEntity, adapterPosition)
                 NotificationWorkManager().createWorkForNotification(newEntity)
                 App.notificationRepository.updateNotification(newEntity)
             }
@@ -108,7 +110,7 @@ class NotificationPresenter : BasePresenter<NotificationContract.ViewNotificatio
                     isEnabled = IS_DiSABLE_NOTIFICATION_FLAG,
                     oldId = alarmEntity.alarmId
                 )
-                getView().updateItem(newAlarm, adapterPosition)
+                view.updateItem(newAlarm, adapterPosition)
                 App.notificationRepository.updateNotification(newAlarm)
                 NotificationWorkManager().deleteWork(alarmEntity.alarmId.toString())
             }

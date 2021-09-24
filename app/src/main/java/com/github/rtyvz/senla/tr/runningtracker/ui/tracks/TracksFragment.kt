@@ -16,18 +16,18 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.RunningActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorFetchingPointsDialog
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorResponseFirstRunDialog
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.dialogs.ErrorResponseNextRunDialog
-import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.presenter.TracksContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.presenter.TracksPresenter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textview.MaterialTextView
 
-class TracksFragment : BaseFragment<TracksContract.PresenterTracks, TracksContract.ViewTracks>(),
-    TracksContract.ViewTracks, ErrorResponseNextRunDialog.ErrorResponseDialogCallBack,
+class TracksFragment : BaseFragment<TracksPresenter>(),
+    BaseView, ErrorResponseNextRunDialog.ErrorResponseDialogCallBack,
     ErrorResponseFirstRunDialog.ErrorResponseDialogCallBack {
 
     companion object {
@@ -76,20 +76,20 @@ class TracksFragment : BaseFragment<TracksContract.PresenterTracks, TracksContra
             requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)
 
         if (token?.isNotBlank() == true && arguments?.getBoolean(EXTRA_IS_FIRST_TIME_RUN_APP) != false) {
-            presenter?.getTracksFromServer(token)
+            presenter.getTracksFromServer(token)
         } else {
             if (App.state?.isDataLoadedYet == false) {
-                presenter?.getTracksFromDb()
+                presenter.getTracksFromDb()
             }
         }
 
         fab?.setOnClickListener {
-            presenter?.openRunningActivity()
+            presenter.openRunningActivity()
         }
 
         swipeRefreshLayout?.setOnRefreshListener {
             if (token != null && token.isNotBlank()) {
-                presenter?.getTracksFromServer(token)
+                presenter.getTracksFromServer(token)
             }
         }
 
@@ -106,7 +106,7 @@ class TracksFragment : BaseFragment<TracksContract.PresenterTracks, TracksContra
     override fun onResume() {
         super.onResume()
 
-        presenter?.getTracksFromDb(App.state?.isDataLoadedYet == true)
+        presenter.getTracksFromDb(App.state?.isDataLoadedYet == true)
     }
 
     private fun initViews(view: View) {
@@ -120,7 +120,7 @@ class TracksFragment : BaseFragment<TracksContract.PresenterTracks, TracksContra
 
 
     override fun retryRequestTracksDataFromDb() {
-        presenter?.getTracksFromDb()
+        presenter.getTracksFromDb()
     }
 
     interface OnItemClickListListener {
@@ -133,63 +133,63 @@ class TracksFragment : BaseFragment<TracksContract.PresenterTracks, TracksContra
 
     override fun retryRequestTracksDataFromServer() {
         requireActivity().getRunningSharedPreference().getString(USER_TOKEN, EMPTY_STRING)?.let {
-            presenter?.getTracksFromServer(it)
+            presenter.getTracksFromServer(it)
         }
     }
 
-    override fun createPresenter() = TracksPresenter()
+    override fun createPresenter() = TracksPresenter(this)
 
-    override fun startRunningActivity() {
+    fun startRunningActivity() {
         startActivity(Intent(requireContext(), RunningActivity::class.java))
     }
 
-    override fun logout() {
+    fun logout() {
         requireContext().getRunningSharedPreference().edit().clear().apply()
         startActivity(Intent(requireContext(), LoginActivity::class.java))
         activity?.finish()
     }
 
-    override fun showInformation() {
+    fun showInformation() {
         informationTextView?.isVisible = true
     }
 
-    override fun hideInformation() {
+    fun hideInformation() {
         informationTextView?.isVisible = false
     }
 
-    override fun hideRefresh() {
+    fun hideRefresh() {
         swipeRefreshLayout?.isRefreshing = false
     }
 
-    override fun showMessage(resId: Int) {
+    fun showMessage(resId: Int) {
         informationTextView?.text = getString(resId)
     }
 
-    override fun setData(data: List<TrackEntity>) {
+    fun setData(data: List<TrackEntity>) {
         runningAdapter.submitList(data)
     }
 
-    override fun showErrorFetchingPointsDialog() {
+    fun showErrorFetchingPointsDialog() {
         ErrorFetchingPointsDialog.newInstance().show(
             childFragmentManager, ErrorFetchingPointsDialog.TAG
         )
     }
 
-    override fun showErrorResponseFirstRunDialog() {
+    fun showErrorResponseFirstRunDialog() {
         ErrorResponseFirstRunDialog.newInstance()
             .show(childFragmentManager, ErrorResponseFirstRunDialog.TAG)
     }
 
-    override fun showErrorResponseNextRunDialog() {
+    fun showErrorResponseNextRunDialog() {
         ErrorResponseNextRunDialog.newInstance()
             .show(childFragmentManager, ErrorResponseNextRunDialog.TAG)
     }
 
-    override fun showLoading() {
+    fun showLoading() {
         progressBar?.isVisible = true
     }
 
-    override fun hideLoading() {
+    fun hideLoading() {
         progressBar?.isVisible = false
     }
 

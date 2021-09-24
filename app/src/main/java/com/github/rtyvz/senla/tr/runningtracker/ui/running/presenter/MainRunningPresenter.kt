@@ -5,92 +5,93 @@ import com.github.rtyvz.senla.tr.runningtracker.App
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BasePresenter
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
+import com.github.rtyvz.senla.tr.runningtracker.ui.running.MainRunningFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.track.CurrentTrackFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
 
-class MainRunningPresenter : BasePresenter<MainRunningContract.ViewMainRunning>(),
-    MainRunningContract.PresenterMainRunning {
+class MainRunningPresenter(private val view: MainRunningFragment) : BasePresenter<BaseView>(view) {
 
     companion object {
         private const val FIRST_TIME_RUN_APP = "FIRST_TIME_RUN_APP"
     }
 
-    override fun showCurrentTrackFragment(lastTrack: TrackEntity, containerIsAvalable: Boolean) {
-        getView().showFragment(
+    private fun showCurrentTrackFragment(lastTrack: TrackEntity) {
+        view.showFragment(
             fragment = CurrentTrackFragment.newInstance(lastTrack),
             fragmentTag = CurrentTrackFragment.TAG,
-            containerId = when (getView().isTrackContainerAvailable()) {
+            containerId = when (view.isTrackContainerAvailable()) {
                 true -> R.id.currentTrackContainer
                 else -> R.id.listTrackContainer
             }
         )
     }
 
-    override fun showMainFragment() {
-        getView().showFragment(
-            fragment = TracksFragment.newInstance(isFirstTimeLaunchApp(getView().getRunningPreference())),
+    private fun showMainFragment() {
+        view.showFragment(
+            fragment = TracksFragment.newInstance(isFirstTimeLaunchApp(view.getRunningPreference())),
             fragmentTag = TracksFragment.TAG,
             containerId = R.id.listTrackContainer
         )
     }
 
-    override fun openMainFragment() {
-        getView().hideTrackTextView()
+    fun openMainFragment() {
+        view.hideTrackTextView()
         showMainFragment()
 
-        if (!getView().isTrackContainerAvailable() && App.state?.lastOpenedUserTrack != null) {
+        if (!view.isTrackContainerAvailable() && App.state?.lastOpenedUserTrack != null) {
             App.state?.lastOpenedUserTrack?.let {
-                showCurrentTrackFragment(it, getView().isTrackContainerAvailable())
+                showCurrentTrackFragment(it)
             }
-            getView().enableHomeButton()
+            view.enableHomeButton()
         }
 
-        if (getView().isTrackContainerAvailable() && App.state?.lastOpenedUserTrack == null) {
-            getView().showTrackTextView()
+        if (view.isTrackContainerAvailable() && App.state?.lastOpenedUserTrack == null) {
+            view.showTrackTextView()
         } else {
             App.state?.lastOpenedUserTrack?.let {
-                showCurrentTrackFragment(it, getView().isTrackContainerAvailable())
+                showCurrentTrackFragment(it)
             }
         }
     }
 
-    override fun clickTrackItem(trackEntity: TrackEntity) {
+    fun clickTrackItem(trackEntity: TrackEntity) {
         App.state?.lastOpenedUserTrack = trackEntity
 
-        if (getView().isTrackContainerAvailable()) {
-            getView().hideTrackTextView()
-            val fragment = getView().getFragmentByTag(CurrentTrackFragment.TAG)
+        if (view.isTrackContainerAvailable()) {
+            view.hideTrackTextView()
+            val fragment = view.getFragmentByTag(CurrentTrackFragment.TAG)
 
             if (fragment is CurrentTrackFragment) {
                 fragment.setTrack(trackEntity)
             } else {
-                showCurrentTrackFragment(trackEntity, getView().isTrackContainerAvailable())
+                showCurrentTrackFragment(trackEntity)
             }
         } else {
-            getView().enableHomeButton()
-            showCurrentTrackFragment(trackEntity, getView().isTrackContainerAvailable())
+            view.enableHomeButton()
+            showCurrentTrackFragment(trackEntity)
         }
     }
 
-    override fun backPressedClick(): Boolean {
+    fun backPressedClick(): Boolean {
         return when {
-            (getView().getBackStackEntryCount() == 1) -> {
-                val fragment = getView().getFragmentByTag(CurrentTrackFragment.TAG)
+            (view.getBackStackEntryCount() == 1) -> {
+                val fragment = view.getFragmentByTag(CurrentTrackFragment.TAG)
                 if (fragment is CurrentTrackFragment && fragment.isVisible) {
-                    getView().popBackStack()
+                    view.popBackStack()
 
                     App.state?.lastOpenedUserTrack = null
-                    getView().disableHomeButton()
-                    getView().enableToggle()
+                    view.disableHomeButton()
+                    view.enableToggle()
                     return false
                 }
                 return true
             }
             else -> {
-                getView().popBackStack()
-                getView().disableHomeButton()
-                getView().enableToggle()
-                getView().showTrackTextView()
+                view.popBackStack()
+                view.disableHomeButton()
+                view.enableToggle()
+                view.showTrackTextView()
                 App.state?.lastOpenedUserTrack = null
                 false
             }

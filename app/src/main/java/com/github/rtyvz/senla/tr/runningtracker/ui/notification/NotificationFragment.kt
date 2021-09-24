@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.ui.AlarmEntity
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
 import com.github.rtyvz.senla.tr.runningtracker.ui.notification.dialog.DeleteNotificationDialog
-import com.github.rtyvz.senla.tr.runningtracker.ui.notification.presenter.NotificationContract
 import com.github.rtyvz.senla.tr.runningtracker.ui.notification.presenter.NotificationPresenter
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -20,8 +20,8 @@ import com.google.android.material.timepicker.TimeFormat
 import java.util.*
 
 class NotificationFragment :
-    BaseFragment<NotificationContract.PresenterNotification, NotificationContract.ViewNotification>(),
-    NotificationContract.ViewNotification,
+    BaseFragment<NotificationPresenter>(),
+    BaseView,
     DeleteNotificationDialog.OnRemoveNotification,
     NotificationAdapter.OnSwipeStateChanger {
 
@@ -65,7 +65,7 @@ class NotificationFragment :
         initViews(view)
         createTimePicker()
         createDatePicker()
-        presenter?.getNotificationsFromDb()
+        presenter.getNotificationsFromDb()
         notificationAdapter = NotificationAdapter(this,
             { clickCallBack, position, isSwitchChecked ->
                 isSwitchChecked?.let {
@@ -122,7 +122,7 @@ class NotificationFragment :
         }
 
         datePicker?.addOnPositiveButtonClickListener { dateLong ->
-            presenter?.createNotificationWork(
+            presenter.createNotificationWork(
                 dateLong,
                 alarmEntity,
                 hour,
@@ -132,11 +132,11 @@ class NotificationFragment :
         }
     }
 
-    override fun removeItem(position: Int) {
+    fun removeItem(position: Int) {
         notificationAdapter?.removeItem(position)
     }
 
-    override fun checkAdapterItemCount() {
+    fun checkAdapterItemCount() {
         if (notificationAdapter?.itemCount == EMPTY_ADAPTER_LIST) {
             // todo I have a question
             emptyNotificationListTextView?.isVisible = true
@@ -144,7 +144,7 @@ class NotificationFragment :
     }
 
     override fun removeNotification(alarmEntity: AlarmEntity, position: Int) {
-        presenter?.removeNotification(alarmEntity, position)
+        presenter.removeNotification(alarmEntity, position)
     }
 
     override fun changeSwipeToggle(
@@ -152,7 +152,7 @@ class NotificationFragment :
         alarmEntity: AlarmEntity,
         adapterPosition: Int
     ) {
-        presenter?.changeNotificationToggle(
+        presenter.changeNotificationToggle(
             isChecked,
             alarmEntity,
             adapterPosition,
@@ -161,46 +161,38 @@ class NotificationFragment :
         )
     }
 
-    override fun createPresenter(): NotificationContract.PresenterNotification {
-        return NotificationPresenter()
+    override fun createPresenter(): NotificationPresenter {
+        return NotificationPresenter(this)
     }
 
-    override fun showEmptyListMessage() {
+    fun showEmptyListMessage() {
         emptyNotificationListTextView?.isVisible = true
     }
 
-    override fun hideEmptyListMessage() {
+    fun hideEmptyListMessage() {
         emptyNotificationListTextView?.isVisible = false
     }
 
-    override fun setData(data: List<AlarmEntity>) {
+    fun setData(data: List<AlarmEntity>) {
         notificationAdapter?.addItems(data)
     }
 
-    override fun addItem(alarmEntity: AlarmEntity) {
+    fun addItem(alarmEntity: AlarmEntity) {
         notificationAdapter?.addItem(alarmEntity)
     }
 
-    override fun updateItem(alarmEntity: AlarmEntity) {
+    fun updateItem(alarmEntity: AlarmEntity) {
         notificationAdapter?.updateItem(positionForAdapter, alarmEntity)
     }
 
-    override fun updateItem(alarmEntity: AlarmEntity, position: Int) {
+    fun updateItem(alarmEntity: AlarmEntity, position: Int) {
         notificationAdapter?.updateItem(position, alarmEntity)
     }
 
-    override fun clearState() {
+    fun clearState() {
         switchChecked = false
         positionForAdapter = 0
         alarmEntity = null
-    }
-
-    override fun showLoading() {
-        //doesn't have progress here
-    }
-
-    override fun hideLoading() {
-        //doesn't have progress here
     }
 
     override fun onDestroyView() {

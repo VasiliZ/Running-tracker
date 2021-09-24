@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 abstract class BaseActivity<PRESENTER : BasePresenter<BaseView>> : AppCompatActivity() {
 
-    protected var presenter: PRESENTER? = null
+    protected lateinit var presenter: PRESENTER
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -13,9 +13,4 @@ abstract class BaseActivity<PRESENTER : BasePresenter<BaseView>> : AppCompatActi
     }
 
     abstract fun createPresenter(): PRESENTER
-
-    override fun onDestroy() {
-        presenter = null
-        super.onDestroy()
-    }
 }

@@ -5,32 +5,33 @@ import com.github.rtyvz.senla.tr.runningtracker.R
 import com.github.rtyvz.senla.tr.runningtracker.entity.Result
 import com.github.rtyvz.senla.tr.runningtracker.entity.network.UserDataRequest
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BasePresenter
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginFragment
 
-class LoginPresenter(view: LoginFragment) : BasePresenter<LoginContract.ViewLogin>(view),
-    LoginContract.PresenterLogin {
+class LoginPresenter(private val view: LoginFragment) :
+    BasePresenter<BaseView>(view) {
 
     companion object {
         private const val INVALID_CREDENTIALS = "INVALID_CREDENTIALS"
     }
 
-    override fun moveToRegistration() {
-        getView().clearError()
-        getView().openRegistrationFragment()
+    fun moveToRegistration() {
+       view.clearError()
+        view.openRegistrationFragment()
     }
 
-    override fun checkUserInput() {
+    fun checkUserInput() {
         when {
-            getView().getEmail().isBlank() or getView().getPassword().isBlank()
-            -> getView().showErrorMessage(R.string.login_fragment_empty_fields_error)
-            isEmailInvalid(getView().getEmail()) -> getView().showErrorMessage(R.string.login_fragment_match_email_error)
+            view.getEmail().isBlank() or view.getPassword().isBlank()
+            -> view.showErrorMessage(R.string.login_fragment_empty_fields_error)
+            isEmailInvalid(view.getEmail()) -> view.showErrorMessage(R.string.login_fragment_match_email_error)
             else -> {
-                getView().clearError()
+                view.clearError()
                 sendLoginRequest(
                     UserDataRequest(
-                        email = getView().getEmail(),
-                        password = getView().getPassword()
-                    ), getView().getEmail()
+                        email = view.getEmail(),
+                        password = view.getPassword()
+                    ), view.getEmail()
                 )
             }
         }
@@ -41,20 +42,20 @@ class LoginPresenter(view: LoginFragment) : BasePresenter<LoginContract.ViewLogi
     }
 
     private fun sendLoginRequest(userDataRequest: UserDataRequest, email: String) {
-        getView().showLoading()
+        view.showLoading()
         App.loginFlowRepository.loginUser(userDataRequest, email) {
-            getView().hideLoading()
+            view.hideLoading()
             when (it) {
                 is Result.Success -> {
-                    getView().openMainActivity()
+                    view.openMainActivity()
                 }
                 is Result.Error -> {
                     when (it.error) {
                         INVALID_CREDENTIALS -> {
-                            getView().showErrorMessage(R.string.login_fragment_invalid_credentials)
+                            view.showErrorMessage(R.string.login_fragment_invalid_credentials)
                         }
                         else ->
-                            getView().showErrorMessage(R.string.login_fragment_unknown_network_error)
+                            view.showErrorMessage(R.string.login_fragment_unknown_network_error)
                     }
                 }
             }

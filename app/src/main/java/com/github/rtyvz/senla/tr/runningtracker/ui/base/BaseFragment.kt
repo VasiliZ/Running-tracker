@@ -3,11 +3,10 @@ package com.github.rtyvz.senla.tr.runningtracker.ui.base
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 
-abstract class BaseFragment<PRESENTER : BasePresenter<VIEW>, VIEW : BaseView> :
+abstract class BaseFragment<PRESENTER : BasePresenter<BaseView>> :
     Fragment() {
 
-    protected var presenter: PRESENTER? = null
-        get() = field ?: error("PRESENTER must be created")
+    protected lateinit var presenter: PRESENTER
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -16,19 +15,9 @@ abstract class BaseFragment<PRESENTER : BasePresenter<VIEW>, VIEW : BaseView> :
     }
 
     override fun onDestroyView() {
-        presenter?.detach()
+        presenter.detach()
         super.onDestroyView()
     }
 
-    override fun onDestroy() {
-        this.presenter = null
-        super.onDestroy()
-    }
-
     abstract fun createPresenter(): PRESENTER
-
-    @Suppress("UNCHECKED_CAST")
-    open fun getMvpView(): VIEW {
-        return this as? VIEW ?: error("Can't cast to view interface")
-    }
 }

@@ -18,14 +18,15 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.State
 import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseActivity
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
 import com.github.rtyvz.senla.tr.runningtracker.ui.login.LoginActivity
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.MainRunningFragment
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textview.MaterialTextView
 
 class MainActivity :
-    BaseActivity<MainActivityContract.PresenterMainActivity, MainActivityContract.ViewMainActivity>(),
-    MainActivityContract.ViewMainActivity, NavigationView.OnNavigationItemSelectedListener,
+    BaseActivity<MainActivityPresenter>(),
+    BaseView, NavigationView.OnNavigationItemSelectedListener,
     LogoutFromApp, MainRunningFragment.ChangeNavigationInToolbar {
 
     companion object {
@@ -53,8 +54,8 @@ class MainActivity :
         }
 
         initViews()
-        presenter?.restoreUserData()
-        presenter?.initNavHeaderWithData()
+        presenter.restoreUserData()
+        presenter.initNavHeaderWithData()
 
         drawerToggle?.let {
             drawerLayout?.addDrawerListener(it)
@@ -75,7 +76,7 @@ class MainActivity :
         exitFromAppLayout?.setOnClickListener {
             logout()
         }
-        presenter?.findExistingFragment()
+        presenter.findExistingFragment()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -99,7 +100,7 @@ class MainActivity :
     }
 
     override fun onBackPressed() {
-        presenter?.handleBackPress()
+        presenter.handleBackPress()
     }
 
     private fun initViews() {
@@ -113,14 +114,14 @@ class MainActivity :
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        return presenter?.handleNavigationItemSelected(item) ?: false
+        return presenter.handleNavigationItemSelected(item)
     }
 
-    override fun showFragment(
+    fun showFragment(
         fragment: Fragment,
         fragmentTag: String,
         clearToTag: String?,
-        isInclusive: Boolean
+        isInclusive: Boolean = false
     ) {
         if (clearToTag != null)
             supportFragmentManager.popBackStack(
@@ -134,25 +135,25 @@ class MainActivity :
             .commit()
     }
 
-    override fun getFragmentByTag(tag: String) =
+    fun getFragmentByTag(tag: String) =
         supportFragmentManager.findFragmentByTag(tag)
 
-    override fun selectItemMenu(itemId: Int) {
+    fun selectItemMenu(itemId: Int) {
         navigationView?.setCheckedItem(itemId)
     }
 
-    override fun closeDrawer() {
+    fun closeDrawer() {
         if (drawerLayout?.isDrawerVisible(GravityCompat.START) == true) {
             drawerLayout?.closeDrawer(GravityCompat.START)
             return
         }
     }
 
-    override fun closeActivity() {
+    fun closeActivity() {
         finish()
     }
 
-    override fun startLoginActivity() {
+    fun startLoginActivity() {
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
@@ -180,25 +181,22 @@ class MainActivity :
     }
 
     override fun logout() {
-        presenter?.logOutFromApp()
+        presenter.logOutFromApp()
     }
 
-    override fun createPresenter() = MainActivityPresenter()
-    override fun getSharedPreference() = getRunningSharedPreference()
-    override fun setUserNameOnNavHeader(name: String) {
+    override fun createPresenter() = MainActivityPresenter(this)
+    fun getSharedPreference() = getRunningSharedPreference()
+    fun setUserNameOnNavHeader(name: String) {
         navHeaderUserNameTextView?.text = name
     }
 
-    override fun setUserEmailOnNavHeader(email: String) {
+    fun setUserEmailOnNavHeader(email: String) {
         navHeaderUserEmailTextView?.text = email
     }
 
-    override fun setTitleActionBar(resId: Int) {
+    fun setTitleActionBar(resId: Int) {
         supportActionBar?.title = getString(resId)
     }
-
-    override fun showLoading() {}
-    override fun hideLoading() {}
 
     override fun onDestroy() {
         drawerToggle = null

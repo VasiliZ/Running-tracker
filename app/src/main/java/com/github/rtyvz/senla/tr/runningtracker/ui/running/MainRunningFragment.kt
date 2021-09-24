@@ -15,14 +15,14 @@ import com.github.rtyvz.senla.tr.runningtracker.entity.ui.TrackEntity
 import com.github.rtyvz.senla.tr.runningtracker.extension.getRunningSharedPreference
 import com.github.rtyvz.senla.tr.runningtracker.ui.LogoutFromApp
 import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseFragment
-import com.github.rtyvz.senla.tr.runningtracker.ui.running.presenter.MainRunningContract
+import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.presenter.MainRunningPresenter
 import com.github.rtyvz.senla.tr.runningtracker.ui.tracks.TracksFragment
 import com.google.android.material.textview.MaterialTextView
 
 class MainRunningFragment :
-    BaseFragment<MainRunningContract.PresenterMainRunning, MainRunningContract.ViewMainRunning>(),
-    MainRunningContract.ViewMainRunning, TracksFragment.OnItemClickListListener,
+    BaseFragment<MainRunningPresenter>(),
+    BaseView, TracksFragment.OnItemClickListListener,
     TracksFragment.LogOutFromApp {
 
     companion object {
@@ -50,48 +50,48 @@ class MainRunningFragment :
         currentTrackContainer = view.findViewById(R.id.currentTrackContainer)
         selectTrackTextView = view.findViewById(R.id.selectTrackTextView)
 
-        presenter?.openMainFragment()
+        presenter.openMainFragment()
     }
 
     fun onBackPressed(): Boolean {
-        return presenter?.backPressedClick() ?: false
+        return presenter.backPressedClick()
     }
 
-    override fun isTrackContainerAvailable() = currentTrackContainer != null
+    fun isTrackContainerAvailable() = currentTrackContainer != null
 
-    override fun enableHomeButton() {
+    fun enableHomeButton() {
         (activity as ChangeNavigationInToolbar).enableHomeButton(true)
     }
 
-    override fun disableHomeButton() {
+    fun disableHomeButton() {
         (activity as ChangeNavigationInToolbar).enableHomeButton(false)
     }
 
-    override fun showTrackTextView() {
+    fun showTrackTextView() {
         selectTrackTextView?.isVisible = true
     }
 
-    override fun hideTrackTextView() {
+    fun hideTrackTextView() {
         selectTrackTextView?.isVisible = false
     }
 
-    override fun getFragmentByTag(tag: String): Fragment? {
+    fun getFragmentByTag(tag: String): Fragment? {
         return childFragmentManager.findFragmentByTag(tag)
     }
 
-    override fun getBackStackEntryCount(): Int {
+    fun getBackStackEntryCount(): Int {
         return childFragmentManager.backStackEntryCount
     }
 
-    override fun popBackStack() {
+    fun popBackStack() {
         childFragmentManager.popBackStack()
     }
 
-    override fun enableToggle() {
+    fun enableToggle() {
         (activity as ChangeNavigationInToolbar).enableToggle()
     }
 
-    override fun getRunningPreference(): SharedPreferences {
+    fun getRunningPreference(): SharedPreferences {
         return requireActivity().getRunningSharedPreference()
     }
 
@@ -101,14 +101,14 @@ class MainRunningFragment :
     }
 
     override fun onTrackItemClick(trackEntity: TrackEntity) {
-        presenter?.clickTrackItem(trackEntity)
+        presenter.clickTrackItem(trackEntity)
     }
 
-    override fun showFragment(
+    fun showFragment(
         fragment: Fragment,
         fragmentTag: String,
-        clearToTag: String?,
-        clearInclusive: Boolean,
+        clearToTag: String? = null,
+        clearInclusive: Boolean = false,
         containerId: Int
     ) {
         if (clearToTag != null)
@@ -134,8 +134,5 @@ class MainRunningFragment :
         fun enableToggle()
     }
 
-    override fun createPresenter() = MainRunningPresenter()
-
-    override fun showLoading() {}
-    override fun hideLoading() {}
+    override fun createPresenter() = MainRunningPresenter(this)
 }
