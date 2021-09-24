@@ -35,7 +35,7 @@ class MainRunningPresenter(private val view: MainRunningFragment) : BasePresente
         )
     }
 
-    fun openMainFragment() {
+    private fun openMainFragment() {
         view.hideTrackTextView()
         showMainFragment()
 
@@ -55,7 +55,7 @@ class MainRunningPresenter(private val view: MainRunningFragment) : BasePresente
         }
     }
 
-    fun clickTrackItem(trackEntity: TrackEntity) {
+    fun onTrackItemClick(trackEntity: TrackEntity) {
         App.state?.lastOpenedUserTrack = trackEntity
 
         if (view.isTrackContainerAvailable()) {
@@ -73,7 +73,7 @@ class MainRunningPresenter(private val view: MainRunningFragment) : BasePresente
         }
     }
 
-    fun backPressedClick(): Boolean {
+    fun onBackPressedClick(): Boolean {
         return when {
             (view.getBackStackEntryCount() == 1) -> {
                 val fragment = view.getFragmentByTag(CurrentTrackFragment.TAG)
@@ -106,5 +106,9 @@ class MainRunningPresenter(private val view: MainRunningFragment) : BasePresente
         } else {
             false
         }
+    }
+
+    fun onCreate() {
+        openMainFragment()
     }
 }

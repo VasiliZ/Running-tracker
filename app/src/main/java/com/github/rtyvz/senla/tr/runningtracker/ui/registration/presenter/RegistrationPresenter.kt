@@ -14,12 +14,12 @@ class RegistrationPresenter(private val view: RegistrationFragment) : BasePresen
         private const val EMAIL_ALREADY_EXISTS = "EMAIL_ALREADY_EXISTS"
     }
 
-    fun openLoginFragment() {
+    fun onLogintextViewClicked() {
         view.clearError()
         view.moveToLoginFragment()
     }
 
-    fun checkInputData() {
+    fun onRegistrationButtonClicked() {
         when {
             view.getEmail().isBlank()
                     or view.getName().isBlank()

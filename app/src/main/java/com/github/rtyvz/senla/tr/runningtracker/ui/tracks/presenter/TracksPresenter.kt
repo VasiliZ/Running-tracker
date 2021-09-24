@@ -16,11 +16,11 @@ class TracksPresenter(private val view: TracksFragment) : BasePresenter<BaseView
         const val EMPTY_DATA_RESULT = "EMPTY_DATA_RESULT"
     }
 
-    fun openRunningActivity() {
+    fun onFabClicked() {
         view.startRunningActivity()
     }
 
-    fun getTracksFromDb() {
+    fun onGetTracksFromDb() {
         App.mainRunningRepository.getTracksFromDb {
             App.state?.isDataLoadedYet = true
             view.hideInformation()
@@ -45,7 +45,7 @@ class TracksPresenter(private val view: TracksFragment) : BasePresenter<BaseView
         }
     }
 
-    fun getTracksFromDb(isDataLoadedYet: Boolean) {
+    fun onGetTracksFromDb(isDataLoadedYet: Boolean) {
         App.mainRunningRepository.getTracksFromDb(isDataLoadedYet) {
             if (it.tracksList.isEmpty()) {
                 view.showInformation()
@@ -57,7 +57,7 @@ class TracksPresenter(private val view: TracksFragment) : BasePresenter<BaseView
         }
     }
 
-    fun getTracksFromServer(token: String) {
+    fun onGetTracksFromServer(token: String) {
         view.hideInformation()
         view.showLoading()
 

@@ -8,7 +8,7 @@ import com.github.rtyvz.senla.tr.runningtracker.ui.registration.RegistrationFrag
 
 class LoginActivityPresenter(private val view: LoginActivity) : BasePresenter<BaseView>(view) {
 
-    fun openLoginFragment() {
+    fun onOpenLoginFragment() {
         view.showFragment(
             LoginFragment.newInstance(),
             LoginFragment.TAG,
@@ -16,7 +16,7 @@ class LoginActivityPresenter(private val view: LoginActivity) : BasePresenter<Ba
         )
     }
 
-    fun openRegistrationFragment() {
+    fun onOpenRegistrationFragment() {
         view.showFragment(
             RegistrationFragment.newInstance(),
             RegistrationFragment.TAG,

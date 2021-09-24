@@ -47,15 +47,13 @@ class MainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        presenter.onCreate()
         val state = App.state
         if (state == null) {
             App.state = State()
         }
 
         initViews()
-        presenter.restoreUserData()
-        presenter.initNavHeaderWithData()
 
         drawerToggle?.let {
             drawerLayout?.addDrawerListener(it)
@@ -74,8 +72,9 @@ class MainActivity :
         navigationView?.setNavigationItemSelectedListener(this)
 
         exitFromAppLayout?.setOnClickListener {
-            logout()
+            presenter.onExitButtonClicked()
         }
+
         presenter.findExistingFragment()
     }
 
@@ -100,7 +99,7 @@ class MainActivity :
     }
 
     override fun onBackPressed() {
-        presenter.handleBackPress()
+        presenter.onBackPressClicked()
     }
 
     private fun initViews() {
@@ -114,7 +113,7 @@ class MainActivity :
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        return presenter.handleNavigationItemSelected(item)
+        return presenter.onNavigationItemSelected(item)
     }
 
     fun showFragment(

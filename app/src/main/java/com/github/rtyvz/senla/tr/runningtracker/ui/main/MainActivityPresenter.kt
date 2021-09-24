@@ -9,7 +9,7 @@ import com.github.rtyvz.senla.tr.runningtracker.ui.base.BaseView
 import com.github.rtyvz.senla.tr.runningtracker.ui.notification.NotificationFragment
 import com.github.rtyvz.senla.tr.runningtracker.ui.running.MainRunningFragment
 
-class MainActivityPresenter(private val view: MainActivity) : BasePresenter<BaseView>(view){
+class MainActivityPresenter(private val view: MainActivity) : BasePresenter<BaseView>(view) {
 
     companion object {
         private const val EMPTY_STRING = ""
@@ -21,7 +21,12 @@ class MainActivityPresenter(private val view: MainActivity) : BasePresenter<Base
 
     private var userData: UserData? = null
 
-    fun restoreUserData(): UserData? {
+    fun onCreate() {
+        restoreUserData()
+        initNavHeaderWithData()
+    }
+
+    private fun restoreUserData(): UserData? {
         val preferences = view.getSharedPreference()
         userData = UserData(
             preferences.getString(USER_TOKEN, EMPTY_STRING)
@@ -36,7 +41,7 @@ class MainActivityPresenter(private val view: MainActivity) : BasePresenter<Base
         return userData
     }
 
-    fun initNavHeaderWithData() {
+    private fun initNavHeaderWithData() {
         userData?.let {
             view.setUserEmailOnNavHeader(it.email)
             view.setUserNameOnNavHeader(it.name)
@@ -74,12 +79,12 @@ class MainActivityPresenter(private val view: MainActivity) : BasePresenter<Base
         }
     }
 
-    fun handleBackPress() {
+    fun onBackPressClicked() {
         view.closeDrawer()
         setInnerFragmentBackPressedBehavior()
     }
 
-    fun handleNavigationItemSelected(item: MenuItem): Boolean {
+    fun onNavigationItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.mainItem -> {
                 openRunningFragment(item)
@@ -150,5 +155,9 @@ class MainActivityPresenter(private val view: MainActivity) : BasePresenter<Base
             App.state = null
             view.closeActivity()
         }
+    }
+
+    fun onExitButtonClicked() {
+        logOutFromApp()
     }
 }

@@ -9,7 +9,7 @@ import com.github.rtyvz.senla.tr.runningtracker.ui.track.CurrentTrackFragment
 
 class TrackPresenter(private val view: CurrentTrackFragment) : BasePresenter<BaseView>(view) {
 
-    fun getPoints(track: TrackEntity?) {
+    fun onTryToRetryPoints(track: TrackEntity?) {
         if (track != null) {
             App.mainRunningRepository.getTrackPoints(track.id, track.beginsAt) {
                 when (it) {

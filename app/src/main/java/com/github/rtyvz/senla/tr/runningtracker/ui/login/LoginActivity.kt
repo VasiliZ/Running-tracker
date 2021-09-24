@@ -22,11 +22,11 @@ class LoginActivity : BaseActivity<LoginActivityPresenter>(), BaseView,
     }
 
     override fun openLoginFragment() {
-        presenter.openLoginFragment()
+        presenter.onOpenLoginFragment()
     }
 
     override fun openRegistrationFragment() {
-        presenter.openRegistrationFragment()
+        presenter.onOpenRegistrationFragment()
     }
 
     override fun onBackPressed() {

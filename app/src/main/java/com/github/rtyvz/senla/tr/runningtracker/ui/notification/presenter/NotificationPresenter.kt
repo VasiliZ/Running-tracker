@@ -16,7 +16,7 @@ class NotificationPresenter(private val view: NotificationFragment) :
         private const val IS_DiSABLE_NOTIFICATION_FLAG = 0
     }
 
-    fun getNotificationsFromDb() {
+    private fun getNotificationsFromDb() {
         App.notificationRepository.getNotifications {
             if (it.isEmpty()) {
                 view.showEmptyListMessage()
@@ -27,7 +27,7 @@ class NotificationPresenter(private val view: NotificationFragment) :
         }
     }
 
-    fun createNotificationWork(
+    fun onPositiveButtonClick(
         date: Long,
         alarmEntity: AlarmEntity?,
         hour: Int,
@@ -115,5 +115,9 @@ class NotificationPresenter(private val view: NotificationFragment) :
                 NotificationWorkManager().deleteWork(alarmEntity.alarmId.toString())
             }
         }
+    }
+
+    fun onCreate() {
+        getNotificationsFromDb()
     }
 }

@@ -67,7 +67,7 @@ class CurrentTrackFragment : BaseFragment<TrackPresenter>(),
         mapView?.onResume()
         mapView?.getMapAsync { googleMap ->
             val track = arguments?.getParcelable<TrackEntity>(EXTRA_TRACK_ENTITY)
-            presenter.getPoints(track)
+            presenter.onTryToRetryPoints(track)
             map = googleMap
         }
     }
@@ -98,7 +98,7 @@ class CurrentTrackFragment : BaseFragment<TrackPresenter>(),
     }
 
     fun setTrack(trackEntity: TrackEntity) {
-        presenter.getPoints(trackEntity)
+        presenter.onTryToRetryPoints(trackEntity)
     }
 
     override fun onPause() {
@@ -122,7 +122,7 @@ class CurrentTrackFragment : BaseFragment<TrackPresenter>(),
     }
 
     override fun retryGetPoints() {
-        presenter.getPoints(arguments?.getParcelable(EXTRA_TRACK_ENTITY))
+        presenter.onTryToRetryPoints(arguments?.getParcelable(EXTRA_TRACK_ENTITY))
     }
 
     override fun createPresenter() = TrackPresenter(this)

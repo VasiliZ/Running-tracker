@@ -61,11 +61,11 @@ class NotificationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        presenter.onCreate()
         initViews(view)
         createTimePicker()
         createDatePicker()
-        presenter.getNotificationsFromDb()
+
         notificationAdapter = NotificationAdapter(this,
             { clickCallBack, position, isSwitchChecked ->
                 isSwitchChecked?.let {
@@ -122,7 +122,7 @@ class NotificationFragment :
         }
 
         datePicker?.addOnPositiveButtonClickListener { dateLong ->
-            presenter.createNotificationWork(
+            presenter.onPositiveButtonClick(
                 dateLong,
                 alarmEntity,
                 hour,

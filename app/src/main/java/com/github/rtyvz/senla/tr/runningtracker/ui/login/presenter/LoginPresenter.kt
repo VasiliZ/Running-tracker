@@ -15,12 +15,12 @@ class LoginPresenter(private val view: LoginFragment) :
         private const val INVALID_CREDENTIALS = "INVALID_CREDENTIALS"
     }
 
-    fun moveToRegistration() {
+    fun onRegistrationTextViewClicked() {
        view.clearError()
         view.openRegistrationFragment()
     }
 
-    fun checkUserInput() {
+    fun onLoginButtonClicked() {
         when {
             view.getEmail().isBlank() or view.getPassword().isBlank()
             -> view.showErrorMessage(R.string.login_fragment_empty_fields_error)

@@ -49,11 +49,11 @@ class LoginFragment : BaseFragment<LoginPresenter>(), BaseView {
         findViews(view)
 
         loginButton?.setOnClickListener {
-            presenter.checkUserInput()
+            presenter.onLoginButtonClicked()
         }
 
         registrationActionTextView?.setOnClickListener {
-            presenter.moveToRegistration()
+            presenter.onRegistrationTextViewClicked()
         }
 
         registrationActionTextView?.paint?.isUnderlineText = true
