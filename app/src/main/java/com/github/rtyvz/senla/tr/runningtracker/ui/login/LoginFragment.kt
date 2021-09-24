@@ -68,9 +68,8 @@ class LoginFragment : BaseFragment<LoginPresenter>(), BaseView {
         progressBar = view.findViewById(R.id.progressBar)
     }
 
-    override fun createPresenter(): LoginPresenter {
-        return LoginPresenter(this)
-    }
+    override fun createPresenter() = LoginPresenter(this)
+
 
     fun showErrorMessage(resId: Int) {
         errorTextView?.text = getString(resId)
